@@ -13,6 +13,7 @@ https://stackoverflow.com/questions/38313529/how-do-i-check-if-all-the-returned-
 #>
 
 ##Set Variables
+$Spacer = Write-Host ""
 # DSNs
 $Dsn1 = 'DSN1'
 $Dsn2 = 'DSN2_SQL'
@@ -79,8 +80,7 @@ if ($DSNs.Status -contains $NULL) {
         $19c = $null
     }
 
-    #Spacer
-    Write-Host ""
+    $Spacer
 
     # Final Output
     if (($19c -eq $true) -and ($RegVal -eq $true)) {

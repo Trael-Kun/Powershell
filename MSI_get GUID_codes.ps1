@@ -40,6 +40,7 @@ $ScriptName = $MyInvocation.MyCommand.Name
                             ; Adjusted IF structure for log files
                             ; Added progress bar
  Modified by Bill 20/04/2023; Removed "VM*" from PCname options
+ Modified by Bill 30/08/2023; Added "PC" to PCname options (inserts local PC name)
 #>
 
 # Opening Descriptive with box
@@ -92,6 +93,9 @@ DO {
                 Write-Host ' input target PC Name :' -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
                 Write-Host ' ' -NoNewline
                 $PCname = Read-Host
+            }
+            elseif ($Asset -match 'PC') {
+                $PCname = "$env:ComputerName"
             }
             elseif ($Asset -match '^WKS') {
                 $PCname = "$Asset"

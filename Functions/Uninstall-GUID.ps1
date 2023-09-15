@@ -33,10 +33,10 @@ function Uninstall-GUID {
             https://java2blog.com/get-current-directory-powershell
         
     #>
-    param (
-            [Parameter(Mandatory)][string]$regKey
-            [Parameter(Mandatory)][string]$regName
-            [Parameter(Mandatory)][string]$regMatch
+        param (
+            [Parameter(Mandatory=$true,HelpMessage="Enter the Registry Key to search")] [string[]]$regKey,
+            [Parameter(Mandatory=$true,HelpMessage="Enter the Registry Value to search against")]$regName,
+            [Parameter(Mandatory=$true,HelpMessage="Enter the string to search against")]$regMatch
         )
     
     # take note of the current directory so we can come back later

@@ -27,6 +27,10 @@ function Uninstall-GUID {
     .NOTES
         Author:     Bill Wilson
         Website:    https://github.com/Trael-Kun/
+        References;
+            https://stackoverflow.com/questions/15511809/how-do-i-get-the-value-of-a-registry-key-and-only-the-value-using-powershell
+            https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/convert-string?view=powershell-5.1
+            https://java2blog.com/get-current-directory-powershell
         
     #>
     param (

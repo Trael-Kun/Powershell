@@ -34,11 +34,10 @@ function Uninstall-GUID {
         
     #>
     param (
-        [Parameter(Mandatory)]
-        [string]$regKey
-        [string]$regName
-        [string]$regMatch
-    )
+            [Parameter(Mandatory)][string]$regKey
+            [Parameter(Mandatory)][string]$regName
+            [Parameter(Mandatory)][string]$regMatch
+        )
     
     # take note of the current directory so we can come back later
     $CurrentDir = Get-Location

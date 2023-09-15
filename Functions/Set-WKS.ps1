@@ -1,4 +1,4 @@
-function Get-WKS {  
+function Set-WKS {  
 	<#
 	Allows user to enter just asset number and auto-fills WKS prefix
 	Written by Bill Wilson

@@ -1,8 +1,8 @@
 [CmdletBinding(DefaultParameterSetName = 'Default')]
 param(
 	[Parameter(Mandatory=$False,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True,Position=0)][alias("DNSHostName","ComputerName","Computer")] [String[]] $Name = @("localhost"),
-	[Parameter(Mandatory=$False)] [String] $OutputFile = "\\act-prdsccm01\SCCMSource\2021\Autopilot\FDW_Autopilot.csv", 
-	[Parameter(Mandatory=$False)] [String] $GroupTag = "High Performance"
+	[Parameter(Mandatory=$False)] [String] $OutputFile = "\\Server01\Autopilot\Autopilot.csv", 
+	[Parameter(Mandatory=$False)] [String] $GroupTag = "AutoPilot"
 )
 
 Begin

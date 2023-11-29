@@ -1,7 +1,7 @@
 ### Lists the MSI install & update codes (GUIDs) of software installed on the specified PC and outputs it as a CSV file
 
 ## Script info
-$VERSION = "0.5.7"
+$VERSION = "0.5.8"
 # Show where script is stored & file name
 $ScriptPath = $PSScriptRoot
 $ScriptName = $MyInvocation.MyCommand.Name
@@ -41,6 +41,8 @@ $ScriptName = $MyInvocation.MyCommand.Name
                             ; Added progress bar
  Modified by Bill 20/04/2023; Removed "VM*" from PCname options
  Modified by Bill 30/08/2023; Added "PC" to PCname options (inserts local PC name)
+ Modified by Bill 22/11/2023; Added extra check to remove ping on local PC
+ Modified by Bill 29/11/2023; Refined local PC check
 #>
 
 # Opening Descriptive with box
@@ -111,7 +113,12 @@ DO {
 
             ######################
             ## Check if PC is online
-            $PCping = Test-Connection -ComputerName $PCname -Count 1 -Quiet
+            if ($PCname -eq $env:ComputerName) {
+                $PCping = $true
+           }
+           else {
+                $PCping = Test-Connection -ComputerName $PCname -Count 1 -Quiet
+           }
         
             if ($PCping -eq $true) {
 

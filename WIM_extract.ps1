@@ -22,6 +22,7 @@ Specifies path to destination .wim file
 
 .NOTES
 Author: Bill Wilson
+https://github.com/Trael-Kun
 
 References
 https://serverfault.com/questions/968495/how-can-an-iso-image-be-mounted-to-a-specified-drive-letter-in-powershell

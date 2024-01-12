@@ -15,10 +15,10 @@ This script:
 ...all in fabulous Technicolour
 
 .PARAMETER ISO
-Specifies path to target .iso file
+Specifies path to input .iso file
 
-.PARAMETER WimDest
-Specifies path to destination .wim file
+.PARAMETER WimOut
+Specifies path to output .wim file
 
 .NOTES
 Author: Bill Wilson
@@ -41,8 +41,22 @@ param (
     # Specifies path for output .wim file
     [Parameter(Mandatory,HelpMessage='Destination to save .wim file to')]
     [string]
-    $WimDest
+    $WimOut
 )
+
+# colours
+    # process text
+    $Process = "DarkYellow"
+    $ProcVar = "Yellow"
+    # result Text
+    $Result = "Green"
+    $ResultVar = "Blue"
+    # prompt
+    $Prompt = "DarkMagenta"
+    $UserInput = "Red"
+    # errors
+    $ErrorResult = "Red"
+    $ErrorVar = "DarkRed"
 
 # dismount ISO function
 function Dismount-ISO {
@@ -73,24 +87,23 @@ function Dismount-ISO {
     }
 }
 
-# colours
-    # process text
-    $Process = "DarkYellow"
-    $ProcVar = "Yellow"
-    # result Text
-    $Result = "Green"
-    $ResultVar = "Blue"
-    # prompt
-    $Prompt = "DarkMagenta"
-    $UserInput = "Red"
-    # errors
-    $ErrorResult = "Red"
-    $ErrorVar = "DarkRed"
+# wim path split
+function Get-WimPath {
+    param (
+        # Parameter help description
+        [Parameter(Mandatory)]
+        [string]
+        $WimOut
+    )
+    # WimFile is end of WimOut path
+    $WimFile = $WimOut -split "(\\)" | Select-Object -Last 1
+    # WimPath is directory path
+    $WimPath = $WimOut.Replace("$WimFile", "")
+    $WimPath | Out-Null
+}
 
-
-## Start Script
-
-# check $ISO exists
+<# Start Script #>
+# check ISO exists
 if ((Test-Path -Path "$ISO")) {
     # check syntax of $ISOpath
     # if $ISO is only dir path
@@ -100,7 +113,6 @@ if ((Test-Path -Path "$ISO")) {
         $IsoFile = $IsoGet.Name
         #IsoTarget is full path
         $IsoTarget = $IsoGet.FullName
-        #IsoPath is directory path
     }
     # if full .ISO path
     else {
@@ -108,9 +120,7 @@ if ((Test-Path -Path "$ISO")) {
         $IsoTarget = $ISO
         #IsoFile is file name
         $IsoFile = $ISO -split "(\\)" | Select-Object -Last 1
-        #IsoPath is directory path
     }
-
     # mount .ISO
     Write-Host ""
     Write-Host 'Mounting "'  -ForegroundColor $Process -NoNewline
@@ -118,12 +128,13 @@ if ((Test-Path -Path "$ISO")) {
     Write-Host '"...'  -ForegroundColor $Process
     $IsoMount = Mount-DiskImage -ImagePath "$($IsoTarget)" | Get-Volume
     Start-Sleep 1
-    
     # check for drive letter assignment
+    #can't find it
     if ($null -eq $IsoMount.DriveLetter) {
         Write-Error ".ISO not mounted" -Category ObjectNotFound
         Start-Sleep 1
         exit 1
+    # found it!
     } else {
         Write-Host ""
         Write-Host 'File "' -ForegroundColor $Result -NoNewline
@@ -133,7 +144,6 @@ if ((Test-Path -Path "$ISO")) {
         Write-Host '"' -ForegroundColor $Result
         Start-Sleep 1
     }
-
     # find the .wim
     $WimTarget = "$($IsoMount.DriveLetter):\sources\install.wim"
     Write-Host ""
@@ -141,57 +151,50 @@ if ((Test-Path -Path "$ISO")) {
     Write-Host "$WimTarget" -ForegroundColor $ProcVar -NoNewline
     Write-Host '"...' -ForegroundColor $Process
     Start-Sleep 1
-
     # look for $WimTarget
+    # can't find it
     if (!(Test-Path -Path $WimTarget)) {
         Write-Error "Unable to locate install.wim - please check .ISO is mounted"
         Dismount-ISO
         Write-Host ""
         exit 1
     }
+    # found it!
     else {
         Write-Host ""
         Write-Host '"' -ForegroundColor $Result -NoNewline
         Write-Host "$WimTarget"-ForegroundColor $ResultVar -NoNewline
         Write-Host '" found' -ForegroundColor $Result
     }
-
     # find available edtions
     Write-Host ""
     Write-Host "Getting image list..." -ForegroundColor $Process
     $IndexList = Get-WindowsImage -ImagePath "$WimTarget" | Select-Object -Property ImageIndex,ImageName
-
     # start loop until index is correct and confirmed
     while ($true) {
-
         # show options
         $IndexList | Format-Table
         $Index = $(Write-Host "Please select image index (number), or type " -ForegroundColor $Prompt -NoNewline) + $(Write-Host '0' -ForegroundColor $UserInput -NoNewline) + $(Write-Host ' or ' -ForegroundColor $Prompt -NoNewline)  + $(Write-Host 'Q' -ForegroundColor $UserInput -NoNewline) + $(Write-Host " to quit: " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
-        
         # assume the input is bad until proven otherwise
         $BadInput = $true
-
         # if 0 or Q entered, exit loop
         if ($Index -eq '0' -or $Index -eq 'Q') {
             Dismount-ISO
             exit 1
         }
-
         # make sure $Index is only a numeral
         elseif ($Index -match '^\d+$') {
-
             # convert variables to integers for comparison
             $IndexTop = [int]$IndexList.Count
             $IndexSelection = [int]$Index
-            
             # test if the input is numeric and is in range
             if ($IndexSelection -le $IndexTop) {
+                # remove bad input tag & get image details
                 $BadInput = $false
                 Write-Host ""
                 Write-Host "Getting image details..."
                 $WinEd = Get-WindowsImage -ImagePath "$WimTarget" -Index "$Index"
                 Start-Sleep 1
-                
                 # confirm selection
                 Write-Host ""
                 Write-Host 'Index "' -ForegroundColor $Result -NoNewline
@@ -201,14 +204,12 @@ if ((Test-Path -Path "$ISO")) {
                 Write-Host '"' -ForegroundColor $Result
                 Write-Host ""
                 $Confirm = $(Write-Host "Do you want to proceed (" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
-                
                 # if yes, escape loop
                 if ($Confirm -eq 'y' -or $Confirm -eq 'yes') {
                     break
                 }
             }
         }
-
         # loop back if bad input
         if ($BadInput) {
             Write-Error "Invalid input: $Index" -Category InvalidData
@@ -218,34 +219,70 @@ if ((Test-Path -Path "$ISO")) {
             Start-Sleep 3
         }
     }
-    
-    # check syntax of $WimDest
-    # if $WimDest not a .wim file, set the file name
-    if ($WimDest -notlike "*.wim") {
-        if (Test-Path $WimDest) {
+    # check syntax of $WimOut
+    # if $WimOut not a .wim file, set the file name
+    if ($WimOut -notlike "*.wim") {
+        # does $WimOut exist?
+        if (Test-Path $WimOut) {
             $DateTime = Get-Date -Format "%y%M%dHHmm"
-            $WimOut = "$WimDest\Win.$($WinEd.EditionID).$DateTime.wim"
+            $WimOut = "$WimOut\Win.$($WinEd.EditionID).$DateTime.wim"
         }
+        # if not, would you like to make it?
         else {
-            
+            Write-Host ""
+            Write-Host "Output path " -ForegroundColor $ErrorResult -NoNewline
+            Write-Host "$WimOut"  -ForegroundColor $ErrorVar -NoNewline
+            Write-Host " not found." -ForegroundColor $ErrorResult
+            Start-Sleep 2
+            # prompt $Wimout creation
+            Write-Host ""
+            $Confirm = $(Write-Host 'Create directory "' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "$WimOut" -ForegroundColor $ResultVar -NoNewline) + $(Write-Host '" (' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
+            # yes
+            if ($Confirm -eq 'y' -or $Confirm -eq 'yes') {
+                Get-WimPath
+                New-Item -Path $WimPath -ItemType Directory -Force
+            }
+            # quit
+            else {
+                Dismount-ISO
+                exit 1
+            }
         }
     }
-    # if $WimDest is .wim carry on
-    elseif ($WimDest -like "*.wim") {
-        # WimFile is "filename.wim"
-        $WimFile = $WimDest -split "(\\)" | Select-Object -Last 1
-        # WimPath is directory path
-        $WimPath = $WimDest.Replace("$WimFile", "")
+    # if $WimOut is .wim, carry on
+    elseif ($WimOut -like "*.wim") {
+        Get-WimPath
+        # does the required path exist?
         if (Test-Path $WimPath) {
-            $WimOut = $WimDest
+            $WimOut = $WimOut
+        }
+        # if not, you wanna make it?
+        else {
+            Write-Host ""
+            Write-Host "Output path " -ForegroundColor $ErrorResult -NoNewline
+            Write-Host "$WimPath"  -ForegroundColor $ErrorVar -NoNewline
+            Write-Host " not found." -ForegroundColor $ErrorResult
+            Start-Sleep 2
+            $Confirm = $(Write-Host 'Create directory "' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "$WimPath" -ForegroundColor $ResultVar -NoNewline) + $(Write-Host '" (' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
+            # create output directory
+            if ($Confirm -eq 'y' -or $Confirm -eq 'yes') {
+                Write-Host ""
+                Write-Host "Creating " -ForegroundColor $Process -NoNewline
+                Write-Host "$WimPath" -ForegroundColor $ProcVar -NoNewline
+                Write-Host "..." -ForegroundColor $Process
+                New-Item -Path $WimPath -ItemType Directory -Force
+            }
+            # quit
+            else {
+                Dismount-ISO
+                exit 1
+            }
         }
     }
-
     # export image
     Write-Host ""
     Write-Host "Exporting Image..." -ForegroundColor $Process
     Export-WindowsImage -SourceImagePath "$WimTarget" -SourceIndex $WinEd.ImageIndex -DestinationImagePath "$WimOut" | Out-Null
-
     # check .wim has written to $WimOut
     if ((Test-Path -Path $WimOut)) {
         Write-Host ""
@@ -254,6 +291,7 @@ if ((Test-Path -Path "$ISO")) {
         Write-Host '"' -ForegroundColor $Result
         Start-Sleep 1
     }
+    # nope, can't find it
     else {
         Write-Error "$WimOut not found" -Category ObjectNotFound
         Write-Host "Unable to write to " -ForegroundColor $ErrorResult -NoNewline
@@ -261,11 +299,9 @@ if ((Test-Path -Path "$ISO")) {
         Write-Host ", please check permissions and try again" -ForegroundColor $ErrorResult
         Start-Sleep 3
     }
-    
     # dismount .iso
     Dismount-ISO
 }
-
 # if .iso doesn't exist
 else {
     Write-Host ""

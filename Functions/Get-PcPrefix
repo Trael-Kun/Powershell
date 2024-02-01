@@ -1,16 +1,23 @@
-function Set-WKS {  
-	<#
-	Allows user to enter just asset number and auto-fills WKS prefix
-	Written by Bill Wilson
-	#>
-    # Asset No. Input
-    Write-Host " " -NoNewline
-    Write-Host ' input target PC Name or WKS Asset No. (or' -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
-    Write-Host ' EXIT' -NoNewline -ForegroundColor Yellow -BackgroundColor Black
-    Write-Host ' to stop) :' -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
-    Write-Host ' ' -NoNewline
-    $Asset = Read-Host
+function Get-PcPrefix {
+    <#
+        .SYNOPSIS
+            Checks entered value an matches it to naming convention
+        .NOTES
+            Written by Bill Wilson https://github.com/Trael-Kun
+            15/07/2021
+    #>
 
+    #>  
+    # Asset No. Input
+    if ($Asset -eq $null) {
+        Write-Host " " -NoNewline
+        Write-Host ' input target PC Name or WKS Asset No. (or' -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+        Write-Host ' EXIT' -NoNewline -ForegroundColor Yellow -BackgroundColor Black
+        Write-Host ' to stop) :' -NoNewline -ForegroundColor DarkYellow -BackgroundColor Black
+        Write-Host ' ' -NoNewline
+        $Asset = Read-Host
+    }
+    
     ## Set Computer Name
     ####################
     # Add prefix to asset no.
@@ -44,6 +51,7 @@ function Set-WKS {
         elseif ($Asset -match '^WKS') {
             $PCname = "$Asset"
         }
+        # if it's none of the above, script will assume it's a WKS
         elseif ($Asset -notmatch '^WKS') {
             $PCname = "WKS$Asset"
         }

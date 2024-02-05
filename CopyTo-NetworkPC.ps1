@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Copy a file to multiple PCs from Jumpbox
+    Copy a single file to multiple PCs
 
 .DESCRIPTION
     Copies a single file from a location accessible from the local PC and copies it to a location on a remote 
@@ -26,9 +26,7 @@ Function Write-Log {
     [CmdletBinding()]
     param ([Parameter(Mandatory=$true)] [string] $Message, [Parameter(Mandatory=$false)] [string] $Output, [Parameter(Mandatory=$false)] [string] $Colour)
 
-    Try {
-        #Get the current date
-        $LogDate = (Get-Date).tostring("yyyyMMdd")
+    Try {        
         #Frame Log File with Current Directory and date
         $LogFile = $LocalLog
         #Add Content to the Log File
@@ -69,43 +67,53 @@ Function Get-PcName {
             $PCname = "WKS$Asset"
         }
 }
-# Set Log location
-$LocalLog = $env:SystemDrive\Temp\NetworkCopy_$LogDate.txt
-$StartTime = Get-Date
+
+# Logging
+ #Get the current date for logging
+ $LogDate = (Get-Date).tostring("yyyyMMdd")
+ $StartTime = Get-Date
+ #Set Log location
+ $LocalLog = "$env:SystemDrive\Temp\NetworkCopy_$LogDate.txt"
+ $LogDir = Substring(0, $LocalLog.LastIndexOf('\'))
+ #Check path exists, and make it if it doesn't
+ if (!Test-Path "$LogDir") {
+     New-Item -Path $LogDir -ItemType "directory"
+ }
 
 # Output Colours
-$Action = 'Yellow'
-$Success = 'Green'
-$Fail = 'Red'
+ $Action = 'Yellow'
+ $Success = 'Green'
+ $Fail = 'Red'
 
 # Header
-Write-Host 'Copy a single file to multiple computers' -ForegroundColor Magenta
-Write-Host ''
-Write-Log -Message "SCRIPT START $StartTime" -Output $false
+ Write-Host 'Copy a single file to multiple computers' -ForegroundColor Magenta
+ Write-Host "Writes logs to $LocalLog"
+ Write-Log -Message "SCRIPT START $StartTime" -Output $false
+ Write-Log -Message '' -Output $false
 
-# PC Numbers
-#Keep prompting for another until they just press enter
-$PCs = do  { 
-    $PC = Read-Host 'Enter remote computer, or blank to finish'
-    $PC
-} while ($PC -ne '')
-Write-Host ''
-Write-Log -Message 'Computer List:' -Output $false
-Write-Log -Message "$PCs" -Output $false
+# PC IDs
+ #Keep prompting for another until they just press enter
+ $PCs = do  { 
+     $PC = Read-Host 'Enter remote computer, or blank to finish'
+     $PC
+ } while ($PC -ne '')
+ Write-Host ''
+ Write-Log -Message 'Computer List:' -Output $false
+ Write-Log -Message "$PCs" -Output $false
 
 # Get Credentials
-#Stored it previously as $Credential?
-if ($Credential -ne $Null) {
-    $Cred = $Credential
-}
-#Stored it previously as $Cred?
-if ($Cred -eq $null){
-    Write-Host 'Enter credentials to access remote PCs' -ForegroundColor $Action
-    Write-Host ''
-    $Cred = Get-Credential
-}
-$User = $Cred.GetNetworkCredential().UserName
-Write-Log -Message "User: $User}" -Output $false
+ #Stored it previously as $Credential?
+ if ($Credential -ne $Null) {
+     $Cred = $Credential
+ }
+ #Stored it previously as $Cred?
+ if ($Cred -eq $null){
+     Write-Host 'Enter credentials to access remote PCs' -ForegroundColor $Action
+     Write-Host ''
+     $Cred = Get-Credential
+ }
+ $User = $Cred.GetNetworkCredential().UserName
+ Write-Log -Message "User: $User" -Output $false
 
 # File & folder paths
  #Folder where your file/s at
@@ -149,6 +157,7 @@ foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, b
             Remove-SmbMapping -RemotePath "\\$PCname\$DestRoot" -Force
         }
 
+        # "New-SmbMapping" method
         #Map the drive
         Write-Log "Mapping $Dest as network drive" -Output $true -Colour $Action
         New-SmbMapping -RemotePath $Dest -UserName $User -Password $cred.GetNetworkCredential().password
@@ -164,6 +173,7 @@ foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, b
             if (Test-Path "$Destination") { #yay, it copied!
                 Write-Log -Message "Copied to $Destination" -Output $true -Colour $Success
             }
+            
             else { #oh noes, it didn't copy
                 Write-Log -Message "$Destination failed to write" -Output $true -Colour $Fail
             }
@@ -171,19 +181,21 @@ foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, b
         else { #oh noes, it didn't mount
             Write-Log -Message "$Dest failed to mount" -Output $true -Colour $Fail
         }
+
         #unmount the network drive, get ready for the next one
         Write-Log -Message 'Removing mapped drive' -Output $true -Colour $Action
         Start-Sleep 2
         Remove-SmbMapping -RemotePath $Dest -Force
-        if (Get-SmbMapping -RemotePath $dest -erroraction ignore ) { #aw man, it's still mounted
+        if (Get-SmbMapping -RemotePath $Dest -erroraction ignore ) { #aw man, it's still mounted
             Write-Log -Message "$Dest not unmounted" -Output $true -Colour $Fail
         }
-        else { #woot, it worked
+        else { #woot, it unmounted
             Write-Log -Message "$Dest unmounted" -Output $true -Colour $Success
         }
     }
     Write-Log -Message "END $PCname" -Output $false
     Write-Log -Message "" -Output $false
 }
+
 #Clear PC list
 Clear-Variable 'PCs'

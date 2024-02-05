@@ -5,8 +5,7 @@
 .DESCRIPTION
     Copies a single file from a location accessible from the local PC and copies it to a location on a remote 
     PC using different credentials.
-    The location on the remote PC is mounted as a network drive during copying, and is then unmounted so that 
-    the drive letter can be reused for the next loop.
+    The location on the remote PC is mounted as a network drive with supplied credentials during copying, and is then unmounted.
 
 .NOTES
     Author:     Bill Wilson https://github.com/Trael-Kun

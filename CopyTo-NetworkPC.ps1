@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
-    Copy a single file to multiple PCs
+    Copy a single file to multiple PCs from Jumpbox
 
 .DESCRIPTION
     Copies a single file from a location accessible from the local PC and copies it to a location on a remote 
     PC using different credentials.
-    The location on the remote PC is mounted as a network drive with supplied credentials during copying, and is then unmounted.
+    The location on the remote PC is mounted as a network drive with supplied credentials during copying, and is then unmounted
 
 .NOTES
     Author:     Bill Wilson https://github.com/Trael-Kun
@@ -73,7 +73,7 @@ Function Get-PcName {
  $StartTime = Get-Date
  #Set Log location
  $LocalLog = "$env:SystemDrive\Temp\NetworkCopy_$LogDate.txt"
- $LogDir = Substring(0, $LocalLog.LastIndexOf('\'))
+ $LogDir = $LocalLog.Substring(0, $LocalLog.LastIndexOf('\'))
  #Check path exists, and make it if it doesn't
  if (!Test-Path "$LogDir") {
      New-Item -Path $LogDir -ItemType "directory"
@@ -115,48 +115,36 @@ Function Get-PcName {
  Write-Log -Message "User: $User" -Output $false
 
 # File & folder paths
- #Folder where your file/s at
- Write-Host 'Source directory path (Local or UNC):' -ForegroundColor $Action -NoNewLine
- $SourceDir = Read-Host 
- Write-Host ""
- #File name, use "" for full directory
- Write-Host 'Source Filename (including file extension):' -ForegroundColor $Action -NoNewLine
- $SourceFile = Read-Host
- Write-Host ""
- #Join paths
- $SourcePath = Join-Path -Path $SourceDir -ChildPath $SourceFile
+ #Where your file/s at?
+ Write-Host 'Source file directory path (Local or UNC, including file extension):' -ForegroundColor $Action -NoNewLine
+ $SourcePath = Read-Host
  Write-Log -Message "Source file: $SourcePath" -Output $false
- #File Destination
+ $SourceDir = $SourcePath.Substring(0, $SourcePath.LastIndexOf('\'))
+ $SourceFile = $SourcePath -replace '.*\\'
+ #File Destination, it'll be the same on all PCs
  Write-Host 'Destination path on remote PC (e.g. C:\Temp):' -ForegroundColor $Action -NoNewLine
  $DestDir = Read-Host
  Write-Host ""
  #Set correct format for remote PC path (i.e. "\\server01\C$\")
  $DestPath = $DestDir.Replace(':','$')
  
-
-Write-Log -Message 'Starting Process' -Output $false
-
 # Now do the thing
+Write-Log -Message 'Starting Process' -Output $false
 foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, because it's blank
     if ($Asset.length -ne '0') { #is there an input?
-
         Get-PcName
         Write-Log -Message "START $PCname" -Output $false
-
         #Set remote PC as network drive
-        $Dest = "\\$PCname\$DestPath"
-        Write-Log -Message "Destination is $Dest" -Output $True -Colour $Success
-
+         $Dest = "\\$PCname\$DestPath"
+         Write-Log -Message "Destination is $Dest" -Output $True -Colour $Success
         #does the destination exist?
         if (!Test-Path $Dest) { #if not, make it
             Write-Log -Message "Destination not found, creating $Dest" -Output $true -Colour $Action
-            $DestRoot = $DestRoot = $DestPath.Split('\')[0]
-            New-SmbMapping -RemotePath "\\$PCname\$DestRoot" -UserName $User -Password $cred.GetNetworkCredential().password
+            $DestRoot = $DestPath.Split('\')[0]
+            New-SmbMapping -RemotePath "\\$PCname\$DestRoot" -UserName $User -Password $Cred.GetNetworkCredential().password
             New-Item -Path $Dest -ItemType "directory" -Force
             Remove-SmbMapping -RemotePath "\\$PCname\$DestRoot" -Force
         }
-
-        # "New-SmbMapping" method
         #Map the drive
         Write-Log "Mapping $Dest as network drive" -Output $true -Colour $Action
         New-SmbMapping -RemotePath $Dest -UserName $User -Password $cred.GetNetworkCredential().password
@@ -168,11 +156,9 @@ foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, b
             Write-Log -Message "Copying $SourcePath to $Destination" -Output $true -Colour $Action
             Copy-Item -Path $SourcePath -Destination "$Destination" -Force
             Start-Sleep 2
-            
             if (Test-Path "$Destination") { #yay, it copied!
                 Write-Log -Message "Copied to $Destination" -Output $true -Colour $Success
             }
-            
             else { #oh noes, it didn't copy
                 Write-Log -Message "$Destination failed to write" -Output $true -Colour $Fail
             }
@@ -195,6 +181,5 @@ foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, b
     Write-Log -Message "END $PCname" -Output $false
     Write-Log -Message "" -Output $false
 }
-
 #Clear PC list
 Clear-Variable 'PCs'

@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Copy a single file to multiple PCs from Jumpbox
+    Copy a single file to multiple PCs
 
 .DESCRIPTION
     Copies a single file from a location accessible from the local PC and copies it to a location on a remote 
@@ -8,7 +8,7 @@
     The location on the remote PC is mounted as a network drive with supplied credentials during copying, and is then unmounted
 
 .NOTES
-    Author:     Bill Wilson https://github.com/Trael-Kun
+    Author:     Bill Wilson     https://github.com/Trael-Kun
     Created:    02/01/24
 
     References: 
@@ -39,32 +39,13 @@ Function Write-Log {
                 Write-Host "$Message"
             }
             else {
-                Write-Host "$Message" -ForegroundColor $MsgColour
+                Write-Host "$Message" -ForegroundColor $Colour
             }
         }
     }
     Catch {
         Write-Host -f Red "Error:" $_.Exception.Message 
     }
-}
-
-Function Get-PcName {
-    param ([Parameter(Mandatory=$true)] [string] $Asset)
-        if ($Asset -match '^VM') { #does it stat with "VM"?
-        $PCname = "$Asset"
-        }
-        elseif ($Asset -match '^LAP') { #does it stat with "LAP"?
-            $PCname = "$Asset"
-        }
-        elseif ($Asset -match '^CAF') { #does it stat with "CAF"? 
-            $PCname = "$Asset"
-        }
-        elseif ($Asset -match '^WKS') {#does it stat with "WKS"?
-            $PCname = "$Asset"
-        }
-        elseif ($Asset -notmatch '^WKS') { #if it's none of the above, assume it's WKS
-            $PCname = "WKS$Asset"
-        }
 }
 
 # Logging
@@ -75,7 +56,7 @@ Function Get-PcName {
  $LocalLog = "$env:SystemDrive\Temp\NetworkCopy_$LogDate.txt"
  $LogDir = $LocalLog.Substring(0, $LocalLog.LastIndexOf('\'))
  #Check path exists, and make it if it doesn't
- if (!Test-Path "$LogDir") {
+ if (!(Test-Path "$LogDir")) {
      New-Item -Path $LogDir -ItemType "directory"
  }
 
@@ -88,17 +69,20 @@ Function Get-PcName {
  Write-Host 'Copy a single file to multiple computers' -ForegroundColor Magenta
  Write-Host "Writes logs to $LocalLog"
  Write-Log -Message "SCRIPT START $StartTime" -Output $false
- Write-Log -Message '' -Output $false
+ Write-Log -Message ' ' -Output $false
 
 # PC IDs
  #Keep prompting for another until they just press enter
+ $PCs = @()
  $PCs = do  { 
      $PC = Read-Host 'Enter remote computer, or blank to finish'
      $PC
  } while ($PC -ne '')
  Write-Host ''
  Write-Log -Message 'Computer List:' -Output $false
- Write-Log -Message "$PCs" -Output $false
+  #foreach ($PC in $PCs) {
+    Write-Log -Message "$PCs" -Output $false
+ #}
 
 # Get Credentials
  #Stored it previously as $Credential?
@@ -132,19 +116,37 @@ Function Get-PcName {
 Write-Log -Message 'Starting Process' -Output $false
 foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, because it's blank
     if ($Asset.length -ne '0') { #is there an input?
-        Get-PcName
-        Write-Log -Message "START $PCname" -Output $false
+        #Check name syntax
+        if ($Asset -match '^VM') { #does it stat with "VM"?
+        $PCname = "$Asset"
+        }
+        elseif ($Asset -match '^LAP') { #does it stat with "LAP"?
+            $PCname = "$Asset"
+        }
+        elseif ($Asset -match '^CAF') { #does it stat with "CAF"? 
+            $PCname = "$Asset"
+        }
+        elseif ($Asset -match '^WKS') {#does it stat with "WKS"?
+            $PCname = "$Asset"
+        }
+        elseif ($Asset -notmatch '^WKS') { #if it's none of the above, assume it's WKS
+            $PCname = "WKS$Asset"
+        }
+        
+        Write-Log -Message "Connecting to $PCname" -Output $true -Colour $Action
         #Set remote PC as network drive
          $Dest = "\\$PCname\$DestPath"
          Write-Log -Message "Destination is $Dest" -Output $True -Colour $Success
         #does the destination exist?
-        if (!Test-Path $Dest) { #if not, make it
+        if (!(Test-Path $Dest)) { #if not, make it
             Write-Log -Message "Destination not found, creating $Dest" -Output $true -Colour $Action
             $DestRoot = $DestPath.Split('\')[0]
             New-SmbMapping -RemotePath "\\$PCname\$DestRoot" -UserName $User -Password $Cred.GetNetworkCredential().password
             New-Item -Path $Dest -ItemType "directory" -Force
             Remove-SmbMapping -RemotePath "\\$PCname\$DestRoot" -Force
         }
+
+        # "New-SmbMapping" method
         #Map the drive
         Write-Log "Mapping $Dest as network drive" -Output $true -Colour $Action
         New-SmbMapping -RemotePath $Dest -UserName $User -Password $cred.GetNetworkCredential().password
@@ -156,9 +158,11 @@ foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, b
             Write-Log -Message "Copying $SourcePath to $Destination" -Output $true -Colour $Action
             Copy-Item -Path $SourcePath -Destination "$Destination" -Force
             Start-Sleep 2
+            
             if (Test-Path "$Destination") { #yay, it copied!
                 Write-Log -Message "Copied to $Destination" -Output $true -Colour $Success
             }
+            
             else { #oh noes, it didn't copy
                 Write-Log -Message "$Destination failed to write" -Output $true -Colour $Fail
             }
@@ -179,7 +183,8 @@ foreach ($Asset in ($PCs | Select-Object -SkipLast 1)) { #skip the last entry, b
         }
     }
     Write-Log -Message "END $PCname" -Output $false
-    Write-Log -Message "" -Output $false
+    Write-Log -Message " " -Output $false
 }
+
 #Clear PC list
 Clear-Variable 'PCs'

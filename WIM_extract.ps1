@@ -240,7 +240,7 @@ if ((Test-Path -Path "$ISO")) {
             # yes
             if ($Confirm -eq 'y' -or $Confirm -eq 'yes') {
                 Get-WimPath
-                New-Item -Path $WimPath -ItemType Directory -Force
+                New-Item -Path "$WimPath" -ItemType Directory -Force
             }
             # quit
             else {
@@ -312,3 +312,4 @@ else {
     Write-Host ", please check file path" -ForegroundColor $ErrorResult
     Start-Sleep 2
 }
+<# End Script #>

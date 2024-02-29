@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Extracts a.wim for specified Windows version
+Extracts .wim for specified Windows version
 
 .DESCRIPTION
 Extracts a single .wim for specified Windows edition from an ISO file.

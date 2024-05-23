@@ -3,33 +3,45 @@
     Create Set-TimeZoneByIP.ps1, and add a scheduled task to run it
 
 .DESCRIPTION
-    Creates a .ps1 file in C:\ProgrmData that detects an wired ethernet
+    Creates a .ps1 file in C:\ProgrmData that detects a wired ethernet
     connection, then checks for IP address on that connector. The IP is
     compared to ther values in an array to set the timezone accordingly.
     The script then sets a scheduled task to run the .ps1 file.
 
 .NOTES
-    Author: Bill Wilson (https://github.com/Trael-Kun)
-    Created 22/05/2024
+    Author:     Bill Wilson (https://github.com/Trael-Kun)
+    Created:    22/05/2024
 
+References;
+    https://devblogs.microsoft.com/scripting/using-powershell-to-find-connected-network-adapters/
+    https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipaddress
+    https://www.reddit.com/r/PowerShell/comments/da6bwg/if_statement_iteration_with_arrays/
+    https://stackoverflow.com/questions/20108886/powershell-scheduled-task-with-daily-trigger-and-repetition-interval
 #>
 
 #Path to save the .ps1 file to
-$ps1Path = "$env:ProgramData\intune-timezonebyIP-generator\Set-TimeZoneByIP.ps1"
-
-Set-Content -Path "$ps1Path" -Force -Value '#Start .ps1 content
+$ps1Dir = "$env:ProgramData\intune-timezonebyIP-generator"
+$ps1Path = "$ps1Dir\Set-TimeZoneByIP.ps1"
+New-Item -Path $ps1Dir -ItemType Directory -Force
+Set-Content -Path "$ps1Path" -Force -Value '
+#Start .ps1 content
 <#
 .SYNOPSIS
-Set Timezone by IP for NAA Wired Networks
+    Set Timezone by IP for NAA Wired Networks
 
+.DESCRIPTION
+    Checks for a wired ethernet connection, then checks for IP address 
+    on that connector. The IP is compared to the values in an array to 
+    set the timezone accordingly.
+    
 .NOTES
-Author: Bill Wilson
-Date: 26/04/2024
+    Author: Bill Wilson (https://github.com/Trael-Kun)
+    Date: 26/04/2024
 
 References:
-https://devblogs.microsoft.com/scripting/using-powershell-to-find-connected-network-adapters/
-https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipaddress
-https://www.reddit.com/r/PowerShell/comments/da6bwg/if_statement_iteration_with_arrays/
+    https://devblogs.microsoft.com/scripting/using-powershell-to-find-connected-network-adapters/
+    https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipaddress
+    https://www.reddit.com/r/PowerShell/comments/da6bwg/if_statement_iteration_with_arrays/
 #>
 
 ###VARIABLES
@@ -80,10 +92,39 @@ if ($(Get-NetAdapter -Physical | Where-Object status -eq "Up").name -like "$Adap
 #End .ps1 content
 '
 
+##SchedTask
 #SchedTask Variables
-$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument "-NoProfile -WindowStyle Hidden -File $ps1Path"
-$trigger = New-ScheduledTaskTrigger -AtStartup -RepeatInterval (New-TimeSpan -Minutes 1) -RepetitionDuration (New-TimeSpan -Minutes 1)
-$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
-$principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+$Action = New-ScheduledTaskAction `
+    -Execute 'Powershell.exe' `
+    -Argument "-NoProfile -WindowStyle Hidden -File $ps1Path"
+$Settings = New-ScheduledTaskSettingsSet `
+    -AllowStartIfOnBatteries `
+    -DontStopIfGoingOnBatteries
+$Principal = New-ScheduledTaskPrincipal `
+    -UserId "SYSTEM" `
+    -LogonType ServiceAccount `
+    -RunLevel Highest
+<#The trigger was a pain to work out - to get it working 
+on startup & ALSO repeating I had to break it into 2, 
+then stick them together.#>
+#Set the initial trigger
+$Trigger = New-ScheduledTaskTrigger `
+    -AtStartup
+#set the repeat
+$Repetition = (New-ScheduledTaskTrigger `
+    -once `
+    -at (Get-Date) `
+    -RepetitionInterval (New-TimeSpan -Minutes 1) )
+#Glue it!
+$Trigger.Repetition = $Repetition.Repetition
+
 #Create SchedTask
-Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Set Timezone Based on IP" -Description "Sets the timezone based on IP address when LAN is connected" -Principal $principal -Settings $settings
+Register-ScheduledTask `
+    -Action $Action `
+    -Trigger $Trigger `
+    -TaskName "SetTimezoneByIP" `
+    -Description "Sets the timezone based on IP address when LAN is connected" `
+    -Principal $principal `
+    -Settings $settings
+
+#endscript

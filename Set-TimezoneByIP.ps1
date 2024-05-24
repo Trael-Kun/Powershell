@@ -20,9 +20,13 @@ References;
 #>
 
 #Path to save the .ps1 file to
-$ps1Dir = "$env:ProgramData\intune-timezonebyIP-generator"
-$ps1Path = "$ps1Dir\Set-TimeZoneByIP.ps1"
-New-Item -Path $ps1Dir -ItemType Directory -Force
+$ScriptsDir = "$env:ProgramData\Scripts\intune-timezonebyIP-generator"
+$ps1Path = "$ScriptsDir\Set-TimeZoneByIP.ps1"
+
+Write-Verbose -Message "Creating $ps1Path"
+New-Item -Path $ScriptsDir -ItemType Directory -Force
+
+###########################################################################################
 Set-Content -Path "$ps1Path" -Force -Value '
 #Start .ps1 content
 <#
@@ -44,10 +48,20 @@ References:
     https://www.reddit.com/r/PowerShell/comments/da6bwg/if_statement_iteration_with_arrays/
 #>
 
+Function Write-Log {
+    param(
+        [Parameter(Mandatory=$true)][String]$msg
+    )
+    Add-Content "$env:ProgramData\Scripts\Logs\Set-TimeZoneByIP.log" $msg
+}
+
 ###VARIABLES
 $AdapterName = "Ethernet"
+$DnsSuffix = "DNS.int"
+$Uri = "https://ident.me/json"
 
 ##Set tzutil variables
+$CurrentTz = (Get-TimeZone).Id
 $AEST = "AUS Eastern Standard Time"
 $TAS = "Tasmania Standard Time"
 $DAR = "AUS Central Standard Time"
@@ -64,67 +78,133 @@ $EtherIP = 101.1.1.10
 
 ##Set LAN IP variables
 $IpList = @(
-    [pscustomobject]@{Office="AU_WA";  TimeZone="$PER";   IP="10.1.*"}
-    [pscustomobject]@{Office="AU_NSW"; TimeZone="$AEST";  IP="10.2.*"}
-    [pscustomobject]@{Office="AU_TAS"; TimeZone="$TAS";   IP="10.3.*"}
-    [pscustomobject]@{Office="AU_NT";  TimeZone="$DAR";   IP="10.4.*"}
-    [pscustomobject]@{Office="AU_QLD"; TimeZone="$BRIS";  IP="10.5.*"}
-    [pscustomobject]@{Office="AU_ACT"; TimeZone="$AEST";  IP="10.6.*"}
-    [pscustomobject]@{Office="AU_VIC"; TimeZone="$AEST";  IP="10.7.*"}
-    [pscustomobject]@{Office="AU_SA";  TimeZone="$ADE";   IP="10.8.*"}
-    [pscustomobject]@{Office="UK_LON"; TimeZone="$UTC";   IP="10.9.*"}
+    <# Offices - hashes at the end to help identify line no.
+        The AU offices are behind a firewall that does not allow Invoke-RestMethod,
+        so we have to keep the script local #>
+    [pscustomobject]@{Office="AU_WA";  TimeZone="$PER";   IP="10.1.*"}    #0
+    [pscustomobject]@{Office="AU_NSW"; TimeZone="$AEST";  IP="10.2.*"}    #1
+    [pscustomobject]@{Office="AU_TAS"; TimeZone="$TAS";   IP="10.3.*"}    #2
+    [pscustomobject]@{Office="AU_NT";  TimeZone="$DAR";   IP="10.4.*"}    #3
+    [pscustomobject]@{Office="AU_QLD"; TimeZone="$BRIS";  IP="10.5.*"}    #4
+    [pscustomobject]@{Office="AU_ACT"; TimeZone="$AEST";  IP="10.6.*"}    #5
+    [pscustomobject]@{Office="AU_VIC"; TimeZone="$AEST";  IP="10.7.*"}    #6
+    [pscustomobject]@{Office="AU_SA";  TimeZone="$ADE";   IP="10.8.*"}    #7
+    #The London office connects via zScaler, so we need to do something a bit different
+    #but we can but the details here for uniformity
+    [pscustomobject]@{Office="UK_LON"; TimeZone="$UTC";   IP="10.9.*"}    #
 )
 
 #check adapter is running
-if ($(Get-NetAdapter -Physical | Where-Object status -eq "Up").name -like "$AdapterName*") {
-    #find web IP
-    if (((Invoke-WebRequest -uri "http://ifconfig.me/ip").Content) -eq $EtherIP) {
-        #Local IP
-        $IPv4 = (Get-NetAdapter -Physical -Name "$AdapterName*" | Get-NetIPAddress).IPv4Address
+if ($(Get-NetAdapter -Physical | Where-Object status -eq "Up").name -like "$AdapterName*") { #Is it on Ethernet?
+    #find local IP (v4 only)
+    $IPv4 = (Get-NetAdapter -Physical -Name "$AdapterName*" | Get-NetIPAddress).IPv4Address
+    #Is it on the right DNS?
+    if ((Get-DnsClient | Where-Object InterfaceAlias -like "$AdapterName*").ConnectionSpecificSuffix -eq $DnsSuffix) {
+        Write-Verbose -Message "Comparing $($IP.Office)"
         foreach ($IP in $IpList){
-            if ($IPv4 -like $IP.IP) {
-                Set-TimeZone -Name $IP.TimeZone
-                break
+            if ($IPv4 -like $IP.IP) { #check timezone match value in array
+                if ($CurrentTz -ne $IP.TimeZone) { #Is that already the timezone?
+                    Write-Verbose -Message "Setting TimeZone to $($IP.TimeZone)"
+                    Set-TimeZone -Name $IP.TimeZone
+                    break #if found, stop
+                }
+                else {
+                    Write-Verbose -Message "TimeZone already set to $CurrentTz"
+                    exit 0
+                }
             }
         }
     }
+    elseif (((Invoke-RestMethod -Uri $Uri).ip) -eq $zScalIP) { #Wired connecion on zScaler? Check WAN IP
+        Write-Verbose -Message "Comparing $($IpList.Office[8])"
+        if ($IpList.IP[8] -like $IPv4) { #check timezone match value in array
+            if ($CurrentTz -ne $IPList.TimeZone[8]) { #Is that already the timezone?
+            Write-Verbose -Message "Setting TimeZone to $($IpList.TimeZone[8])"
+            Set-TimeZone -Name $IpList.TimeZone[8]
+            break
+            }
+            else {
+                Write-Verbose -Message "TimeZone already set to $CurrentTz"
+                exit 0
+            }
+        }
+        else {
+            Write-Verbose -Message "$Adaptername connected, but not on Corporate"
+            Write-Verbose -Message "Script will not run."
+            exit 0
+        }
+    }
+    else {
+        Write-Verbose -Message "Not on Corporate"
+        Write-Verbose -Message "Script will not run."
+        exit 0
+    }
 }
+else {
+    Write-Verbose -Message "$AdapterName not connected"
+    Write-Verbose -Message "Script will not run."
+    exit 0
+}
+#Only want to log when it has to change, otherwise the log will balloon
+Write-Log -Msg "$(Get-Date) | TimeZone was $CurrentTz, now set to $((Get-TimeZone).ID)"
+exit 0
 #End .ps1 content
 '
 
-##SchedTask
-#SchedTask Variables
-$Action = New-ScheduledTaskAction `
+##  SchedTask
+Write-Verbose -Message 'Creating Scheduled Task'
+
+#Variables
+$TaskName = 'SetTimezoneByIP'
+$TaskDescription = 'Sets the timezone based on IP address when ethernet is connected to corporate network'
+$TaskPath = '\Trael\'
+$TaskAuthor = 'Tral-Kun'
+#set action
+$TaskAction = New-ScheduledTaskAction `
     -Execute 'Powershell.exe' `
     -Argument "-NoProfile -WindowStyle Hidden -File $ps1Path"
-$Settings = New-ScheduledTaskSettingsSet `
+#set settings
+$TaskSettings = New-ScheduledTaskSettingsSet `
     -AllowStartIfOnBatteries `
-    -DontStopIfGoingOnBatteries
-$Principal = New-ScheduledTaskPrincipal `
-    -UserId "SYSTEM" `
+    -DontStopIfGoingOnBatteries `
+    -Compatibility Win8 `
+    -DontStopOnIdleEnd `
+    -StartWhenAvailable
+#set task user (Principal)
+$TaskPrincipal = New-ScheduledTaskPrincipal `
+    -UserId 'SYSTEM' `
     -LogonType ServiceAccount `
     -RunLevel Highest
-<#The trigger was a pain to work out - to get it working 
-on startup & ALSO repeating I had to break it into 2, 
-then stick them together.#>
-#Set the initial trigger
-$Trigger = New-ScheduledTaskTrigger `
-    -AtStartup
-#set the repeat
-$Repetition = (New-ScheduledTaskTrigger `
-    -once `
-    -at (Get-Date) `
-    -RepetitionInterval (New-TimeSpan -Minutes 1) )
-#Glue it!
-$Trigger.Repetition = $Repetition.Repetition
+#set trigger
+    <#   The trigger was a pain to work out - to get it working 
+    on startup & ALSO repeating I had to break it into 2, 
+    then stick them together.
+    # set inital trigger #>
+    $TaskTrigger = New-ScheduledTaskTrigger `
+        -AtStartup
+    # set trigger repeat
+    $TaskRepetition = (New-ScheduledTaskTrigger `
+        -Once `
+        -At (Get-Date) `
+        -RepetitionInterval (New-TimeSpan -Minutes 1) `
+        -RepetitionDuration (New-TimeSpan -days 9999 -hours 23 -Minutes 59 -Seconds 59)) # won't accept more days than 9999
+    # glue it!
+    $TaskTrigger.Repetition = $TaskRepetition.Repetition
 
-#Create SchedTask
+##Register SchedTask
 Register-ScheduledTask `
-    -Action $Action `
-    -Trigger $Trigger `
-    -TaskName "SetTimezoneByIP" `
-    -Description "Sets the timezone based on IP address when LAN is connected" `
-    -Principal $principal `
-    -Settings $settings
+    -TaskName $TaskName `
+    -Description $TaskDescription `
+    -TaskPath $TaskPath `
+    -Action $TaskAction `
+    -Trigger $TaskTrigger `
+    -Principal $TaskPrincipal `
+    -Settings $TaskSettings
 
+# Add Author
+$Task = Get-ScheduledTask $TaskName
+$Task.Author = $TaskAuthor
+$Task | Set-ScheduledTask
+
+Start-ScheduledTask -TaskName $TaskName
 #endscript

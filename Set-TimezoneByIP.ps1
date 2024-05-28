@@ -203,7 +203,7 @@ Register-ScheduledTask `
     -Action $TaskAction `
     -Trigger $TaskTrigger `
     -Principal $TaskPrincipal `
-    -Settings $TaskSettings
+    -Settings $TaskSettings `
     -Force
 
 # Add Author

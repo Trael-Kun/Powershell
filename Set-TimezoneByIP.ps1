@@ -3,7 +3,7 @@
     Create Set-TimeZoneByIP.ps1, and add a scheduled task to run it
 
 .DESCRIPTION
-    Creates a .ps1 file in C:\ProgrmData that detects a wired ethernet
+    Creates a .ps1 file in C:\ProgramData that detects a wired ethernet
     connection, then checks for IP address on that connector. The IP is
     compared to ther values in an array to set the timezone accordingly.
     The script then sets a scheduled task to run the .ps1 file.

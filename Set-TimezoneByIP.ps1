@@ -19,19 +19,24 @@ References;
     https://stackoverflow.com/questions/20108886/powershell-scheduled-task-with-daily-trigger-and-repetition-interval
 #>
 
-#Path to save the .ps1 file to
-$ScriptsDir = "$env:ProgramData\Scripts\intune-timezonebyIP-generator"
-$ps1Path = "$ScriptsDir\Set-TimeZoneByIP.ps1"
+##Variables
+$ScriptsDir = "$env:ProgramData\Scripts\intune-timezonebyIP-generator"   #Path to save .ps1 file to
+$ps1Path = "$ScriptsDir\Set-TimeZoneByIP.ps1"                            #Path including .ps1 file
+$TaskName = 'SetTimezoneByIP'                                            #Name of SchedTask
+$TaskPath = '\Trael\'                                                    #SchedTask path
+$TaskAuthor = 'Trael-Kun'                                                #SchedTask author
 
 Write-Verbose -Message "Creating $ps1Path"
 New-Item -Path $ScriptsDir -ItemType Directory -Force
 
 ###########################################################################################
+## Create the script
+###########################################################################################
 Set-Content -Path "$ps1Path" -Force -Value '
 #Start .ps1 content
 <#
 .SYNOPSIS
-    Set Timezone by IP for NAA Wired Networks
+    Set Timezone by IP for Wired Networks
 
 .DESCRIPTION
     Checks for a wired ethernet connection, then checks for IP address 
@@ -151,14 +156,13 @@ exit 0
 #End .ps1 content
 '
 
-##  SchedTask
+###########################################################################################
+## Create the Sched Task
+###########################################################################################
 Write-Verbose -Message 'Creating Scheduled Task'
 
 #Variables
-$TaskName = 'SetTimezoneByIP'
 $TaskDescription = 'Sets the timezone based on IP address when ethernet is connected to corporate network'
-$TaskPath = '\Trael\'
-$TaskAuthor = 'Tral-Kun'
 #set action
 $TaskAction = New-ScheduledTaskAction `
     -Execute 'Powershell.exe' `
@@ -200,11 +204,12 @@ Register-ScheduledTask `
     -Trigger $TaskTrigger `
     -Principal $TaskPrincipal `
     -Settings $TaskSettings
+    -Force
 
 # Add Author
 $Task = Get-ScheduledTask $TaskName
 $Task.Author = $TaskAuthor
 $Task | Set-ScheduledTask
 
-Start-ScheduledTask -TaskName $TaskName
+Start-ScheduledTask -TaskPath $TaskPath -TaskName $TaskName
 #endscript

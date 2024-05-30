@@ -20,11 +20,20 @@ References;
 #>
 
 ##Variables
-$ScriptsDir = "$env:ProgramData\Scripts\intune-timezonebyIP-generator"   #Path to save .ps1 file to
-$ps1Path = "$ScriptsDir\Set-TimeZoneByIP.ps1"                            #Path including .ps1 file
-$TaskName = 'SetTimezoneByIP'                                            #Name of SchedTask
-$TaskPath = '\Trael\'                                                    #SchedTask path
-$TaskAuthor = 'Trael-Kun'                                                #SchedTask author
+$ScriptsDir =  "$env:ProgramData\Scripts\intune-timezonebyIP-generator"   #Path to save .ps1 file to
+$ps1Path =     "$ScriptsDir\Set-TimeZoneByIP.ps1"                         #Path including .ps1 file
+$TaskName =    'SetTimezoneByIP'                                          #Name of SchedTask
+$TaskPath =    '\Trael\'                                                  #SchedTask path
+$TaskAuthor =  'Trael-Kun'                                                #SchedTask author
+
+#Has this already run? 
+if (Get-ScheduledTask -TaskPath $TaskPath -TaskName $TaskName) {
+    if (Test-Path -Path $ps1Path) {
+        Write-Output "Scheduled task already exists. Skipping creation."
+        Start-ScheduledTask -TaskPath $TaskPath -TaskName $TaskName
+        exit 0
+    }
+}
 
 Write-Verbose -Message "Creating $ps1Path"
 New-Item -Path $ScriptsDir -ItemType Directory -Force
@@ -53,11 +62,15 @@ References:
     https://www.reddit.com/r/PowerShell/comments/da6bwg/if_statement_iteration_with_arrays/
 #>
 
+$LogFile = "$env:ProgramData\Scripts\Logs\Set-TimeZoneByIP.log"
 Function Write-Log {
     param(
-        [Parameter(Mandatory=$true)][String]$msg
+        [Parameter(Mandatory=$true)][String]$Msg
     )
-    Add-Content "$env:ProgramData\Scripts\Logs\Set-TimeZoneByIP.log" $msg
+    if (((Get-Date).AddDays(-30)) -gt ($LogFile).LastWriteTime) {
+        Remove-Item $LogFile -Force
+    }
+    Add-Content $LogFile $Msg -Force
 }
 
 ###VARIABLES
@@ -67,13 +80,13 @@ $Uri = "https://ident.me/json"
 
 ##Set tzutil variables
 $CurrentTz = (Get-TimeZone).Id
-$AEST = "AUS Eastern Standard Time"
-$TAS = "Tasmania Standard Time"
-$DAR = "AUS Central Standard Time"
-$ADE = "Cen. Australia Standard Time"
-$PER = "W. Australia Standard Time"
-$BRIS = "E. Australia Standard Time"
-$UTC = "UTC"
+$AEST =      "AUS Eastern Standard Time"
+$TAS =       "Tasmania Standard Time"
+$DAR =       "AUS Central Standard Time"
+$ADE =       "Cen. Australia Standard Time"
+$PER =       "W. Australia Standard Time"
+$BRIS =      "E. Australia Standard Time"
+$UTC =       "UTC"
 
 ##Set WAN IP variables
 # zScaler IP
@@ -95,7 +108,7 @@ $IpList = @(
     [pscustomobject]@{Office="AU_VIC"; TimeZone="$AEST";  IP="10.7.*"}    #6
     [pscustomobject]@{Office="AU_SA";  TimeZone="$ADE";   IP="10.8.*"}    #7
     #The London office connects via zScaler, so we need to do something a bit different
-    #but we can but the details here for uniformity
+    #but we can put the details here for uniformity
     [pscustomobject]@{Office="UK_LON"; TimeZone="$UTC";   IP="10.9.*"}    #
 )
 

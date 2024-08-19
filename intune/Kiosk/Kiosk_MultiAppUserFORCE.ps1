@@ -1,5 +1,4 @@
 # Kiosk User Force-apply
-
 $PublicUser		= 'KioskUser0'  #intune
 $FullName		= 'Public User'
 try {	#create User
@@ -15,61 +14,57 @@ $SID	= (Get-WmiObject win32_useraccount | Select-Object name,sid | Where-Object 
 <#########
 RegEdit
 ##########>
-$HKCU				= "Registry::hku\$SID\SOFTWARE"
-$HKLM				= 'HKLM:\SOFTWARE'
+$HKCU			= "Registry::hku\$SID\SOFTWARE"
+$HKLM			= 'HKLM:\SOFTWARE'
 $CurrentVersion		= 'Microsoft\Windows\CurrentVersion'
 $NtCurrentVersion	= 'Microsoft\Windows NT\CurrentVersion'
-$Policies			= 'Policies\Microsoft'
+$Policies		= 'Policies\Microsoft'
 
 # Settings page lockdown (Ease of Access)
-<#############################################
-## THESE HAVE NOW BEEN SET IN DEVICE POLICY ##
-##############################################
 # Ease of Access is Accessibility; https://learn.microsoft.com/en-us/windows/uwp/launch-resume/launch-settings-app#ease-of-access
 # I've split these up to make them easier to read.
 $Settings1			= 'about;dateandtime;windowsupdate'
 $EaseOfAccess1		= 'easeofaccess-audio;easeofaccess-closedcaptioning;easeofaccess-highcontrast;easeofaccess-display;easeofaccess-keyboard;easeofaccess-magnifier'
 $EaseOfAccess2		= 'easeofaccess-mouse;easeofaccess-mousepointer;easeofaccess-narrator;easeofaccess-speechrecognition;easeofaccess-cursor;easeofaccess-visualeffects'
 $AllowSettingsPages	= "showonly:$Settings1;$EaseOfAccess1;$EaseOfAccess2"
-##############################################>
 
 $RegEdits = @(
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\PasswordLess\Device"; 											Property="DevicePasswordLessBuildVersion";	Type='DWord';	Value=1						}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 														Property='AutoAdminLogon';					Type='DWord';	Value=1						}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 														Property='DefaultUserName';					Type='string';	Value=$PublicUser			}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 														Property='DefaultPassword';					Type='string';	Value=''					}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 														Property='AutoLogonSID';					Type='string';	Value=$SID					}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon";	 													Property='LastUsedUsername';				Type='string';	Value=$PublicUser			}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 														Property='EnableFirstLogonAnimation';		Type='DWord';	Value=0						}	
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 														Property='DisableLockWorkstation';			Type='DWord';	Value=0						}	
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Policies\System"; 												Property='dontdisplaylastusername';			Type='DWord';	Value=1						}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
-	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Policies\System"; 												Property='NoConnectedUser';					Type='DWord';	Value=1						}	#block MS accounts https://www.tenforums.com/tutorials/97556-allow-block-microsoft-accounts-windows-10-a.html
-#	@{Action='Add';		Path="$HKLM\Microsoft\PolicyManager\default\Settings\AllowYourAccount";	 						Property='value';							Type='DWord';	Value=0						}	#grey out MS login in settings
-#	@{Action='Add';		Path="$HKLM\Microsoft\PolicyManager\default\Settings\AllowWorkplace"; 							Property='value';							Type='DWord';	Value=0						}	#grey out MS login in settings
-	@{Action='Add';		Path="$HKLM\$Policies\Windows\WindowsCopilot"; 													Property='TurnOffWindowsCopilot';			Type='DWord';	Value=1						} 	#Disable Windows Copilot https://medium.com/@dbilanoski/how-to-tuesdays-getting-rid-of-that-pesky-windows-copilot-feature-everybody-is-getting-these-days-923df14c3345
-    @{Action='Add';		Path="$HKLM\$Policies\Windows\Windows Search"; 													Property='EnableDynamicContentInWSB';		Type='DWord';	Value=0						} 	#Disable Disable Copilot Search Bar https://medium.com/@dbilanoski/how-to-tuesdays-getting-rid-of-that-pesky-windows-copilot-feature-everybody-is-getting-these-days-923df14c3345
-	@{Action='Add';		Path="$HKLM\$Policies\Edge"; 																	Property='HubsSidebarEnabled';				Type='DWord';	Value=0						} 	#Disable Copilot Edge Side Application https://medium.com/@dbilanoski/how-to-tuesdays-getting-rid-of-that-pesky-windows-copilot-feature-everybody-is-getting-these-days-923df14c3345
-	@{Action='Add';		Path="$HKLM\$Policies\WindowsStore";	 														Property='RequirePrivateStoreOnly';			Type='DWord';	Value=1						}	#disable Store https://cloudinfra.net/block-microsoft-store-apps-using-intune-except-winget/
-	@{Action='Add';		Path="$HKLM\$Policies\Windows Defender Security Center\Systray";	 							Property='HideSystray';						Type='DWord';	Value=1						}	#hide Windows Security https://www.elevenforum.com/t/add-or-remove-windows-security-notification-icon-in-windows-11.7800/#Four
-#	@{Action='Add';		Path="$HKLM\$CurrentVersion\Policies"; 															Property='SettingsPageVisibility';			Type='string';	Value=$AllowSettingsPages	}	#System Settings menu restrictions; https://www.windowscentral.com/how-hide-specific-settings-pages-windows-11#hide_settings_regedit_windows11
-	@{Action='Add';		Path="$HKLM\$CurrentVersion\Policies\System"; 													Property='NoConnectedUser';					Type='DWord';	Value=3						}	#block MS accounts https://www.tenforums.com/tutorials/97556-allow-block-microsoft-accounts-windows-10-a.html
-	@{Action='Add';		Path="$HKLM\$CurrentVersion\Policies\System"; 													Property='DefaultLogonDomain';				Type='string';	Value=$env:ComputerName		}	#default domain to local https://admx.help/?Category=Windows_10_2016&Policy=Microsoft.Policies.CredentialProviders::DefaultLogonDomain
-	@{Action='Remove';	Path="$HKLM\$CurrentVersion\Explorer\Desktop\NameSpace\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}";	Property=$null;								Type=$null;		Value=$null					}	#remove "Gallery" (can be used to open Store) https://gist.github.com/docentYT/1ae471f3c5a1cfdf52e717eaf150508d
-	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer";	 														Property='NoFolderOptions';					Type='DWord';	Value=1						}	#disable "folder options" https://winaero.com/how-to-disable-folder-options-in-windows-10/
-	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer\AutoComplete";	 											Property='AutoSuggest';						Type='string';	Value='No'					}	#disable File Explorer address bar history https://www.reddit.com/r/Windows11/comments/13m0naz/disable_file_explorer_address_bar_history/
-	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer\Advanced"; 												Property='ShowSuperHidden';					Type='DWord';	Value=0						}	#disable show hidden https://superuser.com/questions/1151844/how-to-toggle-show-hide-hidden-files-in-windows-through-command-line#:~:text=Type%20%E2%80%9Cregedit%E2%80%9C%2C%20then%20press,files%2C%20folders%2C%20and%20drives.
-	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer\Advanced"; 												Property='Hidden';							Type='DWord';	Value=0						}	#disable show hidden https://superuser.com/questions/1151844/how-to-toggle-show-hide-hidden-files-in-windows-through-command-line#:~:text=Type%20%E2%80%9Cregedit%E2%80%9C%2C%20then%20press,files%2C%20folders%2C%20and%20drives.
-	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer\Advanced"; 												Property='HideFileExt';						Type='DWord';	Value=1						}	#hide file extensions https://www.elevenforum.com/t/show-or-hide-file-name-extensions-for-known-file-types-in-windows-11.898/#Four
-#	@{Action='Remove';	Path="$HKCU\$CurrentVersion\Explorer\taskband";													Property=$null;								Type=$null;		Value=$null					}	#remove ALL taskbar shortcuts? https://answers.microsoft.com/en-us/windows/forum/all/command-line-remove-taskbar-icons/4a036518-1e1b-4909-a563-4a74ff34bad7
-	@{Action='Add';		Path="$HKCU\$Policies\Windows\WindowsCopilot"; 													Property='TurnOffWindowsCopilot';			Type='DWord';	Value=1						}	#disable CoPilot https://www.xda-developers.com/how-disable-microsoft-copilot/
-	@{Action='Add';		Path="$HKCU\Microsoft\Office\16.0\Common\signin";												Property='signinoptions';					Type='DWord';	Value=3						}	#disable Office Sign-in https://forums.anandtech.com/threads/tutorial-disable-the-cloud-sign-in-option-on-office-2019.2574888/
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\PasswordLess\Device"; 						Property="DevicePasswordLessBuildVersion";	Type='DWord';	Value=1				}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 							Property='AutoAdminLogon';			Type='DWord';	Value=1				}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 							Property='DefaultUserName';			Type='string';	Value=$PublicUser		}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 							Property='DefaultPassword';			Type='string';	Value=''			}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 							Property='AutoLogonSID';			Type='string';	Value=$SID			}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon";	 						Property='LastUsedUsername';			Type='string';	Value=$PublicUser		}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 							Property='EnableFirstLogonAnimation';		Type='DWord';	Value=0				}	
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Winlogon"; 							Property='DisableLockWorkstation';		Type='DWord';	Value=0				}	
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Policies\System"; 						Property='dontdisplaylastusername';		Type='DWord';	Value=1				}	#autologin https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/turn-on-automatic-logon
+	@{Action='Add';		Path="$HKLM\$NtCurrentVersion\Policies\System"; 						Property='NoConnectedUser';			Type='DWord';	Value=1				}	#block MS accounts https://www.tenforums.com/tutorials/97556-allow-block-microsoft-accounts-windows-10-a.html
+#	@{Action='Add';		Path="$HKLM\Microsoft\PolicyManager\default\Settings\AllowYourAccount";	 			Property='value';				Type='DWord';	Value=0				}	#grey out MS login in settings
+#	@{Action='Add';		Path="$HKLM\Microsoft\PolicyManager\default\Settings\AllowWorkplace"; 				Property='value';				Type='DWord';	Value=0				}	#grey out MS login in settings
+	@{Action='Add';		Path="$HKLM\$Policies\Windows\WindowsCopilot"; 							Property='TurnOffWindowsCopilot';		Type='DWord';	Value=1				} 	#Disable Windows Copilot https://medium.com/@dbilanoski/how-to-tuesdays-getting-rid-of-that-pesky-windows-copilot-feature-everybody-is-getting-these-days-923df14c3345
+    	@{Action='Add';		Path="$HKLM\$Policies\Windows\Windows Search"; 							Property='EnableDynamicContentInWSB';		Type='DWord';	Value=0				} 	#Disable Disable Copilot Search Bar https://medium.com/@dbilanoski/how-to-tuesdays-getting-rid-of-that-pesky-windows-copilot-feature-everybody-is-getting-these-days-923df14c3345
+	@{Action='Add';		Path="$HKLM\$Policies\Edge"; 									Property='HubsSidebarEnabled';			Type='DWord';	Value=0				} 	#Disable Copilot Edge Side Application https://medium.com/@dbilanoski/how-to-tuesdays-getting-rid-of-that-pesky-windows-copilot-feature-everybody-is-getting-these-days-923df14c3345
+	@{Action='Add';		Path="$HKLM\$Policies\WindowsStore";	 							Property='RequirePrivateStoreOnly';		Type='DWord';	Value=1				}	#disable Store https://cloudinfra.net/block-microsoft-store-apps-using-intune-except-winget/
+	@{Action='Add';		Path="$HKLM\$Policies\Windows Defender Security Center\Systray";	 			Property='HideSystray';				Type='DWord';	Value=1				}	#hide Windows Security https://www.elevenforum.com/t/add-or-remove-windows-security-notification-icon-in-windows-11.7800/#Four
+#	@{Action='Add';		Path="$HKLM\$CurrentVersion\Policies"; 								Property='SettingsPageVisibility';		Type='string';	Value=$AllowSettingsPages	}	#System Settings menu restrictions; https://www.windowscentral.com/how-hide-specific-settings-pages-windows-11#hide_settings_regedit_windows11
+	@{Action='Add';		Path="$HKLM\$CurrentVersion\Policies\System"; 							Property='NoConnectedUser';			Type='DWord';	Value=3				}	#block MS accounts https://www.tenforums.com/tutorials/97556-allow-block-microsoft-accounts-windows-10-a.html
+	@{Action='Add';		Path="$HKLM\$CurrentVersion\Policies\System"; 							Property='DefaultLogonDomain';			Type='string';	Value=$env:ComputerName		}	#default domain to local https://admx.help/?Category=Windows_10_2016&Policy=Microsoft.Policies.CredentialProviders::DefaultLogonDomain
+	@{Action='Remove';	Path="$HKLM\$CurrentVersion\Explorer\Desktop\NameSpace\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}";	Property=$null;					Type=$null;	Value=$null			}	#remove "Gallery" (can be used to open Store) https://gist.github.com/docentYT/1ae471f3c5a1cfdf52e717eaf150508d
+	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer";	 							Property='NoFolderOptions';			Type='DWord';	Value=1				}	#disable "folder options" https://winaero.com/how-to-disable-folder-options-in-windows-10/
+	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer\AutoComplete";	 					Property='AutoSuggest';				Type='string';	Value='No'			}	#disable File Explorer address bar history https://www.reddit.com/r/Windows11/comments/13m0naz/disable_file_explorer_address_bar_history/
+	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer\Advanced"; 						Property='ShowSuperHidden';			Type='DWord';	Value=0				}	#disable show hidden https://superuser.com/questions/1151844/how-to-toggle-show-hide-hidden-files-in-windows-through-command-line#:~:text=Type%20%E2%80%9Cregedit%E2%80%9C%2C%20then%20press,files%2C%20folders%2C%20and%20drives.
+	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer\Advanced"; 						Property='Hidden';				Type='DWord';	Value=0				}	#disable show hidden https://superuser.com/questions/1151844/how-to-toggle-show-hide-hidden-files-in-windows-through-command-line#:~:text=Type%20%E2%80%9Cregedit%E2%80%9C%2C%20then%20press,files%2C%20folders%2C%20and%20drives.
+	@{Action='Add';		Path="$HKCU\$CurrentVersion\Explorer\Advanced"; 						Property='HideFileExt';				Type='DWord';	Value=1				}	#hide file extensions https://www.elevenforum.com/t/show-or-hide-file-name-extensions-for-known-file-types-in-windows-11.898/#Four
+#	@{Action='Remove';	Path="$HKCU\$CurrentVersion\Explorer\taskband";							Property=$null;					Type=$null;	Value=$null			}	#remove ALL taskbar shortcuts? https://answers.microsoft.com/en-us/windows/forum/all/command-line-remove-taskbar-icons/4a036518-1e1b-4909-a563-4a74ff34bad7
+	@{Action='Add';		Path="$HKCU\$Policies\Windows\WindowsCopilot"; 							Property='TurnOffWindowsCopilot';		Type='DWord';	Value=1				}	#disable CoPilot https://www.xda-developers.com/how-disable-microsoft-copilot/
+	@{Action='Add';		Path="$HKCU\Microsoft\Office\16.0\Common\signin";						Property='signinoptions';			Type='DWord';	Value=3				}	#disable Office Sign-in https://forums.anandtech.com/threads/tutorial-disable-the-cloud-sign-in-option-on-office-2019.2574888/
 )
 
 foreach ($RegEdit in $RegEdits) {
-    if ($($RegEdit.Action) -eq 'Remove' ) {											#does it need to be removed?
-        if ($null -eq $RegEdit.Property) {											#is it a key?
-        Remove-Item -Path $RegEdit.Path -Recurse -Force								#remove the whole key
-        } else {																	#is it a property?
+    if ($($RegEdit.Action) -eq 'Remove' ) {						#does it need to be removed?
+        if ($null -eq $RegEdit.Property) {						#is it a key?
+        Remove-Item -Path $RegEdit.Path -Recurse -Force					#remove the whole key
+        } else {									#is it a property?
             Remove-ItemProperty -Path $RegEdit.Path -Name $RegEdit.Property -Force	#remove the property
         }
     }
@@ -113,9 +108,9 @@ foreach ($Lnk in $Lnks) {
 Copy-Item -Path "$env:SystemDrive\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\File Explorer.lnk" -Destination $DesktopDir -Force
 
 ## SchedTasks
-$ScriptsDir				= "$env:ProgramData\Scripts"
-$SchedAuthor				= 'Bill'
-$SchedPath				= '\Pwsh\'
+$ScriptsDir			= "$env:ProgramData\Scripts"
+$SchedAuthor			= 'Bill'
+$SchedPath			= '\Pwsh\'
 $SchedSet			= New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfIdle -IdleDuration 00:20:00 -Hidden
 
 function Register-PsTask {
@@ -166,8 +161,8 @@ Register-PsTask -Ps1Path $ScriptPath -TaskName $SchedName -TaskDescription 'Rebo
 # Clear User Folders
 $ScriptPath				= "$ScriptsDir\Kiosk\Kiosk_Clear-UserFolders_FORCE.ps1"
 $SchedName				= 'Clear User Folders'
-$SchedTrigger			= New-ScheduledTaskTrigger -Daily -At 1:00am -RandomDelay (New-TimeSpan -Minutes 30)
-$SchedPrincipal			= New-ScheduledTaskPrincipal -UserId $PublicUser -Id "Author" -RunLevel Highest
+$SchedTrigger				= New-ScheduledTaskTrigger -Daily -At 1:00am -RandomDelay (New-TimeSpan -Minutes 30)
+$SchedPrincipal				= New-ScheduledTaskPrincipal -UserId $PublicUser -Id "Author" -RunLevel Highest
 Register-PsTask -Ps1Path $ScriptPath -TaskName $SchedName -TaskDescription 'Clears contents ' -TaskPath $SchedPath -TaskAuthor $SchedAuthor -TaskTrigger $SchedTrigger -TaskPrincipal $SchedPrincipal -TaskSettings $SchedSet
 
 ## TimeZones AU

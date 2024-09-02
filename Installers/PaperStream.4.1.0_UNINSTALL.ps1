@@ -15,7 +15,8 @@ function Remove-AppByRegEntry {
 foreach ($App in $AppCheck) {
     if (($App.UninstallString).EndsWith('}')) {
         $Uninst = $App.UninstallString
-        $Uninst = (($Uninst -split ' ')[1] -replace '/I','/X') + " /$Vis"
+        $Uninst = (($Uninst -split ' ')[1] -replace '/I','/X') + " /$Vis /NoReboot"
+        Write-Output "Removing $($App.DisplayName)"
         Start-Process msiexec.exe -ArgumentList $Uninst -Wait -NoNewWindow
     }
 }
@@ -24,11 +25,10 @@ $Processes = (Get-Process -Name PFU*).ProcessName
 foreach ($Process in $Processes) {
     Stop-Process -Name $Process -Force
 }
-Remove-AppByRegEntry -AppName PaperStream
+Remove-AppByRegEntry -AppName PaperStream -NoVisibility
 $PscRmvExe = "$env:windir\PaperStreamCaptureUninstall.exe"
 if (Test-Path $PscRmvExe) {
     Write-Host 'Removing PaperStream Capture'
     Start-Process -FilePath $PscRmvExe -Wait
 }
-Write-Host 'Removing Software Operation Panel'
 Remove-AppByRegEntry -AppName 'Software Operation Panel' -NoVisibility

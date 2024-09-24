@@ -6,8 +6,9 @@ Written by Bill
 #>
 $CabPath = 
 $Cabs = (Get-ChildItem -Path $CabPath -Recurse -Filter *.cab) | Sort-Object -Property LastWriteTime
-foreach ($Cab in $Cabs.FullName) {
+foreach ($Cab in $Cabs) {
 	#cmd /c "DISM /Online /Add-Package /PackagePath:`"$Cab`""
- Write-Host "Adding $Cab" -ForegroundColor Green
- Add-WindowsPackage -PackagePath $Cab -Online -NoRestart
+	Write-Host "Adding $($Cab.FullName)" -ForegroundColor White -BackgroundColor DarkGreen
+	Write-Host ".Cab Date $($Cab.LastWriteTime)" -ForegroundColor Green -BackgroundColor DarkGreen
+	Add-WindowsPackage -PackagePath $Cab.FullName -Online -NoRestart
 }

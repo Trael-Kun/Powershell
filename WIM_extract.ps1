@@ -30,13 +30,13 @@ https://learn.microsoft.com/en-us/powershell/module/dism/export-windowsimage
 https://stackoverflow.com/questions/18780956/suppress-console-output-in-powershell
 https://stackoverflow.com/questions/64454231/powershell-read-host-to-select-an-array-index
 https://debug.to/1435/how-to-change-color-of-read-host-in-powershell
-
+https://petri.com/create-numbered-output-lists-with-powershell/
 #>
 
 param (
     # Specifies path to input .iso file
     [Parameter(Mandatory,HelpMessage='Path to target Windows .ISO file. This can be a full file path or directory only (script will select 1st .ISO found)')]
-    [string]$ISO,
+    [string]$Iso,
     # Specifies path for output .wim file
     [Parameter(Mandatory,HelpMessage='Destination for output .wim file. This can be a full file path or directory only.')]
     [string]$WimOut,
@@ -91,6 +91,11 @@ function Get-WimPath {
     $WimPath | Out-Null
 }
 
+function Reset-Variables {
+    $global:i=0
+    $BadInput = $true
+}
+
 # colours
     # process text
     $Process =      "DarkYellow"
@@ -115,24 +120,50 @@ if ($WimOut -match "`"*`"") {
 }
 
 <# Start Script #>
+Reset-Variables
 
 # check ISO exists
-if ((Test-Path -Path "$ISO")) {                     # Does the ISO exist?
-    # check syntax of $ISOpath
-    if ($ISO -notlike "*.ISO") { # if $ISO is only dir path
-        $IsoGet = Get-ChildItem -Path "$ISO" -Filter "*win*.ISO" | Select-Object -First 1
-        #IsoFile is file name
-        $IsoFile =      $IsoGet.Name
-        #IsoTarget is full path
-        $IsoTarget =    $IsoGet.FullName
-    }# if full .ISO path
-    else {
-        #IsoTarget is full path
-        $IsoTarget =    $ISO
-        #IsoFile is file name
-        $IsoFile =      $ISO -split "(\\)" | Select-Object -Last 1
+if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
+    # check syntax of $Iso Path
+    if ($Iso -notlike "*.ISO") { # if $Iso is only dir path
+        while ($true) {
+            Reset-Variables
+            $IsoCheck = Get-ChildItem -Path $Iso -filter *win*.iso | Select-Object -Property Name,Fullname
+            $IsoCheck | Select-Object @{Name="Item";Expression={$global:i++;$global:i}}, Name -OutVariable menu | Format-Table -AutoSize
+            $IsoR = $(Write-Host "Please select file index (number), or type " -ForegroundColor $Prompt -NoNewline) + $(Write-Host '0' -ForegroundColor $UserInput -NoNewline) + $(Write-Host ' or ' -ForegroundColor $Prompt -NoNewline)  + $(Write-Host 'Q' -ForegroundColor $UserInput -NoNewline) + $(Write-Host " to quit: " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
+            if ($IsoR -eq 0 -or $IsoR -eq 'q') {
+                Write-Host 'Quitting' -ForegroundColor $Process
+                exit 0
+            } elseif ($IsoR -gt $IsoGet.Count) { #Is that number too high?
+                $BadInput = $true
+            } else {
+                $IsoGet = $Menu | Where-Object ($_.item -eq $IsoR)
+                #IsoTarget is full path
+                $IsoTarget =    $IsoGet.FullName
+                #IsoFile is file name
+                $IsoFile =      $IsoGet.Name
+                break
+            }
+            if ($BadInput) {                                    # loop back if bad input
+                Write-Error "Invalid input: $IsoR" -Category InvalidData
+                Write-Host "Bad input received (" -ForegroundColor $ErrorResult -NoNewline
+                Write-Host "$IsoR" -ForegroundColor $ErrorVar -NoNewline
+                Write-Host "), please type only a valid number from the Item column" -ForegroundColor $ErrorResult
+                Start-Sleep $Sec
+            }
+        } else {    # if full .ISO path
+            #IsoTarget is full path
+            $IsoTarget =    $Iso
+            #IsoFile is file name
+            $IsoFile =      $Iso -split "(\\)" | Select-Object -Last 1
+            break
+        }
     }
-    
+
+
+    #Clear variable in case you're running this again
+    Reset-Variables
+
     # mount .ISO
     Write-Host ""
     Write-Host 'Mounting "'  -ForegroundColor $Process -NoNewline
@@ -230,8 +261,10 @@ if ((Test-Path -Path "$ISO")) {                     # Does the ISO exist?
             Write-Host "$Index" -ForegroundColor $ErrorVar -NoNewline
             Write-Host "), please type only a valid number from the ImageIndex column" -ForegroundColor $ErrorResult
             Start-Sleep $Sec
+            Reset-Variables
         }
     }
+    Reset-Variables
     # check syntax of $WimOut
     # if $WimOut not a .wim file, set the file name
     if ($WimOut -notlike "*.wim") {                                             # if $WimOut isn't .wim, let's name the file
@@ -301,10 +334,10 @@ if ((Test-Path -Path "$ISO")) {                     # Does the ISO exist?
 
 } else {                                                                        # if .iso doesn't exist
     Write-Host ""
-    Write-Error -Message "$ISO not found" -Category ObjectNotFound
+    Write-Error -Message "$Iso not found" -Category ObjectNotFound
     Write-Host ""
     Write-Host "Unable to find " -ForegroundColor $ErrorResult -NoNewline
-    Write-Host "$ISO" -ForegroundColor $ErrorVar -NoNewline
+    Write-Host "$Iso" -ForegroundColor $ErrorVar -NoNewline
     Write-Host ", please check file path" -ForegroundColor $ErrorResult
     Start-Sleep $Sec
 }

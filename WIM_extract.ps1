@@ -90,7 +90,20 @@ function Get-WimPath {
     $WimPath =      $WimOut.Replace("$WimFile", "")
     $WimPath | Out-Null
 }
-
+function Write-BadInput {
+    param (
+        [Parameter(Mandatory)]
+        [string]$InputString,
+        [string]$BInput,
+        [String]$SelectionType
+    )
+    Write-Error "Invalid input: $InputString" -Category InvalidData
+    Write-Host "Bad input received (" -ForegroundColor $ErrorResult -NoNewline
+    Write-Host "$InputString" -ForegroundColor $ErrorVar -NoNewline
+    Write-Host "), please type only a valid $BInput from the $SelectionType" -ForegroundColor $ErrorResult
+    Start-Sleep $Sec
+    Reset-Variables
+}
 function Reset-Variables {
     $global:i=0
     $BadInput = $true
@@ -145,11 +158,7 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
                 break
             }
             if ($BadInput) {                                    # loop back if bad input
-                Write-Error "Invalid input: $IsoR" -Category InvalidData
-                Write-Host "Bad input received (" -ForegroundColor $ErrorResult -NoNewline
-                Write-Host "$IsoR" -ForegroundColor $ErrorVar -NoNewline
-                Write-Host "), please type only a valid number from the Item column" -ForegroundColor $ErrorResult
-                Start-Sleep $Sec
+                Write-BadInput -InputString $IsoR -BInput 'number' -SelectionType 'Item column'
             }
         } else {    # if full .ISO path
             #IsoTarget is full path
@@ -255,12 +264,7 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
             }
         }
         if ($BadInput) {                                    # loop back if bad input
-            Write-Error "Invalid input: $Index" -Category InvalidData
-            Write-Host "Bad input received (" -ForegroundColor $ErrorResult -NoNewline
-            Write-Host "$Index" -ForegroundColor $ErrorVar -NoNewline
-            Write-Host "), please type only a valid number from the ImageIndex column" -ForegroundColor $ErrorResult
-            Start-Sleep $Sec
-            Reset-Variables
+            Write-BadInput -InputString $Index -BInput 'number' -SelectionType 'ImageIndex column'
         }
     }
     Reset-Variables

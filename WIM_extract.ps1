@@ -75,14 +75,12 @@ function Dismount-ISO {
         Write-Host ""
     }
 }
-
 # wim path split
 function Get-WimPath {
     param (
         # Parameter help description
         [Parameter(Mandatory)]
-        [string]
-        $WimOut
+        [string]$WimOut
     )
     # WimFile is end of WimOut path
     $WimFile =      $WimOut -split "(\\)" | Select-Object -Last 1
@@ -134,7 +132,6 @@ if ($WimOut -match "`"*`"") {
 
 <# Start Script #>
 Reset-Variables
-
 # check ISO exists
 if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
     # check syntax of $Iso Path

@@ -45,10 +45,10 @@ param (
 )
 
 if ($Log) {
-    $LogFile =  "$env:windir\Logs\Wim_Extract.log"
+    $LogFile    = "$env:windir\Logs\Wim_Extract.log"
     Start-Transcript -Path $LogFile -IncludeInvocationHeader -Append -Force
 }
-$Sec = 2
+$Sec            = 2
 # dismount ISO function
 function Dismount-ISO {
     Write-Host ""
@@ -83,9 +83,9 @@ function Get-WimPath {
         [string]$WimOut
     )
     # WimFile is end of WimOut path
-    $WimFile =      $WimOut -split "(\\)" | Select-Object -Last 1
+    $WimFile    = $WimOut -split "(\\)" | Select-Object -Last 1
     # WimPath is directory path
-    $WimPath =      $WimOut.Replace("$WimFile", "")
+    $WimPath    = $WimOut.Replace("$WimFile", "")
     $WimPath | Out-Null
 }
 function Write-BadInput {
@@ -103,31 +103,31 @@ function Write-BadInput {
     Reset-Variables
 }
 function Reset-Variables {
-    $global:i=0
-    $BadInput = $true
+    $global:i       =0
+    $BadInput       = $true
 }
 
 # colours
     # process text
-    $Process =      "DarkYellow"
-    $ProcVar =      "Yellow"
+    $Process        = "DarkYellow"
+    $ProcVar        = "Yellow"
     # result Text
-    $Result =       "Green"
-    $ResultVar =    "Blue"
+    $Result         = "Green"
+    $ResultVar      = "Blue"
     # prompt
-    $Prompt =       "DarkMagenta"
-    $UserInput =    "Red"
+    $Prompt         = "DarkMagenta"
+    $UserInput      = "Red"
     # errors
-    $ErrorResult =  "Red"
-    $ErrorVar =     "DarkRed"
+    $ErrorResult    = "Red"
+    $ErrorVar       = "DarkRed"
 #
 
 # remove extranious quotes from parameters
 if ($Iso -match "`"*`"") {
-    $Iso = $Iso.Replace('"','')
+    $Iso            = $Iso.Replace('"','')
 }
 if ($WimOut -match "`"*`"") {
-    $WimOut = $WimOut.Replace('"','')
+    $WimOut         = $WimOut.Replace('"','')
 }
 
 <# Start Script #>
@@ -135,7 +135,7 @@ Reset-Variables
 # check ISO exists
 if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
     # check syntax of $Iso Path
-    if ($Iso -notlike "*.ISO") { # if $Iso is only dir path
+    if ($Iso -notlike "*.ISO") {                    # if $Iso is only dir path
         while ($true) {
             Reset-Variables
             $IsoCheck = Get-ChildItem -Path $Iso -filter *win*.iso | Select-Object -Property Name,Fullname
@@ -144,24 +144,24 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
             if ($IsoR -eq 0 -or $IsoR -eq 'q') {
                 Write-Host 'Quitting' -ForegroundColor $Process
                 exit 0
-            } elseif ($IsoR -gt $IsoGet.Count) { #Is that number too high?
-                $BadInput = $true
+            } elseif ($IsoR -gt $IsoGet.Count) {    #Is that number too high?
+                $BadInput   = $true
             } else {
-                $IsoGet = $Menu | Where-Object ($_.item -eq $IsoR)
+                $IsoGet     = $Menu | Where-Object ($_.item -eq $IsoR)
                 #IsoTarget is full path
-                $IsoTarget =    $IsoGet.FullName
+                $IsoTarget  = $IsoGet.FullName
                 #IsoFile is file name
-                $IsoFile =      $IsoGet.Name
+                $IsoFile    = $IsoGet.Name
                 break
             }
-            if ($BadInput) {                                    # loop back if bad input
+            if ($BadInput) {                        # loop back if bad input
                 Write-BadInput -InputString $IsoR -BInput 'number' -SelectionType 'Item column'
             }
-        } else {    # if full .ISO path
+        } else {                                    # if full .ISO path
             #IsoTarget is full path
-            $IsoTarget =    $Iso
+            $IsoTarget  = $Iso
             #IsoFile is file name
-            $IsoFile =      $Iso -split "(\\)" | Select-Object -Last 1
+            $IsoFile    = $Iso -split "(\\)" | Select-Object -Last 1
             break
         }
     }
@@ -177,12 +177,11 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
     $IsoMount = Mount-DiskImage -ImagePath "$($IsoTarget)" | Get-Volume
     Start-Sleep $Sec
     # check for drive letter assignment
-    #can't find it
-    if ($null -eq $IsoMount.DriveLetter) {
+    if ($null -eq $IsoMount.DriveLetter) {  #can't find it
         Write-Error ".ISO not mounted" -Category ObjectNotFound
         Start-Sleep $Sec
         exit 1
-    } else { # found it!
+    } else {        # found it!
         Write-Host ""
         Write-Host 'File "' -ForegroundColor $Result -NoNewline
         Write-Host "$IsoFile" -ForegroundColor $ResultVar -NoNewline
@@ -199,13 +198,12 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
     Write-Host '"...' -ForegroundColor $Process
     Start-Sleep $Sec
     # look for $WimTarget
-    # can't find it
-    if (!(Test-Path -Path $WimTarget)) {
+    if (!(Test-Path -Path $WimTarget)) { # can't find it
         Write-Error "Unable to locate install.wim - please check .ISO is mounted"
         Dismount-ISO
         Write-Host ""
         exit 1
-    } else { # found it!
+    } else {            # found it!
         Write-Host ""
         Write-Host '"' -ForegroundColor $Result -NoNewline
         Write-Host "$WimTarget"-ForegroundColor $ResultVar -NoNewline
@@ -219,21 +217,21 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
     while ($true) {
         # show options
         $IndexList | Format-Table
-        $Index =                $(Write-Host "Please select image index (number), or type " -ForegroundColor $Prompt -NoNewline) + $(Write-Host '0' -ForegroundColor $UserInput -NoNewline) + $(Write-Host ' or ' -ForegroundColor $Prompt -NoNewline)  + $(Write-Host 'Q' -ForegroundColor $UserInput -NoNewline) + $(Write-Host " to quit: " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
-        $BadInput =             $true                       # assume the input is bad until proven otherwise
+        $Index                  = $(Write-Host "Please select image index (number), or type " -ForegroundColor $Prompt -NoNewline) + $(Write-Host '0' -ForegroundColor $UserInput -NoNewline) + $(Write-Host ' or ' -ForegroundColor $Prompt -NoNewline)  + $(Write-Host 'Q' -ForegroundColor $UserInput -NoNewline) + $(Write-Host " to quit: " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
+        $BadInput               = $true                     # assume the input is bad until proven otherwise
         if ($Index -eq '0' -or $Index -eq 'Q') {            # if 0 or Q entered, dismount & exit loop
             Dismount-ISO
             exit 1
         } elseif ($Index -match '^\d+$') {                  # make sure $Index is only a numeral
             # convert variables to integers for comparison
-            $IndexTop =         [int]$IndexList.Count
-            $IndexSelection =   [int]$Index
+            $IndexTop           = [int]$IndexList.Count
+            $IndexSelection     = [int]$Index
             if ($IndexSelection -le $IndexTop) {            # test if the input is numeric and is in range
                 # remove bad input tag & get image details
-                $BadInput =     $false
+                $BadInput       = $false
                 Write-Host ""
                 Write-Host "Getting image details..."
-                $WinEd = Get-WindowsImage -ImagePath "$WimTarget" -Index "$Index"
+                $WinEd          = Get-WindowsImage -ImagePath "$WimTarget" -Index "$Index"
                 Start-Sleep $Sec
                 # confirm selection
                 Write-Host ""
@@ -253,14 +251,13 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
                     Write-Host ' is desired version.' -ForegroundColor $ProcVar
                 }
                 Write-Host ""
-                $Confirm =      $(Write-Host "Do you want to proceed (" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
-                # if yes, escape loop
-                if ($Confirm -eq 'y' -or $Confirm -eq 'yes') {
+                $Confirm        = $(Write-Host "Do you want to proceed (" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
+                if ($Confirm -eq 'y' -or $Confirm -eq 'yes') {  # if yes, escape loop
                     break
                 }
             }
         }
-        if ($BadInput) {                                    # loop back if bad input
+        if ($BadInput) {                                        # loop back if bad input
             Write-BadInput -InputString $Index -BInput 'number' -SelectionType 'ImageIndex column'
         }
     }
@@ -269,9 +266,9 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
     # if $WimOut not a .wim file, set the file name
     if ($WimOut -notlike "*.wim") {                                             # if $WimOut isn't .wim, let's name the file
         if (Test-Path $WimOut) {                                                # does $WimOut exist?
-            $DateTime =     Get-Date -Format "%y%MM%ddHHmm"
-            $WinName =      ($WinEd.ImageName).Replace(' ','.')
-            $WimOut =       "$WimOut\$WinName.$DateTime.wim"
+            $DateTime       = Get-Date -Format "%y%MM%ddHHmm"
+            $WinName        = ($WinEd.ImageName).Replace(' ','.')
+            $WimOut         = "$WimOut\$WinName.$DateTime.wim"
         } else {                                                                # if not, would you like to make it?
             Write-Host ""
             Write-Host "Output path " -ForegroundColor $ErrorResult -NoNewline
@@ -280,7 +277,7 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
             Start-Sleep $Sec
             # prompt $Wimout creation
             Write-Host ""
-            $Confirm =      $(Write-Host 'Create directory "' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "$WimOut" -ForegroundColor $ResultVar -NoNewline) + $(Write-Host '" (' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
+            $Confirm        = $(Write-Host 'Create directory "' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "$WimOut" -ForegroundColor $ResultVar -NoNewline) + $(Write-Host '" (' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
             if ($Confirm -eq 'y' -or $Confirm -eq 'yes') {                      #Yes
                 Get-WimPath
                 New-Item -Path "$WimPath" -ItemType Directory -Force
@@ -299,7 +296,7 @@ if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
             Write-Host "$WimPath"  -ForegroundColor $ErrorVar -NoNewline
             Write-Host " not found." -ForegroundColor $ErrorResult
             Start-Sleep $Sec
-            $Confirm =      $(Write-Host 'Create directory "' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "$WimPath" -ForegroundColor $ResultVar -NoNewline) + $(Write-Host '" (' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
+            $Confirm        = $(Write-Host 'Create directory "' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "$WimPath" -ForegroundColor $ResultVar -NoNewline) + $(Write-Host '" (' -ForegroundColor $Prompt -NoNewline) + $(Write-Host "Y" -ForegroundColor $UserInput -NoNewline) + $(Write-Host "/" -ForegroundColor $Prompt -NoNewline) + $(Write-Host "N" -ForegroundColor $UserInput -NoNewline) + $(Write-Host ")? " -ForegroundColor $Prompt -NoNewline) + $(Read-Host)
             if ($Confirm -eq 'y' -or $Confirm -eq 'yes') {                      # create output directory
                 Write-Host ""
                 Write-Host "Creating " -ForegroundColor $Process -NoNewline

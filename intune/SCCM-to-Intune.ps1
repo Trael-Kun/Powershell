@@ -1,3 +1,6 @@
+# References:
+# https://github.com/mmeierm/Scripts/tree/main/Autopilot
+
 [CmdletBinding(DefaultParameterSetName = 'Default')]
 param(
 	[Parameter(Mandatory=$False,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True,Position=0)][alias("DNSHostName","ComputerName","Computer")] [String[]] $Name = @("localhost"),

@@ -21,7 +21,7 @@ function Write-Log {
     }
 }
 
-$Domain = 'ReallyRealCompany.com'
+$Domain         = 'ReallyRealCompany.com'
 
 ##Gather Info
 #Task sequence variables

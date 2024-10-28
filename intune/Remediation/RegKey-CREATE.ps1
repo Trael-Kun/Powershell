@@ -1,20 +1,11 @@
-param (
-    [switch]$Off
-)
 #Variables
-$ValueOn         = 'VoiceAccess'
-$ValueOff        = $null
+$Value         = 'VoiceAccess'
 $Path            = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Accessibility'
 $Name            = 'Configuration'
 $PropertyType    = 'String'
 $PathStart       = Split-Path -Path $Path -Parent
 $PathEnd         = Split-Path -Path $Path -Leaf
-#Unless we're turning it off
-if ($Off) {
-    $Value       = $ValueOff
-} else {
-    $Value       = $ValueOn
-}
+
 #Test for existing value
 $GetVal          = Get-ItemPropertyValue -Path $Path -Name $Name
 if (!($GetVal)) {

@@ -3,7 +3,7 @@ param (
 )
 #Variables
 $ValueOn         = 'VoiceAccess'
-$ValueOff        = ''
+$ValueOff        = $null
 $Path            = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Accessibility'
 $Name            = 'Configuration'
 $PropertyType    = 'String'

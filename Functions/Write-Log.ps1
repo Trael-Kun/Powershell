@@ -3,7 +3,7 @@ function Write-Log {
         [Parameter(Mandatory=$true)]
         [string]$Message,  #What you want the log to say
         [Parameter(Mandatory=$false)]
-        [string]$LogFile,  #Can be set earlier in script, e.g. $LogFile = C:\Temp\Log.txt
+        [string]$LogFile,  #Can be set earlier in script, e.g. $LogFile = 'C:\Temp\Log.txt'
         [switch]$NoDate    #Can be set earlier in script, e.g. $NoDate = $true
     )
     $DateTime   = [DateTime]::UtcNow.ToString('yyyy-MM-dd HH:mm:ss UTC')

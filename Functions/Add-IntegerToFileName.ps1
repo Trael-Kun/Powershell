@@ -1,4 +1,4 @@
-function Add-FileNameInteger {
+function Add-IntegerToFileName {
     <#
     .SYNOPSIS
         Automatically checks for the existence of a file, and it file is present will append a number to the end of the filename.

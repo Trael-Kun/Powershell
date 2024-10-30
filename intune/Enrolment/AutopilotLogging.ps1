@@ -32,16 +32,24 @@ function Write-Log {
     )
     if ($LogFile) {
         if ($NoDate) {
-            Write-Output $Message
-            Add-Content -Path $LogFile -Value "$Message" -Force
-        
+            try {
+                Write-Output $Message
+                Add-Content -Path $LogFile -Value "$Message" -Force
+            } catch {
+                Write-Host "Log File Not Set" -ForegroundColor Red
+                Write-Output $Message
+            } 
         } else {
-            $DateTime   = [DateTime]::UtcNow.ToString('yyyy-MM-dd HH:mm:ss UTC')
-            Write-Output $Message
-            Add-Content -Path $LogFile -Value "$DateTime	|	$Message"  -Force
+            try {
+                $DateTime = Get-Date -Format "yyyy-MM-ddTHH:mm:ss UTCzzz"
+                Write-Output $Message
+                Add-Content -Path $LogFile -Value "$DateTime	|	$Message"  -Force
+            } catch {
+                Write-Host "Log File Not Set" -ForegroundColor Red
+                Write-Output $Message
+            }
         }
     } else {
-        Write-Host "Log File Not Set" -ForegroundColor Red
         Write-Output $Message
     }
 }
@@ -57,17 +65,39 @@ function Test-Variable {
         Write-Log -NoDate "$VarName`:	NOT FOUND"
     }
 }
+function Add-Space {
+    Write-Log -NoDate ''
+}
 
 $Domain       = 'company.com'
 
-#Task sequence variables
+#Set up log file
 $tsenv  = New-Object -COMObject Microsoft.SMS.TSEnvironment
-$LogFile      = $tsenv.Value('LogFile')
-
+$LogFile            = $tsenv.Value('LogFile')
+if ($LogFile) {
+    $LogDir         = Split-Path -Path $LogFile -Parent
+    $LogFileName    = Split-Path -Path $LogFile -Leaf
+    if (Test-Path $LogFile) {
+        $Files      = Get-ChildItem -Path ("{0}\{1}*" -f $LogDir, $LogFileName) 
+        if ($Files) {
+            #Create custom column by removing the F and making it a integer, so only a number is returned
+            $Numbers = $Files | Select-Object @{Name="Number";Expression={[int]$_.BaseName.Replace($LogFileName, "")}}
+            "Found {0} existing files" -f $Files.Count
+            #Take the number, sort descending, get the first value and then increment by 1
+            $Max    = ($Numbers | Sort-Object -Property Number -Descending | Select-Object -First 1 -ExpandProperty Number) + 1
+            "The next number is {0}" -f $Max
+            #Use padding to pad zeros up to 5 characters
+            $File   = "$LogFileName{0}.log" -f $Max.ToString().PadLeft(5,'0')
+            "Incrementing {0} to generate file {1}" -f $Max, $File
+            $LogFile = Join-Path -Parent $LogDir -ChildPath $LogFileName
+        }
+    }
+}
 # Write to log
 Write-Log 'START'
-Write-Log -NoDate ''
+Add-Space
 Write-Log -NoDate 'AutoPilot Hardware Hash Task Sequence'
+Add-Space
 #Time Variables
 $LocalTime    = Get-Date -Format "yyyy-MM-dd HH:mm:ss LOCAL"
 Write-Log -NoDate "Local Time:	$LocalTime"
@@ -75,7 +105,8 @@ $UtcTime      = [DateTime]::UtcNow.ToString('yyyy-MM-dd HH:mm:ss UTC')
 Write-Log -NoDate "UTC Time:	$UtcTime"
 $UtcOffset    = Get-Date -Format "%K"
 Write-Log -NoDate "Offset:	$UtcOffset"
-Write-Log -NoDate ''
+Add-Space
+Add-Space
 
 #Device Info
 Write-Log -NoDate '##Device Details'
@@ -102,14 +133,14 @@ Test-Variable -VarVal $Manufacturer -VarName 'Make'
 Test-Variable -VarVal $Model        -VarName 'Model'
 Test-Variable -VarVal $BiosVer      -VarName 'BIOS Version'
 Test-Variable -VarVal $GroupTag     -VarName 'Group Tag'
-Write-Log -NoDate ''
+Add-Space
 
 #Drives
 Write-Log -NoDate '##Drive C: Info'
 $Drive        = Get-CimInstance -Class Win32_LogicalDisk -ComputerName LOCALHOST | Where-Object {$_. DeviceID -eq 'C:'} | Select-Object {[int]($_.Size /1GB)}, {[int]($_.FreeSpace /1GB)}
 Test-Variable -VarVal "$($Drive.'[int]($_.Size /1GB)')GB"       -VarName 'Drive Size'
 Test-Variable -VarVal "$($Drive.'[int]($_.FreeSpace /1GB)')GB"  -VarName 'Free Space'
-Write-Log -NoDate ''
+Add-Space
 
 #Users
 $UserList     = @()
@@ -124,10 +155,10 @@ foreach ($User in $Users) {
         Write-Host "$PrincipalName cannot be a primary account" -ForegroundColor Red -BackgroundColor Black
     }
 }
-Write-Log     -NoDate '##User List'
+Write-Log -NoDate '##User List'
 foreach ($Principal in $UserList) {
     Test-Variable -VarVal $Principal    -VarName 'User'
 }
-Write-Log -NoDate ''
-
+Add-Space
+Add-Space
 Write-Log 'END'

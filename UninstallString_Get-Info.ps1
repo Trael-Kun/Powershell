@@ -79,49 +79,49 @@ if (Test-Path -Path $LogDir){
 }
 # Get list of users & corresponding SIDs
 $SidList = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" | Get-ItemProperty | Select-Object PSChildNamename,ProfileImagePath
-    foreach ($Sid in $SidList) {                            
-        if ($Sid.ProfileImagePath -like "$env:Systemdrive\Users\*") {   #if there is a folder in C:\Users, collate info for later use
-            $SidUser = ((Split-Path -Path $Sid -Leaf).Replace('; username=}',''))
-            $Object = @(
-                [pscustomobject]@{PSChildname = $Sid.PSChildName; Username = $SidUser}
-            )
-            $Users += $Object
-        }
+foreach ($Sid in $SidList) {                            
+    if ($Sid.ProfileImagePath -like "$env:Systemdrive\Users\*") {   #if there is a folder in C:\Users, collate info for later use
+        $SidUser = ((Split-Path -Path $Sid -Leaf).Replace('; username=}',''))
+        $Object = @(
+            [pscustomobject]@{PSChildname = $Sid.PSChildName; Username = $SidUser}
+        )
+        $Users += $Object
     }
+}
 
-    # Get Uninstall Strings
-    $Apps = Get-ChildItem -Path $RegPaths -ErrorAction SilentlyContinue| Get-ItemProperty | Select-Object -Property DisplayName, Publisher, DisplayVersion, UninstallString, PSPath
-    foreach ($App in $Apps) {
-        if (($null -ne $App.UninstallString) -or ($App.UninstallString -ne "")) {   #if an uninstall string exists
-            if ($App.PSPath -like "*\Wow6432Node\*") {                              #32 or 64-bit?
-                $Arch = 'x86'
-            } else {
-                $Arch = 'x64'
-            }
-            if ($App.PSPath -like "*HKEY_LOCAL_MACHINE\*") {                        #machine-wide install, or user-based?
-                $User = 'HKLM'
-            } else {                                                                #if it's a user install
-                foreach ($Sid in $Users) {                                          #check SIDs against usernames
-                    if ($App.PSPath -like $Sid.PSChildName) {                       #get the username
-                        $User = $Sid.UserName
-                    }
+# Get Uninstall Strings
+$Apps = Get-ChildItem -Path $RegPaths -ErrorAction SilentlyContinue| Get-ItemProperty | Select-Object -Property DisplayName, Publisher, DisplayVersion, UninstallString, PSPath
+foreach ($App in $Apps) {
+    if (($null -ne $App.UninstallString) -or ($App.UninstallString -ne "")) {   #if an uninstall string exists
+        if ($App.PSPath -like "*\Wow6432Node\*") {                              #32 or 64-bit?
+            $Arch = 'x86'
+        } else {
+            $Arch = 'x64'
+        }
+        if ($App.PSPath -like "*HKEY_LOCAL_MACHINE\*") {                        #machine-wide install, or user-based?
+            $User = 'HKLM'
+        } else {                                                                #if it's a user install
+            foreach ($Sid in $Users) {                                          #check SIDs against usernames
+                if ($App.PSPath -like $Sid.PSChildName) {                       #get the username
+                    $User = $Sid.UserName
                 }
             }
         }
-        $Collate = @(                                                               #format for table
-            [pscustomobject]@{
-                DisplayName=$App.DisplayName; 
-                Publisher=$App.Publisher; 
-                Version=$App.DisplayVersion; 
-                Architecture=$Arch; 
-                User=$User; 
-                Uninstall=$App.UninstallString
-            }
-            )
-        if ($Collate.Uninstall) {                                                   #only gather info that's useful
-            $Uninst += $Collate                                                     #add info to final output
-        }
     }
+    $Collate = @(                                                               #format for table
+        [pscustomobject]@{
+            DisplayName=$App.DisplayName; 
+            Publisher=$App.Publisher; 
+            Version=$App.DisplayVersion; 
+            Architecture=$Arch; 
+            User=$User; 
+            Uninstall=$App.UninstallString
+        }
+        )
+    if ($Collate.Uninstall) {                                                   #only gather info that's useful
+        $Uninst += $Collate                                                     #add info to final output
+    }
+}
 
 ## Summary
 ###################

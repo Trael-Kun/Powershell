@@ -42,7 +42,8 @@ $ScriptName = $MyInvocation.MyCommand.Name
 
 param (
     [Parameter(HelpMessage='Full path to log file')]
-    [string]$LogPath = "$env:SystemDrive\Temp\Logs\$PCname-uninstalls_$(get-date -format yymmdd_hhmmtt).csv"
+    [string]
+    $LogPath = "$env:SystemDrive\Temp\Logs\$PCname-uninstalls_$(get-date -format yymmdd_hhmmtt).csv"
 )
 
 ## Header

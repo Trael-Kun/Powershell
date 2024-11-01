@@ -11,7 +11,7 @@ $ScriptName = $MyInvocation.MyCommand.Name
  Written by Bill Wilson 22/06/2022
 
  02/03/2023 Bill Wilson     Added WOW6432Node reg key to list
- 30/10/2024 Bill Wilson     Added HKU hive
+ 30/10/2024 Bill Wilson     Added HKU hive for user-based installs
  31/10/2024 Bill Wilson     Added User & Architecture functions
                             Changed final formatting
 #>

@@ -30,7 +30,7 @@
  | 01/11/2024 Bill Wilson   added on-screen output if no log file found
  |                          changed logging details to parameter
  |                          added header info
- |                          added better comments throughout
+ |                          improved comments throughout
 #>
 
 ## Script info

@@ -16,6 +16,10 @@ $ScriptName = $MyInvocation.MyCommand.Name
                             Changed final formatting
 #>
 
+param (
+    [string]$LogPath = "$env:SystemDrive\Temp\Logs\$PCname-uninstalls_$(get-date -format yymmdd_hhmmtt).csv"
+)
+
 Write-Host "`r`n$ScriptPath\$ScriptName" -ForegroundColor Yellow
 Write-Host " Script to find Uninstall strings from Registry " -BackgroundColor DarkYellow
 Write-Host " Version $VERSION " -BackgroundColor DarkYellow
@@ -23,9 +27,9 @@ Write-Host ""
 
 ## Set Variables
 ###################
-$PCName = $env:computername                                             #Name of PC
-$LogDir = "c:\temp\logs"                                                #where output file is stored
-$LogFile  = "$PCname-uninstalls_$(get-date -format yymmdd_hhmmtt).csv"  # Name output file
+$PCName     = $env:computername                                             #Name of PC
+$LogDir     = Split-Path $LogPath -Parent                                   #where output file is stored
+$LogFile    = Split-Path $LogPath -Leaf                                     #Name output file
 
 $Uninst = @()   #empty array for final output
 $StdPath = 'Microsoft\Windows\CurrentVersion\Uninstall' #common reg path

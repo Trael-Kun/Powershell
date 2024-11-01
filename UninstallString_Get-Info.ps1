@@ -137,7 +137,7 @@ if (Test-Path -Path $LogPath) {                                                 
     Write-Host "Logged to " -NoNewline
     Write-Host "$LogPath`r`n" -ForegroundColor Green
 } else {                                                                        #if the logfile doesn't exist, not so much
-    Write-Host "Failed to write .csv file`r`n" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "Failed to write $LogFile file`r`n" -ForegroundColor Red -BackgroundColor Black
     Write-Host -NoNewLine 'Press any key to display results on-screen.';
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
     $Uninst

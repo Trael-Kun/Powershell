@@ -10,36 +10,36 @@ https://learn.microsoft.com/en-us/windows/win32/intl/table-of-geographical-locat
 
 Location id (decimal) |	Location (Short Name)
 ----------------------|----------------------
-		2										Antigua and Barbuda
-		3								   	Afghanistan
-		4										Algeria
-		5										Azerbaijan
-		6										Albania
-		7										Armenia
-		8										Andorra
-		9										Angola
-		10									American Samoa
-		11									Argentina
-		12									Australia
-		14									Austria
-		17									Bahrain
-		18									Barbados
-		19									Botswana
-		20									Bermuda
-		21									Belgium
-		22									Bahamas, The
-		23									Bangladesh
-		24									Belize
-		25									Bosnia and Herzegovina
-		26									Bolivia
-		27									Myanmar
-		28									Benin
-		29									Belarus
-		30									Solomon Islands
-		32									Brazil
-		34									Bhutan
-		35									Bulgaria
-		37									Brunei
+		2	Antigua and Barbuda
+		3	Afghanistan
+		4	Algeria
+		5	Azerbaijan
+		6	Albania
+		7	Armenia
+		8	Andorra
+		9	Angola
+		10	American Samoa
+		11	Argentina
+		12	Australia
+		14	Austria
+		17	Bahrain
+		18	Barbados
+		19	Botswana
+		20	Bermuda
+		21	Belgium
+		22	Bahamas, The
+		23	Bangladesh
+		24	Belize
+		25	Bosnia and Herzegovina
+		26	Bolivia
+		27	Myanmar
+		28	Benin
+		29	Belarus
+		30	Solomon Islands
+		32	Brazil
+		34	Bhutan
+		35	Bulgaria
+		37	Brunei
 		38									Burundi
 		39									Canada
 		40									Cambodia

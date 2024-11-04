@@ -4,9 +4,5 @@ function Test-ItemPropertyValue {
     [string]$Name,
     [string]$Value
   )
-  if ((Get-ItemPropertyValue -Path $Path -Name $Name) -eq $Value) {
-    Return $true
-  } else {
-    Return $false
-  }
+  ((Get-ItemPropertyValue -Path $Path -Name $Name) -eq $Value)
 }

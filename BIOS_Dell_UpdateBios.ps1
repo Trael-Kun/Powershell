@@ -98,25 +98,25 @@ $BiosPwd    = $tsenv.Value("BiosPwd")
 # Get Computer Model
 $Model      = (Get-WmiObject -Class Win32_ComputerSystem | Select-Object Model).Model
 $ModelList  = @(  #ExePath is first part of the bios update file name with a wiidcard where the version number would be
-  [pscustomobject]@{Model='OptiPlex 7000'       ;	ExePath="OptiPlex_7000_*"}
-  [pscustomobject]@{Model='OptiPlex 7020'       ;	ExePath="OptiPlex_7020_*"}
-  [pscustomobject]@{Model='OptiPlex 7040'       ;	ExePath="OptiPlex_7040_*"}
-  [pscustomobject]@{Model='OptiPlex 7060'       ;	ExePath="OptiPlex_7060_*"}
-  [pscustomobject]@{Model='OptiPlex 7070'       ;	ExePath="OptiPlex_7070_*"}
-  [pscustomobject]@{Model='OptiPlex 7070 Ultra' ;	ExePath="OptiPlex_7070_Ultra_*"}
-  [pscustomobject]@{Model='OptiPlex 7080'       ;	ExePath="OptiPlex_7080_*"}
+  [pscustomobject]@{Model='OptiPlex 7000'       ; ExePath="OptiPlex_7000_*"}
+  [pscustomobject]@{Model='OptiPlex 7020'       ; ExePath="OptiPlex_7020_*"}
+  [pscustomobject]@{Model='OptiPlex 7040'       ; ExePath="OptiPlex_7040_*"}
+  [pscustomobject]@{Model='OptiPlex 7060'       ; ExePath="OptiPlex_7060_*"}
+  [pscustomobject]@{Model='OptiPlex 7070'       ; ExePath="OptiPlex_7070_*"}
+  [pscustomobject]@{Model='OptiPlex 7070 Ultra' ; ExePath="OptiPlex_7070_Ultra_*"}
+  [pscustomobject]@{Model='OptiPlex 7080'       ; ExePath="OptiPlex_7080_*"}
   [pscustomobject]@{Model='OptiPlex 7090'       ; ExePath="OptiPlex_7090_*"}
   [pscustomobject]@{Model='Latitude 5400'       ; ExePath="Latitude_5X00_Precision_3540_*"}
   [pscustomobject]@{Model='Latitude 5410'       ; ExePath="Latitude_5X10_Precision_3550_*"}
-  [pscustomobject]@{Model='Latitude 5420'       ;	ExePath="Latitude_5420_*"}
-  [pscustomobject]@{Model='Latitude E5470'      ;	ExePath="Latitude_E5x70_Precision_3510_*"}
-  [pscustomobject]@{Model='Precision 3650 Tower';	ExePath="Precision_3650_*"}
+  [pscustomobject]@{Model='Latitude 5420'       ; ExePath="Latitude_5420_*"}
+  [pscustomobject]@{Model='Latitude E5470'      ; ExePath="Latitude_E5x70_Precision_3510_*"}
+  [pscustomobject]@{Model='Precision 3650 Tower'; ExePath="Precision_3650_*"}
   [pscustomobject]@{Model='Precision 3660'      ; ExePath="Precision_3660_*"}
-  [pscustomobject]@{Model='Precision Tower 5810';	ExePath="T5810*"}
-  [pscustomobject]@{Model='Precision 5820'      ;	ExePath="M33X_*"}
-  [pscustomobject]@{Model='Precision Tower 7910';	ExePath="T7910*"}
-  [pscustomobject]@{Model='Precision 7920 Tower';	ExePath="7X20T_*"}
-  [pscustomobject]@{Model='Precision 7920 Tower';	ExePath="7X20T_*";}
+  [pscustomobject]@{Model='Precision Tower 5810'; ExePath="T5810*"}
+  [pscustomobject]@{Model='Precision 5820'      ; ExePath="M33X_*"}
+  [pscustomobject]@{Model='Precision Tower 7910'; ExePath="T7910*"}
+  [pscustomobject]@{Model='Precision 7920 Tower'; ExePath="7X20T_*"}
+  [pscustomobject]@{Model='Precision 7920 Tower'; ExePath="7X20T_*";}
 )
 
 # Find the correct .exe

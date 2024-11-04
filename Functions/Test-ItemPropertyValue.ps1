@@ -1,4 +1,11 @@
 function Test-ItemPropertyValue {
+ <#
+    .SYNOPSIS
+        Checks item property value, or checks value is not $null. Useful for checking registry.
+    .NOTES
+        Author: Bill Wilson
+        Date 04/11/2024
+    #>
   param (
     [Parameter(Mandatory=$true)]
     [string]$Path,

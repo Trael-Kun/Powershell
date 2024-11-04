@@ -3,5 +3,5 @@ function Test-ItemProperty {
     [string]$Path,
     [string]$PropertyName
   )
- ($null -ne (Get-ItemProperty -Path $Path).$Property)
+ ($null -ne (Get-ItemProperty -Path $Path).$PropertyName)
 }

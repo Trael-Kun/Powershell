@@ -1,7 +1,7 @@
 function Add-IntegerToFileName {
     <#
     .SYNOPSIS
-        Automatically checks for the existence of a file, and it file is present will append a number to the end of a new filename.
+        Automatically checks for the existence of a file, and if file is present will append a number to the end of a new filename.
     .NOTES
         Author: Bill Wilson
         Date 29/10/2024

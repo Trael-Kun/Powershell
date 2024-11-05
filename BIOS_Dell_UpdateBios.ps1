@@ -117,6 +117,8 @@ $ModelList  = @(  #ExePath is first part of the bios update file name with a wii
   [pscustomobject]@{Model='Precision Tower 7910'; ExePath="T7910*"}
   [pscustomobject]@{Model='Precision 7920 Tower'; ExePath="7X20T_*"}
   [pscustomobject]@{Model='Precision 7920 Tower'; ExePath="7X20T_*";}
+  [pscustomobject]@{Model='Wyse 5070'           ; ExePath="Wyse_5070_*";}
+
 )
 
 # Find the correct .exe

@@ -7,8 +7,51 @@ Written by Bill, 19/02/2024
 References:
 https://www.elevenforum.com/t/change-country-or-region-geographic-location-geoid-in-windows-11.4034/
 https://stackoverflow.com/questions/35705021/powershell-dynamic-menu-from-array
-https://learn.microsoft.com/en-us/windows/win32/intl/table-of-geographical-locations
 #>
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
+$URL = 'https://learn.microsoft.com/en-us/windows/win32/intl/table-of-geographical-locations'
+Write-Host ''
+Write-Host "Running Script $(Join-Path -Path $PSScriptRoot -ChildPath $MyInvocation.MyCommand.Name)" -ForegroundColor Green -BackgroundColor DarkGreen
+Write-Host ''
+Write-Host ''
+Write-Host "A full list of GeoIds is available at $URL" -ForegroundColor Green
+Write-Host ''
+
+Function Get-Wait ($Message)
+{
+    # Check if running Powershell ISE
+    if ($psISE)
+    {
+        Add-Type -AssemblyName System.Windows.Forms
+        [System.Windows.Forms.MessageBox]::Show("$message")
+    }
+    else
+    {
+        Write-Host "$Message" -ForegroundColor Yellow
+        $x = $host.ui.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    }
+}
+function Confirm-Choice {
+	Write-Host "Set WinHome to `"$($Location.HomeLocation)`" " -NoNewline
+	Write-Host 'Y' -ForegroundColor Magenta -NoNewline
+	Write-Host '/'-NoNewline
+	Write-Host 'N' -ForegroundColor Magenta -NoNewline
+	Write-Host '? ' -NoNewline
+    $Confirm = Read-Host 
+    if ($Confirm -eq 'y') {
+        Set-WinHomeLocation -GeoId $Location.GeoId
+		Start-Sleep 1
+        if ((Get-WinHomeLocation).GeoId -eq $Location.GeoId) {
+			Write-Host 'WinHome set to ' -NoNewline
+			Write-Host "$($Location.HomeLocation)" -ForegroundColor Green 
+			$Failure = $false
+		}
+	} else {
+		Write-Host "Unable to set location." -ForegroundColor Red
+		$Failure = $true
+	}    
+break
+}
 
 $Locations = @(
 	[pscustomobject]@{GeoId=2;         HomeLocation='Antigua and Barbuda'}
@@ -312,56 +355,60 @@ $Locations = @(
 	[pscustomobject]@{GeoId=161832257; HomeLocation='Latin America and the Caribbean'}
 	[pscustomobject]@{GeoId=161832258; HomeLocation='Bonaire, Sint Eustatius and Saba'}
 )
-Function Get-Wait ($Message)
-{
-    # Check if running Powershell ISE
-    if ($psISE)
-    {
-        Add-Type -AssemblyName System.Windows.Forms
-        [System.Windows.Forms.MessageBox]::Show("$message")
-    }
-    else
-    {
-        Write-Host "$Message" -ForegroundColor Yellow
-        $x = $host.ui.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-    }
-}
-function Confirm-Choice {
-    $Confirm = Read-Host "Set WinHome to $($Location.HomeLocation) Y/N?"
-    if ($Confirm -eq 'y') {
-        Set-WinHomeLocation -GeoId $Location.GeoId
-        if ((Get-WinHomeLocation).GeoId -eq $Location.GeoId) {
-            Write-Host "WinHome set to $($Location.HomeLocation)"
-            Get-Wait
-        } else {
-            Write-Host "Unable to set location."
-            Get-Wait
-        }
-    }
-	break
-}
 
-$Message = 'Press any key to continue...'
+#Set Variables
+
+$Message 		 = 'Press any key to continue...'
 $CurrentLocation = (Get-WinHomeLocation)
+$NewLocation 	 = '?'
 
-Write-Host 'A full list of GeoIds is available at https://learn.microsoft.com/en-us/windows/win32/intl/table-of-geographical-locations'
+#Gather info
+Write-Host 'Current WinHome is ' -NoNewLine
+Write-Host $CurrentLocation.HomeLocation -ForegroundColor Magenta -NoNewline
+Write-Host ', (GeoId: ' -NoNewline
+Write-Host $CurrentLocation.GeoId -ForegroundColor Magenta -NoNewline
+Write-Host ')'
 Write-Host ''
-Write-Host "Current WinHome is $($CurrentLocation.HomeLocation), (GeoId: $($CurrentLocation.GeoId))"
-Write-Host ''
-$NewLocation = Read-Host 'Enter New Location'
 
-foreach ($Location in $Locations) {
-    if ($Location.GeoId -eq $NewLocation) {
-        Confirm-Choice -Message $Message
-    } elseif ($Location.HomeLocation -match $NewLocation) {
-        $Search = $Locations | Where-Object -Property HomeLocation -match $NewLocation
-        $menu = @{}
-        for ($i=1;$i -le $Search.count; $i++) { 
-            Write-Host "$i. $($Search[$i-1].HomeLocation) (GeoId: $($Search[$i-1].GeoId))" 
-            $menu.Add($i,($Search[$i-1].name))
-        }
-    	[int]$ans = Read-Host 'Enter selection'
-    	$Selection = $Location[$ans-1]
-        Confirm-Choice -Message $Message
-    }
+#Request desired location
+do {
+	Write-Host ''
+	Write-Host 'Enter New Location, or enter "' -NoNewline
+	Write-Host '?' -ForegroundColor Cyan -NoNewline
+	Write-Host '" to see the full list: ' -NoNewline
+	$NewLocation = Read-Host
+	Start-Sleep 1
+	if ($NewLocation -eq '?') {
+		Write-Output $Locations
+	}
+} until ($NewLocation -ne '?')
+
+#if it's a number, check the numbers
+if ([int]$NewLocation) {
+	if ($NewLocation -notin $Locations.GeoId) {
+		Write-Host 'Incorrect selection. Please consult ' -ForegroundColor Red -NoNewline
+		Write-Host $URL -ForegroundColor Magenta -NoNewline
+		Write-Host ' to confirm GeoId.' -ForegroundColor Red
+	} else {
+		foreach ($Location in $Locations) {
+			if ($Location.GeoId -eq $NewLocation) {
+				Confirm-Choice -Message $Message
+			}
+		}
+	}
+} elseif ($Location.HomeLocation -match $NewLocation) {
+	$Search = $Locations | Where-Object -Property HomeLocation -match $NewLocation
+	$menu = @{}
+	for ($i=1;$i -le $Search.count; $i++) { 
+		Write-Host "$i. $($Search[$i-1].HomeLocation) (GeoId: $($Search[$i-1].GeoId))" -ForegroundColor Green
+		$menu.Add($i,($Search[$i-1].name))
+	}
+	[int]$ans = Read-Host 'Enter selection'
+	$Selection = $Location[$ans-1]
+	Confirm-Choice -Message $Message
+}
+#Test if successful
+if ($Failure) {
+	Write-Host 'Invalid selection. Please try again' -ForegroundColor Red
+} else {
 }

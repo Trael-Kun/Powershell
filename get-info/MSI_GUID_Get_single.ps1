@@ -15,4 +15,4 @@ $Providers = ('msi',
     'PowerShellGet',
     'psl',
     'Programs')
-(Get-Package -ProviderName msi,Programs,chocolatey,nuget -Name $Name).FastPackageReference
+(Get-Package -ProviderName $Providers -Name $Name).FastPackageReference

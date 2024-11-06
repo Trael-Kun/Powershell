@@ -1,9 +1,9 @@
-Function Get-Wait {
+Function Invoke-PressAnyKey {
   <#
   .SYNOPSIS
    Pauses script for user interaction
   .NOTES
-   Thief:  Bill Wilson 
+   Thief:  Bill Wilson (github.com/Trael-Kun)
    Date:   05/11/2024
    
    stolen wholesale from;

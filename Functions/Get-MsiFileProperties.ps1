@@ -8,6 +8,7 @@ function Get-MsiFileProperties {
   Stolen Wholesale from:
     https://stackoverflow.com/questions/11251034/find-guid-from-msi-file/29938049#29938049
 #>
+
   param (
     [Parameter(Mandatory=$true,
       HelpMessage='Path to MSI file.')]
@@ -20,6 +21,9 @@ function Get-MsiFileProperties {
     $windowsInstaller = (New-Object -ComObject WindowsInstaller.Installer)
   }
   process {
+    if ($ExecutionContext.SessionState.LanguageMode -eq 'ConstrainedLanguage') {
+      Write-Host 'This script will not run in constrained language mode.' -ForegroundColor Red
+    }
     $table = @{}
     $msi = $windowsInstaller.GetType().InvokeMember('OpenDatabase', 'InvokeMethod', $null, $windowsInstaller, @($Path.FullName, 0))
     foreach ($property in $properties) {

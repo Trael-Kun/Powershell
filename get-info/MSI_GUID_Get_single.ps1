@@ -18,9 +18,5 @@ $Providers = (
     'Programs'
 )
 $ProviderList = (Get-PackageProvider).Name
-foreach ($Provider in $Providers) {
-    if ($Provider -in $ProviderList) {
-        $ProviderNames = $ProviderNames += $Provider
-    }
-}
+$ProviderNames = $Providers | Where-Object { $_ -in $ProviderList }
 Get-Package -ProviderName $ProviderNames -Name $Name | Select-Object -Property Name,Version,FastPackageReference

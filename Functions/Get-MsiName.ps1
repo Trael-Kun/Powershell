@@ -1,6 +1,6 @@
 function Get-MsiName {
     <#
-        GUID Detection
+        Find installs per name
         Author: Bill Wilson (https://github.com/Trael-Kun)
         Date:   06/11/2024
     #>

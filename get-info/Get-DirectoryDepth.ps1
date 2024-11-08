@@ -3,6 +3,8 @@
     Digs through the target directory and tells you where it is deepest.
  .PARAMETER TargetDirectory
     The directory you're targeting.
+ .PARAMETER FromPath
+    Start count from TargetDirectory
  .PARAMETER Report
     Writes output for each folder tested (Path & depth)
  .NOTES
@@ -15,8 +17,12 @@ param (
     [Parameter(Mandatory=$true)]
     [string]$TargetDirectory,
     [Parameter(Mandatory=$false)]
+    [switch]$FromPath,
     [switch]$Report
 )
+if ($FromPath) {
+    [int]$PathCount = ($TargetDirectory.Replace('\\','')).Split('\').Count
+}
 #find all the child directories
 $Fetch = Get-ChildItem $TargetDirectory -Directory -Recurse
 #set empty
@@ -26,7 +32,10 @@ ForEach ($Level in $Fetch) {
     #count directories in path
     [int]$Count = ($Level.FullName.Replace('\\','')).Split('\').Count
     if ($Report) { #tell us what you're doing
-        Write-Output "Path $($Lev.FullName) is $Count deep"
+        if ($FromPath) {
+            $Count = ($Count - $PathCount)
+        }
+        Write-Output "Path $($Level.FullName) is $Count deep"
     }
     #build hash table
     $Levels += [pscustomobject]@{Path=$Level.FullName; Levels=$Count}

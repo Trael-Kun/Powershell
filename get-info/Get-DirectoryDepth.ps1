@@ -24,29 +24,43 @@ if ($FromPath) {
     [int]$PathCount = ($TargetDirectory.Replace('\\','')).Split('\').Count
 }
 #find all the child directories
-$Fetch = Get-ChildItem $TargetDirectory -Directory -Recurse
+$Directories = Get-ChildItem $TargetDirectory -Directory -Recurse
 #set empty
 $Levels = @()
 #process data
-ForEach ($Level in $Fetch) {
+ForEach ($Directory in $Directories) {
     #count directories in path
-    [int]$Count = ($Level.FullName.Replace('\\','')).Split('\').Count
+    [int]$DirCount = ($Directory.FullName.Replace('\\','')).Split('\').Count
     if ($Report) { #tell us what you're doing
-        if ($FromPath) { #minus however deep we are now
-            $Count = ($Count - $PathCount)
+        if ($FromPath) {
+            $DirCount = ($DirCount - $PathCount)
         }
-        Write-Output "Path $($Level.FullName) is $Count deep"
+        Write-Output "Path $($Directory.FullName) is $DirCount deep"
     }
     #build hash table
-    $Levels += [pscustomobject]@{Path=$Level.FullName; Levels=$Count}
+    try {
+        $Levels += [pscustomobject]@{Path=$Directory.FullName; Levels=$DirCount}
+    }
+    catch { #at least we'll get something if constrained language is on
+        $Levels += $DirCount
+    }
 }
 Write-Output ''
 #sort data
-$Deepest = $Levels | Sort-Object -Property Levels | Select-Object -Last 1
-#write results
-Write-Host 'Deepest path is ' -NoNewline
-Write-Host $Deepest.Path -ForegroundColor Green -NoNewline
-Write-Host ' at ' -NoNewline
-Write-Host $Deepest.Levels -ForegroundColor Green -NoNewline
-Write-Host ' levels'
-Write-Output ''
+if ($Levels.Path) { #with hashtable
+    $Deepest = $Levels | Sort-Object -Property Levels | Select-Object -Last 1
+    #write results
+    Write-Host 'Deepest path is ' -NoNewline
+    Write-Host $Deepest.Path -ForegroundColor Green -NoNewline
+    Write-Host ' at ' -NoNewline
+    Write-Host $Deepest.Levels -ForegroundColor Green -NoNewline
+    Write-Host ' levels'
+    Write-Output ''
+} else {    #without hashtable
+    $Deepest = $Levels | Sort-Object | Select-Object -Last 1
+    Write-Host 'Deepest path is ' -NoNewline
+    Write-Host $Deepest.Levels -ForegroundColor Green -NoNewline
+    Write-Host ' levels'
+    Write-Output ''
+}
+#end

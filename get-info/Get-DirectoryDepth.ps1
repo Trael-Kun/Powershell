@@ -32,7 +32,7 @@ ForEach ($Level in $Fetch) {
     #count directories in path
     [int]$Count = ($Level.FullName.Replace('\\','')).Split('\').Count
     if ($Report) { #tell us what you're doing
-        if ($FromPath) {
+        if ($FromPath) { #minus however deep we are now
             $Count = ($Count - $PathCount)
         }
         Write-Output "Path $($Level.FullName) is $Count deep"

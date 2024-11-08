@@ -15,7 +15,7 @@
 #>
 function Get-PathCount {
     param(
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory=$true)]
         [string]$CountPath
     )
     [int]($CountPath.Replace('\\','')).Split('\').Count

@@ -13,6 +13,13 @@
     References;
         https://www.reddit.com/r/PowerShell/comments/w990nh/subfolder_level_depth_count/
 #>
+function Get-PathCount {
+    param(
+        [Parameter(Mandatory)]
+        [string]$CountPath
+    )
+    [int]($CountPath.Replace('\\','')).Split('\').Count
+}
 param (
     [Parameter(Mandatory=$true)]
     [string]$TargetDirectory,
@@ -20,8 +27,8 @@ param (
     [switch]$FromPath,
     [switch]$Report
 )
-if ($FromPath) {
-    [int]$PathCount = ($TargetDirectory.Replace('\\','')).Split('\').Count
+if ($FromPath) {    #caculate how many folders in the path
+    $PathCount = Get-PathCount $TargetDirectory
 }
 #find all the child directories
 $Directories = Get-ChildItem $TargetDirectory -Directory -Recurse
@@ -30,24 +37,24 @@ $Levels = @()
 #process data
 ForEach ($Directory in $Directories) {
     #count directories in path
-    [int]$DirCount = ($Directory.FullName.Replace('\\','')).Split('\').Count
-    if ($Report) { #tell us what you're doing
-        if ($FromPath) {
+    $DirCount = Get-PathCount $Directory
+    if ($Report) {          #tell us what you're doing
+        if ($FromPath) {    #count from the parent path
             $DirCount = ($DirCount - $PathCount)
         }
         Write-Output "Path $($Directory.FullName) is $DirCount deep"
     }
-    #build hash table
-    try {
-        $Levels += [pscustomobject]@{Path=$Directory.FullName; Levels=$DirCount}
-    }
-    catch { #at least we'll get something if constrained language is on
+    #store results
+    if ($ExecutionContext.SessionState.LanguageMode -eq 'ConstrainedLanguage') {    #at least we'll get something if constrained language is on
         $Levels += $DirCount
+    } else {                                                                        #build hash table
+        $Levels += [pscustomobject]@{Path=$Directory.FullName; Levels=$DirCount}
     }
 }
 Write-Output ''
-#sort data
-if ($Levels.Path) { #with hashtable
+
+if (($null -ne $Levels.Path) -or ($Levels.Path -ne '')) { #with hashtable
+    #sort data
     $Deepest = $Levels | Sort-Object -Property Levels | Select-Object -Last 1
     #write results
     Write-Host 'Deepest path is ' -NoNewline
@@ -56,10 +63,12 @@ if ($Levels.Path) { #with hashtable
     Write-Host $Deepest.Levels -ForegroundColor Green -NoNewline
     Write-Host ' levels'
     Write-Output ''
-} else {    #without hashtable
+} else {            #without hashtable
+    #sort data
     $Deepest = $Levels | Sort-Object | Select-Object -Last 1
+    #write results
     Write-Host 'Deepest path is ' -NoNewline
-    Write-Host $Deepest.Levels -ForegroundColor Green -NoNewline
+    Write-Host $Deepest -ForegroundColor Green -NoNewline
     Write-Host ' levels'
     Write-Output ''
 }

@@ -16,31 +16,36 @@ This script:
 
 .PARAMETER ISO
 Specifies path to input .iso file
-
+Path to target Windows .ISO file. This can be a full file path or directory only.
 .PARAMETER WimOut
-Specifies path to output .wim file
+Destination for output .wim file. This can be a full file path or directory only.
+
+.PARAMETER Logging
+Enables logging
 
 .NOTES
-Author: Bill Wilson
-https://github.com/Trael-Kun
-
-References
-https://serverfault.com/questions/968495/how-can-an-iso-image-be-mounted-to-a-specified-drive-letter-in-powershell
-https://learn.microsoft.com/en-us/powershell/module/dism/export-windowsimage
-https://stackoverflow.com/questions/18780956/suppress-console-output-in-powershell
-https://stackoverflow.com/questions/64454231/powershell-read-host-to-select-an-array-index
-https://debug.to/1435/how-to-change-color-of-read-host-in-powershell
-https://petri.com/create-numbered-output-lists-with-powershell/
+Author:  Bill Wilson (https://github.com/Trael-Kun)
+Date:    2023 some time
+References;
+    https://serverfault.com/questions/968495/how-can-an-iso-image-be-mounted-to-a-specified-drive-letter-in-powershell
+    https://learn.microsoft.com/en-us/powershell/module/dism/export-windowsimage
+    https://stackoverflow.com/questions/18780956/suppress-console-output-in-powershell
+    https://stackoverflow.com/questions/64454231/powershell-read-host-to-select-an-array-index
+    https://debug.to/1435/how-to-change-color-of-read-host-in-powershell
+    https://petri.com/create-numbered-output-lists-with-powershell/
 #>
 
 param (
     # Specifies path to input .iso file
-    [Parameter(Mandatory,HelpMessage='Path to target Windows .ISO file. This can be a full file path or directory only (script will select 1st .ISO found)')]
+    [Parameter(Mandatory,
+    HelpMessage='Path to target Windows .ISO file. This can be a full file path or directory only.')]
     [string]$Iso,
     # Specifies path for output .wim file
-    [Parameter(Mandatory,HelpMessage='Destination for output .wim file. This can be a full file path or directory only.')]
+    [Parameter(Mandatory,
+    HelpMessage='Destination for output .wim file. This can be a full file path or directory only.')]
     [string]$WimOut,
-    [Parameter(Mandatory=$false,HelpMessage='Enable Logging')]
+    [Parameter(Mandatory=$false,
+    HelpMessage='Enable Logging')]
     [switch]$Log
 )
 
@@ -133,7 +138,7 @@ if ($WimOut -match "`"*`"") {
 <# Start Script #>
 Reset-Variables
 # check ISO exists
-if ((Test-Path -Path "$Iso")) {                     # Does the ISO exist?
+if ((Test-Path -Path "$Iso")) {                     # Does the path exist?
     # check syntax of $Iso Path
     if ($Iso -notlike "*.ISO") {                    # if $Iso is only dir path
         while ($true) {

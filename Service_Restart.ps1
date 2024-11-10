@@ -7,15 +7,21 @@ Created:  24/11/2022
 Modified 24/11/22   Bill      ;Changed method from Get-WmiObject to Get-Service
                               ;Added variables for easy maintainence
                               ;Added Restart-Service & Commented out Stop/Start-Service
+Modified 11/11/24   Bill      ;Added parameters
+                              ;Changed variable names clarity
 #>
 
-$PCname = "AdobeFRL01"
-$Srv = "FRL Online Proxy"
+param (
+  [Parameter(mandatory)]
+  $Servername   # eg "AdobeFRL01"
+  $ServiceName  #eg "FRL Online Proxy"
+)
 
 ## Get Service Info
-$service = Get-Service -ComputerName $PCname -Name $Srv
+$service = Get-Service -ComputerName $Servername -Name $service
 $service
-<#$service | Get-Member -Type Method
+<#
+$service | Get-Member -Type Method
 
 ## Stop Service
 Stop-Service -InputObject $service -Verbose

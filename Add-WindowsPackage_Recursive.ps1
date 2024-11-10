@@ -1,10 +1,14 @@
 <#
-.DESCRIPTION
-Add-WindowsPackage for all .cab files in the directory
-Written by Bill
-24/09/24
+.SYNOPSIS
+ Add-WindowsPackage for all .cab files in the directory
+.NOTES
+ Author: Bill Wilson (https://github.com/Trael-Kun)
+ Date:	24/09/24
 #>
-$CabPath = 
+param (
+	[Parameter(mandatory)}
+	[string]$CabPath
+ )
 $Cabs = (Get-ChildItem -Path $CabPath -Recurse -Filter *.cab) | Sort-Object -Property LastWriteTime
 foreach ($Cab in $Cabs) {
 	$CabCheck = $($Cab.Name).Substring(12,9)

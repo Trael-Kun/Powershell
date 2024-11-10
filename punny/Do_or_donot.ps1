@@ -1,6 +1,6 @@
 #try{
     if ($xwing -in $swamp) {
-        DO {Move-Item $xwing -Force}
+        DO {Move-Item $xwing -Destination $land -Force}
         UNTIL ($swamp -notcontains $xwing)
     }
 }

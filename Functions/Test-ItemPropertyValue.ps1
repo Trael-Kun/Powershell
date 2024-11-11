@@ -6,17 +6,16 @@ function Test-ItemPropertyValue {
         Author: Bill Wilson
         Date 04/11/2024
     #>
-  param (
+    param (
     [Parameter(Mandatory=$true)]
     [string]$Path,
     [string]$Name,
     [Parameter(Mandatory=$false)]
-    [string]$Value,
-    [switch]$Exist
-  )
-  if ($Exist) {
+    [string]$Value
+    )
+    if ($null -ne $Value) {
     ($null -ne (Get-ItemPropertyValue -Path $Path -Name $Name))
-  } else {
+    } else {
     ((Get-ItemPropertyValue -Path $Path -Name $Name) -eq $Value)
-  }
+    }
 }

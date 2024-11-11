@@ -14,8 +14,8 @@ function Test-ItemPropertyValue {
     [string]$Value
     )
     if ($null -ne $Value) {
-    ($null -ne (Get-ItemPropertyValue -Path $Path -Name $Name))
+        ($null -ne (Get-ItemPropertyValue -Path $Path -Name $Name))
     } else {
-    ((Get-ItemPropertyValue -Path $Path -Name $Name) -eq $Value)
+        ((Get-ItemPropertyValue -Path $Path -Name $Name) -eq $Value)
     }
 }

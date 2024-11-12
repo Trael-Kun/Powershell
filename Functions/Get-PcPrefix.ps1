@@ -6,7 +6,10 @@ function Get-PcPrefix {
             Written by Bill Wilson https://github.com/Trael-Kun
             15/07/2021
     #>
-
+    param(
+        [Parameter(Mandatory)]
+        [string]$Asset
+    )
     #>  
     # Asset No. Input
     if ($Asset -eq $null) {

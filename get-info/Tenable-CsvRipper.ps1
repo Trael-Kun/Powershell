@@ -31,7 +31,9 @@
 param (
     [Parameter(Mandatory)]
     [string]$InputCsv,
-    [string]$OutputCsv
+    [string]$OutputCsv,
+    [Parameter(Mandatory=$false)]
+    [string]$Cve
 )
 
 #set an empty array
@@ -46,10 +48,20 @@ $Csv = Import-Csv -Path $InputCsv                                           #get
 foreach ($Row in $Csv) {
     $Name   = $Row.DnsName                                                  #get the DNS Name
     $IP     = $Row.Ip                                                       #get the IP
+    $CveNo  = $Row.Cve
     $Path   = [regex]::Matches($Row.PlugInText,$filePathRegex).value        #get the file paths
-    foreach ($File in $Path) {                                              
-        $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; Path=$File}    #organise data
-        $Paths += $Info                                                     #collate data
+    if ($Cve) {
+        foreach ($File in $Path) {
+            if ($Cve -eq $CveNo) {
+                $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File}    #organise data
+                $Paths += $Info
+            }
+        }
+    } else {
+        foreach ($File in $Path) {                                              
+            $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; Path=$File}    #organise data
+            $Paths += $Info                                                     #collate data
+        }
     }
 }
 Export-Csv -InputObject $Paths -Path $OutputCsv -Append -Force              #export data

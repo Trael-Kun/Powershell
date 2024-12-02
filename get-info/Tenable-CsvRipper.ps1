@@ -45,25 +45,27 @@ $Paths = @()
 $filePathRegex = "([a-zA-Z]:\\[^<>:""/\\|?*]+(?:\\[^<>:""/\\|?*]+)*)"
 #don't ask me how regex works, ask https://www.regular-expressions.info
 
-$Csv = Import-Csv -Path $InputCsv                                                               #get the .csv data
+$Csv = Import-Csv -Path $InputCsv                                                                                               #get the .csv data
 
 foreach ($Row in $Csv) {
-    $Name   = $Row.DnsName                                                                      #get the DNS Name
-    $IP     = $Row.Ip                                                                           #get the IP
+    $Name   = $Row.DnsName                                                                                                      #get the DNS Name
+    $IP     = $Row.Ip                                                                                                           #get the IP
     $CveNo  = $Row.Cve
-    $Path   = [regex]::Matches($Row.PlugInText,$filePathRegex).value                            #get the file paths
+    $Path   = ([regex]::Matches($Row.PlugInText,$filePathRegex).value).replace('Installed version','')                          #get the file paths
     if ($Cve) {
         foreach ($File in $Path) {
+            $Drive   = Split-Path -Path $File -Qualifier
+            $JarFile = Split-Path -Path $File -Leaf
             if ($Cve -eq $CveNo) {
-                $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File}    #organise data
+                $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File; Drive=$Drive; JarFile=$JarFile}    #organise data
                 $Paths += $Info
             }
         }
     } else {
         foreach ($File in $Path) {                                              
-            $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; Path=$File}                    #organise data
-            $Paths += $Info                                                                     #collate data
+            $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; Path=$File}                                                    #organise data
+            $Paths += $Info                                                                                                     #collate data
         }
     }
 }
-Export-Csv -InputObject $Paths -Path $OutputCsv -Append -Force                                  #export data
+$Paths | Export-Csv -Path $OutputCsv -Append -Force                                                                             #export data

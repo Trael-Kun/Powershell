@@ -25,11 +25,16 @@
         Fixed version     : 6
         </plugin_output>","Upgrade to Apache Log4j version 2.3.1 / 2.12.3 / 2.15.0 or later, or apply the vendor mitigation.
     
-    This script will pull the filepaths out & match them with the dnsName and IP address earlier in the file
+    This script will pull the filepaths out & match them with the dnsName, IP address & CVE number listed earlier in the file
  .NOTES
     Author: Bill Wilson (https://github.com/Trael-Kun)
     Date:   29/11/2024
 #>
+function Format-Data {
+    $Info   = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File; Drive=$Drive; FileName=$FileName}
+    $Paths  += $Info 
+}
+
 param (
     [Parameter(Mandatory)]
     [string]$InputCsv,
@@ -38,36 +43,33 @@ param (
     [string]$Cve
 )
 
+##########
+#Variables
+
 #set an empty array
 $Paths = @()
-
 #this is the regex filter that will extract the filepath from everything else
-$filePathRegex = "([a-zA-Z]:\\[^<>:""/\\|?*]+(?:\\[^<>:""/\\|?*]+)*)"
-#don't ask me how regex works, ask https://www.regular-expressions.info
-
-$Csv = Import-Csv -Path $InputCsv                                                                                               #get the .csv data
+$filePathRegex = "([a-zA-Z]:\\[^<>:""/\\|?*]+(?:\\[^<>:""/\\|?*]+)*)"                                                       <#don't ask me how regex works, 
+                                                                                                                            ask https://www.regular-expressions.info#>
+######
+#Start
+$Csv = Import-Csv -Path $InputCsv                                                                                           #get the .csv data
 
 foreach ($Row in $Csv) {
-    $Name   = $Row.DnsName                                                                                                      #get the DNS Name
-    $IP     = $Row.Ip                                                                                                           #get the IP
+    $Name   = $Row.DnsName                                                                                                  #get the DNS Name
+    $IP     = $Row.Ip                                                                                                       #get the IP
     $CveNo  = $Row.Cve
-    $Path   = ([regex]::Matches($Row.PlugInText,$filePathRegex).value).replace("
-    `   Installed version",'')                                                                                                  #get the file paths
-    $Drive   = Split-Path -Path $File -Qualifier
-    $JarFile = Split-Path -Path $File -Leaf
+    $Path   = ([regex]::Matches($Row.PlugInText,$filePathRegex).value).replace('
+    Installed version','')                                                                                                  #get the file paths & trim the fat
 
-    if ($Cve) {
-        foreach ($File in $Path) {
-            if ($CveNo -eq $Cve) {
-                $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File; Drive=$Drive; JarFile=$JarFile}    #organise data
-                $Paths += $Info
-            }
-        }
-    } else {
-        foreach ($File in $Path) {                                              
-            $Info = [pscustomobject]@{DnsNameName=$Name; IP=$ip; Path=$File; Drive=$Drive; JarFile=$JarFile}                    #organise data
-            $Paths += $Info                                                                                                     #collate data
+    foreach ($File in $Path) {
+        $Drive      = Split-Path -Path $File -Qualifier                                                                     #get drive letter
+        $FileName   = Split-Path -Path $File -Leaf                                                                          #get file name
+        if ($Cve -and $Cve -eq $CveNo) {
+            Format-Data
+        } else {
+            Format-Data
         }
     }
 }
-$Paths | Export-Csv -Path $OutputCsv -Append -Force                                                     #export data
+$Paths | Export-Csv -Path $OutputCsv -Append -Force                                                                         #export data

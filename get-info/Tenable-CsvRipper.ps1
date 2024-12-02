@@ -30,41 +30,52 @@
     Author: Bill Wilson (https://github.com/Trael-Kun)
     Date:   29/11/2024
 #>
-function Format-Data {
-    $Info   = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File; Drive=$Drive; FileName=$FileName}
-    $Paths  += $Info 
-}
 
 param (
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory=$true)]
     [string]$InputCsv,
+    [Parameter(Mandatory=$true)]
     [string]$OutputCsv,
     [Parameter(Mandatory=$false)]
     [string]$Cve
 )
 
-##########
-#Variables
+function Format-Data {
+    $Info   = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File; Drive=$Drive; FileName=$FileName}
+    $Paths  += $Info 
+}
+
+###########
+# Variables
 
 #set an empty array
 $Paths = @()
 #this is the regex filter that will extract the filepath from everything else
-$filePathRegex = "([a-zA-Z]:\\[^<>:""/\\|?*]+(?:\\[^<>:""/\\|?*]+)*)"                                                       <#don't ask me how regex works, 
-                                                                                                                            ask https://www.regular-expressions.info#>
-######
-#Start
-$Csv = Import-Csv -Path $InputCsv                                                                                           #get the .csv data
+#don't ask me how regex works, ask https://www.regular-expressions.info
+$filePathRegex = "([a-zA-Z]:\\[^<>:""/\\|?*]+(?:\\[^<>:""/\\|?*]+)*)"
+
+
+#######
+# Start
+$Csv = Import-Csv -Path $InputCsv
+#get the .csv data
 
 foreach ($Row in $Csv) {
-    $Name   = $Row.DnsName                                                                                                  #get the DNS Name
-    $IP     = $Row.Ip                                                                                                       #get the IP
+    #get the DNS Name
+    $Name   = $Row.DnsName
+    #get the IP
+    $IP     = $Row.Ip
+    #get the CVE number
     $CveNo  = $Row.Cve
-    $Path   = ([regex]::Matches($Row.PlugInText,$filePathRegex).value).replace('
-    Installed version','')                                                                                                  #get the file paths & trim the fat
+    #get the file paths & trim the fat
+    $Path   = ([regex]::Matches($Row.PlugInText,$filePathRegex).value).replace("
+    `   Installed version",'')
 
     foreach ($File in $Path) {
-        $Drive      = Split-Path -Path $File -Qualifier                                                                     #get drive letter
-        $FileName   = Split-Path -Path $File -Leaf                                                                          #get file name
+        #get drive letter
+        $Drive      = Split-Path -Path $File -Qualifier
+        #get file name
+        $FileName   = Split-Path -Path $File -Leaf
         if ($Cve -and $Cve -eq $CveNo) {
             Format-Data
         } else {
@@ -72,4 +83,5 @@ foreach ($Row in $Csv) {
         }
     }
 }
-$Paths | Export-Csv -Path $OutputCsv -Append -Force                                                                         #export data
+#export data
+$Paths | Export-Csv -Path $OutputCsv -Append -Force

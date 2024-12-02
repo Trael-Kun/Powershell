@@ -40,11 +40,6 @@ param (
     [string]$Cve
 )
 
-function Format-Data {
-    $Info   = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File; Drive=$Drive; FileName=$FileName}
-    $Paths  += $Info 
-}
-
 ###########
 # Variables
 
@@ -68,8 +63,7 @@ foreach ($Row in $Csv) {
     #get the CVE number
     $CveNo  = $Row.Cve
     #get the file paths & trim the fat
-    $Path   = ([regex]::Matches($Row.PlugInText,$filePathRegex).value).replace("
-    `   Installed version",'')
+    $Path   = ([regex]::Matches($Row.PlugInText,$filePathRegex).value).replace("`n  Installed version",'')
 
     foreach ($File in $Path) {
         #get drive letter
@@ -77,9 +71,11 @@ foreach ($Row in $Csv) {
         #get file name
         $FileName   = Split-Path -Path $File -Leaf
         if ($Cve -and $Cve -eq $CveNo) {
-            Format-Data
+            $Info   = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File; Drive=$Drive; FileName=$FileName}
+            $Paths  += $Info 
         } else {
-            Format-Data
+            $Info   = [pscustomobject]@{DnsNameName=$Name; IP=$ip; CVE=$CveNo; Path=$File; Drive=$Drive; FileName=$FileName}
+            $Paths  += $Info 
         }
     }
 }

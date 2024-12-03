@@ -3,7 +3,7 @@ The Knock Knock Joke
 Copyright 2014 - Joseph Preston
 https://github.com/jpreston86/Powershell/blob/master/Knock%20Knock%20Joke
 
-Optimised by Bill Wilson (https://github.com/Trael-Kun) - December 2024
+Rejigged by Bill Wilson (https://github.com/Trael-Kun) - December 2024
 #>
 
 function Knock-Knock {

@@ -16,15 +16,13 @@ function Knock-Knock {
     ##Knock Knock
     while ($UserReply -notin $Answers ){
         Write-Host "Knock Knock!" -ForegroundColor Magenta -NoNewline
-        $UserReply = Read-Host ':'
+        $UserReply = Read-Host ' '
     }
-    Clear-Host
     ##Setup
     while ("$Setup who","$Setup who?" -notcontains $UserReply){
         Write-Host $Setup -ForegroundColor Magenta -NoNewline
-        $UserReply = Read-Host ':'
+        $UserReply = Read-Host ' '
     }   
-    Clear-Host
     ##Punchline
     Write-Host $Punchline -ForegroundColor Yellow
     Start-Sleep -Seconds 5
@@ -32,7 +30,6 @@ function Knock-Knock {
 }
 
 $Answers = ('Who is there?','Who is there',"Who's there","Who's there?",'Whos there?','Whos there')
-
 $Jokes = @(
     [pscustomobject]@{Setup='Cash';                 Punchline="No thanks, but I would like a peanut instead!"}
     [pscustomobject]@{Setup='Doris';                Punchline="Doris locked, that's why I'm knocking!"}
@@ -198,7 +195,7 @@ Clear-Host
 while ($true) {
     $UserReply = $null
     $Rando = Get-Random -Minimum 0 -Maximum (($Jokes.Count)-1)
-    Knock-Knock -Setup $Jokes[$($Rando)].Setup -Punchline $Jokes[$($Rando)].Punchline
+    Knock-Knock -Setup $Jokes[$Rando].Setup -Punchline $Jokes[$Rando].Punchline
 }
 
 Write-Output 'End humour'

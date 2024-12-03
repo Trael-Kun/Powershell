@@ -1,9 +1,12 @@
 <#
-The Knock Knock Joke
-Copyright 2014 - Joseph Preston
-https://github.com/jpreston86/Powershell/blob/master/Knock%20Knock%20Joke
-
-Optimised by Bill Wilson (https://github.com/Trael-Kun) - December 2024
+ .SYNOPSIS
+    Tells a knock-knock joke.
+ .DESCRIPTION
+    Generates a random number and recites a pre-filled joke along with user prompts.
+ .NOTES
+    Author: Bill Wilson (https://github.com/Trael-Kun)
+    Date:   December 2024    
+    Inspired by Joseph Preston https://github.com/jpreston86/Powershell/blob/master/Knock%20Knock%20Joke
 #>
 function Knock-Knock {
     param (

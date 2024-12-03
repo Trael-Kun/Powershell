@@ -3,9 +3,8 @@ The Knock Knock Joke
 Copyright 2014 - Joseph Preston
 https://github.com/jpreston86/Powershell/blob/master/Knock%20Knock%20Joke
 
-Rejigged by Bill Wilson (https://github.com/Trael-Kun) - December 2024
+Optimised by Bill Wilson (https://github.com/Trael-Kun) - December 2024
 #>
-
 function Knock-Knock {
     param (
         [Parameter(Mandatory)]
@@ -28,7 +27,7 @@ function Knock-Knock {
     Start-Sleep -Seconds 5
     Clear-Host
 }
-
+#Variables
 $Answers = ('Who is there?','Who is there',"Who's there","Who's there?",'Whos there?','Whos there')
 $Jokes = @(
     [pscustomobject]@{Setup='Cash';                 Punchline="No thanks, but I would like a peanut instead!"}
@@ -44,16 +43,16 @@ $Jokes = @(
     [pscustomobject]@{Setup='Annie';                Punchline="Annie thing you can do, I can do too!"}
     [pscustomobject]@{Setup='Cow says';             Punchline="No, a cow says mooooo!"}
     [pscustomobject]@{Setup='Hal';                  Punchline="Hal will you know if you don't open the door?"}
-    [pscustomobject]@{Setup='Alice';                Punchline="Alice fair in love and war"}
+    [pscustomobject]@{Setup='Alice';                Punchline="Alice fair in love and war."}
     [pscustomobject]@{Setup='Says';                 Punchline="Says me!"}
     [pscustomobject]@{Setup='Honey bee';            Punchline="Honey bee a dear and get that for me, please!"}
     [pscustomobject]@{Setup='Euripides';            Punchline="Euripides clothes, you pay for them!"}
-    [pscustomobject]@{Setup='Snow';                 Punchline="Snow use. The joke is over"}
+    [pscustomobject]@{Setup='Snow';                 Punchline="Snow use. The joke is over."}
     [pscustomobject]@{Setup='Hawaii';               Punchline="I'm good. Hawaii you?"}
     [pscustomobject]@{Setup='Woo';                  Punchline="Glad you're excited, too!"}
     [pscustomobject]@{Setup='Orange';               Punchline="Orange you going to let me in?"}
     [pscustomobject]@{Setup='Who?';                 Punchline="I didn't know you were an owl!"}
-    [pscustomobject]@{Setup='Anita';                Punchline="Let me in! Anita borrow something"}
+    [pscustomobject]@{Setup='Anita';                Punchline="Let me in! Anita borrow something."}
     [pscustomobject]@{Setup='Water';                Punchline="Water you doing telling jokes right now? Don't you have things to do?"}
     [pscustomobject]@{Setup='Leaf';                 Punchline="Leaf me alone!"}
     [pscustomobject]@{Setup='Nana';                 Punchline="Nana your business!"}
@@ -69,19 +68,19 @@ $Jokes = @(
     [pscustomobject]@{Setup='Lemon';                Punchline="Lemon introduce myself!"}
     [pscustomobject]@{Setup='Juicy';                Punchline="Juicy who's knocking?"}
     [pscustomobject]@{Setup='Luke';                 Punchline="Luke through the peep hole and find out!"}
-    [pscustomobject]@{Setup='Thermos';              Punchline="Thermos be a better way to get to you"}
-    [pscustomobject]@{Setup='To';                   Punchline="Actually, it's to whom"}
+    [pscustomobject]@{Setup='Thermos';              Punchline="Thermos be a better way to get to you."}
+    [pscustomobject]@{Setup='To';                   Punchline="Actually, it's to whom."}
     [pscustomobject]@{Setup='Lettuce';              Punchline="Lettuce in, it's cold out here!"}
     [pscustomobject]@{Setup='Razor';                Punchline="Razor hands, this is a stick-up!"}
     [pscustomobject]@{Setup='Alec';                 Punchline="Alectricity. BUZZ!"}
     [pscustomobject]@{Setup='Europe';               Punchline="No I'm not!"}
     [pscustomobject]@{Setup='Olive';                Punchline="Olive you"}
-    [pscustomobject]@{Setup='Amarillo';             Punchline="Amarillo nice person"}
+    [pscustomobject]@{Setup='Amarillo';             Punchline="Amarillo nice person."}
     [pscustomobject]@{Setup='Candice';              Punchline="Candice snack be eaten?"}
     [pscustomobject]@{Setup='Police';               Punchline="Police let me in, it's chilly out!"}
     [pscustomobject]@{Setup='Ice cream';            Punchline="Ice cream if you don't give me some candy!"}
     [pscustomobject]@{Setup='Etch';                 Punchline="Bless you!"}
-    [pscustomobject]@{Setup='Boo';                  Punchline="Don't cry, it's just a joke"}
+    [pscustomobject]@{Setup='Boo';                  Punchline="Don't cry, it's just a joke."}
     [pscustomobject]@{Setup='Cher';                 Punchline="Cher would be nice if you opened the door!"}
     [pscustomobject]@{Setup='Theodore';             Punchline="Theodore is stuck. Open up!"}
     [pscustomobject]@{Setup='Stopwatch';            Punchline="Stopwatch you're doing and let me in!"}
@@ -102,7 +101,7 @@ $Jokes = @(
     [pscustomobject]@{Setup='Robin';                Punchline="Robin you. Give me your money!"}
     [pscustomobject]@{Setup='Icy';                  Punchline="Icy you looking at me!"}
     [pscustomobject]@{Setup='Voodoo';               Punchline="Voodoo you think you are?"}
-    [pscustomobject]@{Setup='Mustache';             Punchline="I mustache you a question"}
+    [pscustomobject]@{Setup='Mustache';             Punchline="I mustache you a question."}
     [pscustomobject]@{Setup='Mary';                 Punchline="Mary Christmas!"}
     [pscustomobject]@{Setup='Alex';                 Punchline="Alex-plain later!"}
     [pscustomobject]@{Setup='Iva';                  Punchline="I've a sore hand from knocking!"}
@@ -128,12 +127,12 @@ $Jokes = @(
     [pscustomobject]@{Setup='Warren';               Punchline="Warren out your welcome yet?"}
     [pscustomobject]@{Setup='Annie';                Punchline="Annie way you can let me in?"}
     [pscustomobject]@{Setup='Harry';                Punchline="Harry up, it's cold outside!"}
-    [pscustomobject]@{Setup='Ivor';                 Punchline="Ivor you let me in or I'll climb through the window"}
+    [pscustomobject]@{Setup='Ivor';                 Punchline="Ivor you let me in or I'll climb through the window!"}
     [pscustomobject]@{Setup='Abbot';                Punchline="Abbot you don't know who this is!"}
     [pscustomobject]@{Setup='Adore';                Punchline="Adore is between us, so open it!"}
     [pscustomobject]@{Setup='Noah';                 Punchline="Noah good place we can go hang out?"}
     [pscustomobject]@{Setup='Kirtch';               Punchline="God bless you!"}
-    [pscustomobject]@{Setup='Justin';               Punchline="Justin time for dinner"}
+    [pscustomobject]@{Setup='Justin';               Punchline="Justin time for dinner!"}
     [pscustomobject]@{Setup='Sadie';                Punchline="Sadie magic word and I'll come in!"}
     [pscustomobject]@{Setup='Iona';                 Punchline="Iona new toy!"}
     [pscustomobject]@{Setup='Two knee';             Punchline="Two-knee fish!"}
@@ -141,7 +140,7 @@ $Jokes = @(
     [pscustomobject]@{Setup='Cows go';              Punchline="Cows don't go who, they go moo!"}
     [pscustomobject]@{Setup='Ben';                  Punchline="Ben knocking for 10 minutes!"}
     [pscustomobject]@{Setup='Isabel';               Punchline="Isabel working?"}
-    [pscustomobject]@{Setup='Aida';                 Punchline="Aida sandwich for lunch today"}
+    [pscustomobject]@{Setup='Aida';                 Punchline="Aida sandwich for lunch today!"}
     [pscustomobject]@{Setup='Scold';                Punchline="Scold enough out here to go ice skating!"}
     [pscustomobject]@{Setup='I am';                 Punchline="Wait, you don't know who you are?"}
     [pscustomobject]@{Setup='Amanda';               Punchline="A man da fix your door!"}
@@ -155,7 +154,7 @@ $Jokes = @(
     [pscustomobject]@{Setup='Rory';                 Punchline="Rory about it later, open up!"}
     [pscustomobject]@{Setup='Boyd';                 Punchline="Boyd, am I hungry!"}
     [pscustomobject]@{Setup='Tank';                 Punchline="You're welcome!"}
-    [pscustomobject]@{Setup='Armageddon';           Punchline="Armageddon a little bored. Let's go out"}
+    [pscustomobject]@{Setup='Armageddon';           Punchline="Armageddon a little bored. Let's go out!"}
     [pscustomobject]@{Setup='Butter';               Punchline="Butter let me in, it's cold out here!"}
     [pscustomobject]@{Setup='Ice cream';            Punchline="Ice cream every time I see a scary movie!"}
     [pscustomobject]@{Setup='Quack';                Punchline="Quack open the door, it's me!"}
@@ -177,7 +176,7 @@ $Jokes = @(
     [pscustomobject]@{Setup='Gorilla';              Punchline="Gorilla me a burger, will you?"}
     [pscustomobject]@{Setup='Sheila';               Punchline="Sheila be coming around the mountain!"}
     [pscustomobject]@{Setup='Dewey';                Punchline="Dewey have to keep doing this?"}
-    [pscustomobject]@{Setup='Sue';                  Punchline="Sue much to do, so little time"}
+    [pscustomobject]@{Setup='Sue';                  Punchline="Sue much to do, so little time!"}
     [pscustomobject]@{Setup='Penny';                Punchline="Penny for your thoughts?"}
     [pscustomobject]@{Setup='Tabby';                Punchline="Tabby or not tabby, that is the question!"}
     [pscustomobject]@{Setup='Finn';                 Punchline="Finn-ish your joke before I laugh!"}
@@ -186,18 +185,15 @@ $Jokes = @(
     [pscustomobject]@{Setup='Ash';                  Punchline="Ash me another question!"}
     [pscustomobject]@{Setup='Police';               Punchline="Police stop telling these jokes!"}
 )
-
 Clear-Host
 Write-Output 'Start humour'
 Start-Sleep -Seconds 3
 Clear-Host
-
 while ($true) {
     $UserReply = $null
     $Rando = Get-Random -Minimum 0 -Maximum (($Jokes.Count)-1)
     Knock-Knock -Setup $Jokes[$Rando].Setup -Punchline $Jokes[$Rando].Punchline
 }
-
 Write-Output 'End humour'
 Start-Sleep -Seconds 3
 Clear-Host

@@ -1,23 +1,14 @@
 #Variables
 $A = ' '
-$A1 = $A * 28
-$A2 = $A * 25
-$A3 = $A * 20
 $B = '-'
 $C = '`'
-$C1 = $A * 5 + $C
 $D = '_'
-$D1 = $D * 2
-$D2 = $D * 3
 $E = "'"
 $F = '|'
-$F1 = $A * 57 + $F
 $G = '|  |'
 $H = ';'
-$H1 = $H + $A * 30
 $I = ','
 $K = '.'
-$K1 = $K * 3
 $L = '|__|'
 $M = '8'
 $N = '"'
@@ -25,65 +16,190 @@ $O = '('
 $P = ')'
 $Q = '\'
 $R = '/'
-$R1 = $R + $A * 7
 $S = 'o'
 $T = ':'
 $U = '='
-$V = '!'
-$W = '^'
+
+
+$AA = $A*2
+$AB = $A*3
+$AC = $A*4
+$AD = $A*5
+$AE = $A*6
+$AF = $A*7
+$AG = $A*8
+$AH = $A*9
+$AI = $A*10
+$AJ = $A*11
+$AK = $A*12
+$AL = $A*14
+$AM = $A*15
+$AN = $A*16
+$AO = $A*17
+$AP = $A*19
+$AQ = $A*20
+$AR = $A*22
+$AS = $A*25
+$AT = $A*28
+$AU = $A*30
+$BA = $B*2
+$BB = $B*3
+$BC = $B*4
+$CA = $C*2
+$CB = $A+$C
+$CC = $C+$A
+$CD = $C+$B
+$CE = $AA+$CD
+$DA = $D*2
+$DB = $D*3
+$DC = $D*5
+$DD = $D*6
+$DE = $D*7
+$DF = $D*11
+$DG = $D+$A
+$DH = $D+$AA
+$EA = $E*2
+$EB = $E+$A
+$EC = $E+$AA
+$ED = $B+$E+$AB
+$FA = $A*57+$F
+$FB = $F*2
+$FC = $AF+$FB
+$FD = $F*3
+$FE = $A+$D+$F
+$FF = $A+$F
+$FG = $AA+$F
+$FH = $F+$A
+$FI = $F+$E
+$FJ = $F+$AA
+$FK = $F+$AB
+$FL = $F+$AC
+$FM = $F+$AE
+$FN = $F+$AF
+$FO = $F+$AJ
+$FP = $FB+$AJ
+$FQ = $AF+$F
+$GA = $G+$A
+$GB = $GA+$FO
+$HA = $A+$H
+$HB = $H+$AD
+$HC = $H+$AT
+$HD = $AM+$H
+$IA = $AR+$I
+$IB = $I*2
+$IC = $I+$E
+$ID = $C+$IC
+$IE = $HA+$ID
+$IF = $I+$ED
+$IG = $IF+$H
+$IH = $I+$B
+$II = $IH+$E
+$IJ = $I+$H
+$JA = $AC+$G
+$JB = $JA+$AD
+$JC = $K+$E
+$KA = $K*2
+$KB = $K*3
+$KC = $K+$A
+$KD = $K+$AB
+$KE = $K+$AC
+$KF = $C+$K
+$KG = $D+$K
+$KH = $D+$KA
+$KI = $KA+$DA
+$KJ = $KH+$B+$E
+$KK = $KD+$BA+$KI+$KA
+$KL = $ED+$JC
+$KM = $B+$K
+$KN = $K+$KM
+$KO = $K+$BA
+$KP = $A+$KF
+$KQ = $KG+$KM
+$KR = $K+$DA
+$KS = $K+$D
+$KT = $AA+$K+$DF
+$KU = $AC+$JC
+$KV = $C+$KC
+$LA = $L+$AD
+$MA = $M*2
+$NA = $C+$N
+$PA = $G+$D+$P+$FG
+$PB = $P+$AB
+$QA = $D+$Q
+$QB = $A+$Q
+$QC = $AA+$Q
+$QD = $Q+$DA
+$QZ = $R+$AA
+$RA = $R+$AF
+$RB = $A+$R
+$RC = $QZ+$DC+$QC
+$RD = $AA+$R
+$RE = $R+$RD+$QA+$QC
+$RF = $R+$AB
+$RG = $RF+$Q
+$RH = $R+$DA+$R+$AD+$QD+$Q
+$SA = $MA+$S+$Q
+$TA = $A+$T
+$UA = $U*2
+$V = $AD+$T+$AC+$T+'!'+$A
+$W = '^'+$QC
+$WA = $AA+$G
+$WB = $AB+$DH+$GH+$Q
+
+
 
 $Ackbar = @(
-$A*28+$D*2+$K*3+$B*12+$K+$D
-$A*25+$I+$B+$E+$A*19+$C+$B+$K
-$A*22+$I+$B+$E+$A*25+$C+$K
-$A*20+$I+$E+$A*28+$I+$B+$C+$K
-$A*19+$H+$A*30+$C+$B+$E+$A+$C+$K
-$A*18+$H+$A*33+$K+$B+$K+$A+$Q
-$A*17+$H+$A*27+$K+$B+$K+$A*4+$C+$B+$E+$A*2+$Q
-$A*16+$H+$A*28+$C+$B+$E+$A*10+$Q
-$A*15+$H+$A*42+$C+$K
-$A*15+$H+$A*43+$T
-$A*14+$H+$A*44+$F
+$AT+$DA+$KB+$B*12+$KS
+$AS+$II+$AP+$CD+$K
+$IA+$B+$E+$AS+$KF
+$AQ+$IC+$AT+$IH+$KF
+$AP+$H+$AU+$CD+$EB+$KF
+$A*18+$H+$A*33+$KN+$QB
+$AO+$H+$A*27+$KN+$AC+$CD+$EC+$Q
+$AN+$HC+$CD+$E+$AI+$Q
+$HD+$A*42+$KF
+$HD+$A*43+$T
+$AL+$H+$A*44+$F
 $A*13+$H+$A*45+$H
-$A*12+$H+$A*28+$D*3+$A*14+$H
-$A*11+$H+$A*24+$I+$B+$H+$B+$E+$I+$E+$K+$C+$K+$D*2+$A*10+$F
-$A*7+$D+$K*2+$H+$A*22+$I+$B+$E+$A+$H+$C+$I+$E+$K+$C+$I+$E+$K+$B*2+$C+$K+$A*+$M+$F
-$A*6+$R*3+$H+$A*11+$I+$B+$E+$A*3+$C+$K+$A+$I+$B+$E+$A*3+$H+$C+$A+$H+$C+$I+$E+$I+$E+$D+$K+$B*2+$U+$T+$A*6+$R
-$A*5+$F+$E*2+$T+$A*10+$I+$E+$A*8+$T+$A*5+$H+$C+$A+$H+$I+$H+$I*2+$B+$E+$D+$K+$B+$K+$D+$C+$K+$A*3+$I+$E
-$A*5+$E+$A*2+$T+$A*9+$H+$D+$K+$B+$K+$A*6+$C+$K+$A*4+$T+$E+$A+$H*3+$E+$K+'ee'+$K+$A*4+$Q+$F+$A*2+$R
-$A*6+$Q+$K+$E+$A*4+$D+$K*2+$B+$E+$R+$M+$S+$K+$A+$C+$K+$A*5+$T+$A*4+$T+$V+$A+$E+$A+$E+$T+$M*4+$P+$A*3+$F*2+$A+$R
-$A*7+$F*2+$C+$B+$E*2+$A*4+$Q*2+$M*2+$S+$Q+$A+$T+$A*5+$T+$A*4+$T+$V+$A+$T+$A*2+$T+$C+$N*2+$E+$A*4+$H*2+$R
-$A*7+$F*2+$A*9+$Q+$N+$M*2+$S+$Q+$H+$A*5+$C+$K+$A*4+$Q+$A+$C+$K+$A+$C+$K+$A*6+$H+$I+$E
-$A*7+$R+$P+$A*3+$D*3+$A*4+$C+$K+$N+$E+$R+$O+$B*2+$K*2+$D+$A+$C+$K+$A*4+$C+$K+$C+$K+$A*2+$C+$B+$K*2+$B+$E+$A+$H+$B*2+$K
-$A*7+$Q+$O+$K+$U+$N*5+$U*2+$K*2+$A+$C+$E+$B+$E+$A*5+$C+$K+$F+$A*6+$C+$B+$C+$B+$K*2+$D*2+$K+$B+$E+$A+$C+$K+$A+$C+$K
-$A*8+$F+$A*10+$C+$N+$U*2+$K+$D*2+$A*6+$P+$A*20+$P+$A*2+$H
-$A*8+$F+$A*3+$F*2+$A*11+$C+$N+$U*3+$A+$E+$A*19+$K+$E+$A*2+$K+$E
-$A*8+$R+$Q+$I*2+$F*3+$G+$A+$F+$A*11+$Q+$A*16+$K+$E+$A*3+$K+$E
-$A*8+$F+$A+$F*3+$E+$F+$E+$A+$F+$E+$F+$E+$A*11+$Q+$F+$A*12+$A+$K+$E+$A*3+$D+$K+$E+$A+$Q
-$A*8+$F+$A+$F+$Q+$E+$A+$G+$A*11+$F*2+$A+$F*2+$A*11+$K+$E+$A*4+$K+$E+$A*4+$Q
-$A*8+$E+$A+$F+$A+$Q+$A+$E+$A+$F+$E+$A*2+$K+$A*3+$C*2+$B*2+$A+$C+$F+$A+$F*2+$A*9+$K+$E+$A*4+$K+$E+$A*7+$Q
-$A*10+$E+$A*2+$F+$A*2+$E+$A+$F+$A*2+$K+$A*4+$C*2+$B+$K*2+$D+$A+$F+$A*2+$H+$A*4+$K+$E+$A*4+$K+$E+$A*10+$C+$K
-$A*7+$D+$K+$B*2+$I+$H+$C+$K+$A*7+$K+$A*2+$B*2+$A*2+$K*3+$K+$D+$I+$E+$A*3+$K+$E+$A*4+$K+$E+$A*14+$C+$K+$D*2
-$A*5+$I+$E+$A*2+$I+$E+$H+$A*3+$C+$K+$A*5+$K+$A*3+$B*2+$K*2+$D*2+$K*2+$B*2+$E+$K+$E+$A*4+$K+$E+$A*16+$D*2+$R+$D+$Q
-$A*3+$I+$E+$A*3+$H+$A+$H+$A*5+$F+$A*4+$K+$A*3+$B*2+$K*2+$D*2+$K*2+$D+$K+$E+$A*5+$K+$E+$A*16+$I+$E+$A*5+$C+$K
-$A*2+$R+$A*4+$H+$A+$T+$A*5+$H+$A*5+$K+$A*4+$B+$K*2+$A+$D+$K+$E+$A*5+$D+$K+$E+$A*17+$R+$A*9+$C
-$A+$R+$A*5+$T+$A*2+$C+$B+$K+$D+$A+$F+$A*4+$K+$A*4+$D+$K+$B*2+$E+$A*5+$D+$K+$E+$A*19+$F
-$R+$A*7+$C+$K+$A*4+$C+$B*2+$K*3+$K+$B*2+$E*2+$A*7+$D+$K+$E+$A*22+$F
-$A*10+$C+$K+$D+$A*14+$D+$K*2+$B+$E+$A*25+$F
-$A*12+$A+$C+$B+$K*2+$D*4+$K*3+$B+$E*2+$A*30+$F
-$A*57+$F
-$A*57+$F
-$A*5+$D*2+$A*2+$K+$D*11+$K+$D*2+$A*5+$D*7+$K+$A*8+$D*3
-$A*4+$G+$A+$F+$A*11+$O+$D+$A+$P+$A*3+$R+$A*7+$F+$A*7+$R+$A*3+$Q
-$A*4+$G+$A+$C+$B*3+$G+$B*4+$C+$F+$R+$A*3+$F+$A*3+$O+$B*4+$C+$A*6+$R+$A*2+$W+$A*2+$Q
-$A*4+$G+$A*5+$G+$A*11+$Q+$A*3+$Q+$A*9+$R+$A*2+$R+$D+$Q+$A*2+$Q
-$A*4+$G+$A*5+$G+$A*7+$K+$B*4+$P+$A*3+$F+$A*7+$R+$A*2+$D*5+$A*2+$Q
-$A*4+$L+$A*5+$L+$A*7+$F+$D*7+$R+$A*7+$R+$D*2+$R+$A*5+$Q+$D*2+$Q
-$X
-$A*2+$K+$D*11+$K*2+$D*6+$A*10+$D*3+$A*6+$K+$D*6+$A*4+$D*2
-$A*2+$F+$A*11+$F*2+$A*3+$D+$A*2+$Q+$A*8+$R+$A*3+$Q+$A*5+$F+$A*3+$D+$A*2+$Q+$A*2+$G
-$A*2+$C+$B*3+$G+$B*4+$C+$G+$D+$P+$A*2+$F+$A*6+$R+$A*2+$W+$A*2+$Q+$A*4+$G+$D+$P+$A*2+$F+$A+$G
-$A*6+$G+$A*5+$F+$A*6+$R+$A*6+$R+$A*2+$R+$D+$Q+$A*2+$Q+$A*3+$F+$A*3+$D*3+$R+$A*2+$G
-$A*6+$G+$A*5+$G+$Q+$A*2+$Q+$B*4+$K+$R+$A*2+$D*5+$A*2+$Q+$A*2+$G+$A*6+$L
-$A*6+$L+$A*5+$F+$A+$D+$F+$A+$C+$K+$D*5+$R+$D*2+$R+$A*5+$Q+$D*2+$Q+$A+$F+$A+$D+$F+$A*6+$O+$D*2+$P
+$AK+$HC+$DB+$AL+$H
+$AJ+$H+$A*24+$IH+$H+$B+$E+$IC+$K+$KF+$DA+$AI+$F
+$AF+$D+$KA+$H+$AR+$II+$IE+$K+$ID+$KO+$KV+$KV
+$AE+$R*3+$H+$AJ+$IF+$KV+$IG+$C+$IE+$IC+$D+$KO+$U+$T+$AE+$R
+$AD+$F+$EA+$T+$AI+$IC+$AG+$T+$AD+$H+$CC+$H+$IJ+$IB+$B+$E+$KQ+$D+$KF+$AB+$IC
+$AD+$EC+$T+$AH+$H+$KQ+$AE+$KF+$AC+$T+$EB+$H*3+$E+$K+'ee'+$KE+$Q+$FJ+$R
+$AE+$Q+$JC+$AC+$KJ+$R+$M+$S+$KC+$KF+$V+$EB+$E+$T+$M*4+$PB+$FB+$RB
+$FC+$CD+$EA+$AC+$Q*2+$SA+$TA+$V+$T+$AA+$T+$C+$N*2+$E+$AC+$H*2+$R
+$FC+$AH+$Q+$N+$SA+$HB+$KF+$AC+$Q+$KP+$KP+$AE+$H+$IC
+$AF+$R+$PB+$DB+$AC+$KF+$N+$E+$R+$O+$BA+$KA+$DG+$KF+$AC+$KF+$KF+$CE+$KA+$B+$EB+$H+$BA+$K
+$AF+$Q+$O+$K+$U+$N*5+$UA+$KA+$CB+$E+$B+$E+$AD+$KF+$FM+$CD+$CD+$KI+$K+$B+$EB+$KF+$KP
+$AG+$F+$AI+$NA+$UA+$KR+$AE+$P+$AQ+$P+$AA+$H
+$AG+$FK+$FP+$NA+$U*3+$A+$E+$AP+$K+$EC+$JC
+$AG+$R+$Q+$IB+$FD+$GB+$Q+$AN+$K+$KL
+$AG+$FH+$FD+$E+$F+$EB+$FI+$FI+$AJ+$Q+$F+$AK+$A+$K+$ED+$KG+$EB+$Q
+$AG+$F+$FF+$Q+$EB+$G+$AJ+$FB+$A+$FP+$JC+$KU+$AC+$Q
+$AG+$EB+$F+$QB+$A+$EB+$F+$EC+$KD+$CA+$BA+$CB+$FH+$FB+$AH+$JC+$KU+$AF+$Q
+$AI+$E+$FG+$AA+$EB+$FJ+$KE+$CA+$B+$KA+$DG+$FJ+$H+$KU+$KU+$AI+$KF
+$AF+$KG+$BA+$IJ+$KF+$AF+$K+$AA+$BA+$AA+$KB+$KS+$I+$KL+$KU+$AL+$KF+$DA
+$AD+$I+$EC+$IC+$H+$AB+$KF+$AD+$KK+$BA+$E+$JC+$KU+$AN+$DA+$R+$QA
+$AB+$IG+$HA+$AD+$FL+$KK+$KG+$E+$AD+$JC+$AN+$IC+$AD+$KF
+$RD+$AC+$H+$TA+$AD+$HB+$KE+$B+$KA+$A+$KG+$E+$AD+$KG+$E+$AO+$R+$AH+$C
+$RB+$AD+$T+$CE+$K+$DG+$FL+$KE+$KG+$BA+$E+$AD+$KG+$E+$AP+$F
+$RA+$KF+$AC+$C+$BA+$KB+$KO+$EA+$AF+$KG+$E+$AR+$F
+$AI+$KF+$D+$AL+$KJ+$AS+$F
+$AK+$CB+$B+$KA+$D*4+$KB+$B+$EA+$AU+$F
+$FA
+$FA
+$AD+$DA+$KT+$KR+$AD+$DE+$K+$AG+$DB
+$AC+$GB+$O+$DG+$PB+$RA+$FN+$RG
+$JA+$CB+$BB+$G+$BC+$C+$F+$RF+$FK+$O+$BC+$C+$AE+$QZ+$W
+$JB+$G+$AJ+$Q+$AB+$Q+$AH+$RE
+$JB+$G+$AF+$K+$BC+$PB+$FN+$RC
+$AC+$LA+$L+$KV+$DE+$RA+$RH
+
+$KT+$KA+$DD+$AI+$DB+$AE+$K+$DD+$AC+$DA
+$FG+$AJ+$FB+$WB+$AG+$RG+$AD+$F+$WB+$WA
+$AA+$C+$BB+$G+$BC+$C+$PA+$AE+$QZ+$W+$AC+$PA+$A+$G
+$AE+$G+$AD+$FM+$R+$AE+$RE+$AB+$FK+$DB+$QZ+$G
+$AE+$G+$AD+$G+$Q+$QC+$BC+$K+$RC+$WA+$AE+$L
+$AE+$LA+$F+$FE+$KP+$DC+$RH+$FF+$FE+$AE+$O+$DA+$P
 )

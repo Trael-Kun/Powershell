@@ -19,6 +19,7 @@ Foreach ($File in $Files) {
     if (!($Spaces)) {
         $FileName = $File.replace('%20',' ')
         $Filename = $FileName.replace('%27',"'")
+        $Filename = $FileName.replace('%2c',",")
     } else {
         $FileName = $File
     }

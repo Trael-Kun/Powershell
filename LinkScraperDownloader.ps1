@@ -6,7 +6,7 @@
 #>
 param(
     [string]$Exclude,
-    [switch]$Spaces,
+    [switch]$Raw,
     [Parameter(Mandatory)]
     [string]$Url,
     [string]$Destination,
@@ -16,8 +16,9 @@ param(
 $Files = ((Invoke-WebRequest -Uri $Url).Links | Where-Object innerHTML -like $Filter).href
 
 Foreach ($File in $Files) {
-    if ($Spaces) {
+    if (!($Spaces)) {
         $FileName = $File.replace('%20',' ')
+        $Filename = $FileName.replace('%27',"'")
     } else {
         $FileName = $File
     }

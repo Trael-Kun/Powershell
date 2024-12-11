@@ -3,6 +3,11 @@
     Scrape for links on a page & download each linked file
  .DESCRIPTION
     Scrapes Webpage at $Url for links that match $Filter, then downloads them via BITS transfer.
+ .EXAMPLE
+   PS> LinkScraperDownload.ps1 -URL https://archive.org/download/dracula_ks_1608_librivox -Filter *128kb.mp3 -Destination C:\Downloads\Drac
+ .NOTES
+    Author: Bill Wilson (https://github.com/Trael-Kun)
+    Date:   12/12/2024
 #>
 param(
     [string]$Exclude,

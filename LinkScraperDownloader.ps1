@@ -13,8 +13,7 @@
     Author: Bill Wilson (https://github.com/Trael-Kun)
     Date:   12/12/2024
 
-    Testing in PWSH 7 failing
-    $Exclude variable not working? Removed for the time being.
+    Testing in PWSH 7 failing?
 #>
 
 param(

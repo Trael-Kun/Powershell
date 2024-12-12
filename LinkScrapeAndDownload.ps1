@@ -8,7 +8,7 @@
  .EXAMPLE
     PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/hitchhikers-guide-to-the-galaxy-bbcr4 -Filter *.mp3 -Destination C:\Downloads\Hitchhickers -Raw
  .EXAMPLE
-    PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/the-lord-of-the-rings-bbc-radio-drama -Filter "*Fellowship*.flac" -Destination C:\Downloads\LotrBook1 -Exclude *Oliver*
+    PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/the-lord-of-the-rings-bbc-radio-drama -Filter "*Fellowship of*.flac" -Destination C:\Downloads\LotrBook1 -Exclude *Oliver*
  .NOTES
     Author: Bill Wilson (https://github.com/Trael-Kun)
     Date:   12/12/2024
@@ -202,7 +202,7 @@ $CharMap = @(
     [pscustomobject]@{Character='þ';    Windows='%FE';  UTF='%C3%BE'    }
     [pscustomobject]@{Character='ÿ';    Windows='%FF';  UTF='%C3%BF'    }
 )
-
+[Math]::Max(0, $Host.UI.RawUI.BufferSize.Width / 2)
 #set up arrays for failed & skipped downloads
 $Fail       = $false
 $Failed     = @()
@@ -210,38 +210,40 @@ $Skip       = $false
 $Skipped    = @()
 
 #Colours
-$Success    = 'Green'
-$Text       = 'Magenta'
-$Path       = 'Yellow'
-$Err        = 'Red'
-$Link       = 'DarkGreen'
+$OkRGB      = 'Green'
+$TxtRGB     = 'Magenta'
+$DirRGB     = 'Yellow'
+$ErrRGB     = 'Red'
+$LnkRGB     = 'DarkGreen'
+$UrlRGB     = 'DarkCyan'
+$BkRGB      = 'Black'
 
 #check destination
-Write-Host 'Destination directory is ' -ForegroundColor $Text  -NoNewline
-Write-Host $Destination                -ForegroundColor $Path
+Write-Host 'Destination directory is ' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
+Write-Host $Destination                -ForegroundColor $DirRGB -BackgroundColor $BkRGB
 if (!(Test-Path $Destination)) {
     #create destination if it doesn't exist
-    Write-Host $Destination                 -ForegroundColor $Path  -NoNewline
-    Write-Host " not found. Creating path." -ForegroundColor $Err
+    Write-Host $Destination                 -ForegroundColor $DirRGB -BackgroundColor $BkRGB -NoNewline
+    Write-Host " not found. Creating path." -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
     New-Item -ItemType Directory -Path (Split-Path $Destination -Parent) -Name (Split-Path $Destination -Leaf) -Force -ErrorAction Stop | Out-Null
-    Write-Host $Destination                 -ForegroundColor $Path  -NoNewline
-    Write-Host " created"                   -ForegroundColor $Success
-    Write-Host ''
+    Write-Host $Destination                 -ForegroundColor $DirRGB -BackgroundColor $BkRGB -NoNewline
+    Write-Host " created"                   -ForegroundColor $OkRGB  -BackgroundColor $BkRGB
+    Write-Host '' -BackgroundColor $BkRGB
 }
 
 #get all of the relevant links
-Write-Host 'Fetching list of links from '   -ForegroundColor $Text -NoNewline
-Write-Host $URL                             -ForegroundColor $Path
+Write-Host 'Fetching list of links from '   -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
+Write-Host $URL                             -ForegroundColor $UrlRGB -BackgroundColor $BkRGB
 $Files      = ((Invoke-WebRequest -Uri $Url).Links | Where-Object innerHTML -like $Filter).href
-Write-Host ''
+Write-Host '' -BackgroundColor $BkRGB
 
 #set progress variables
 $FileCount  = $Files.Count
 $FileProg   = 0
 $DloadCount = 0
 
-Write-Host 'Start Process'                                          -ForegroundColor $Text -BackgroundColor Black
-Write-Host '------------------------------------------------------' -ForegroundColor $Text -BackgroundColor Black
+Write-Host 'Start Process'                                          -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
+Write-Host '------------------------------------------------------' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
 
 foreach ($File in $Files) {
     $Excl = $false
@@ -265,10 +267,10 @@ foreach ($File in $Files) {
             $CharProg   = $CharProg+1
             Write-Progress -Activity 'Formatting Filename' -PercentComplete (($CharProg/$CharCount)*100) -Id 2 -ParentId 1
             if ($File -like "*$($Char.UTF)*") {
-                Write-Progress -Activity "Replacing `"$Utf8`" with `"$Character`"" -Id 3 -ParentId 2
+                Write-Progress -Activity "Replacing `"$Utf8`" with `"$Character`"" -Id 3 -ParentId 2 -Completed
                 $FileName = $Filename.replace($Utf8,$Character)
             } elseif ($File -like "*$($Char.Windows)*") {
-                Write-Progress -Activity "Replacing `"$Win1252`" with `"$($Char.Character)`"" -Id 3 -ParentId 2
+                Write-Progress -Activity "Replacing `"$Win1252`" with `"$($Char.Character)`"" -Id 3 -ParentId 2 -Completed
                 $FileName = $Filename.replace($Win1252,$Character)
             }
         }      
@@ -278,21 +280,21 @@ foreach ($File in $Files) {
     if ($FileName -notlike "*$Exclude*") {
         #if it has an exclude, don't grab it
         $Excl = $true
-        Write-Host "$DloadCount of $FileCount excluded ; "  -ForegroundColor $Text -NoNewline
-        Write-Host $FileName                                -ForegroundColor $Err
+        Write-Host "$DloadCount of $FileCount excluded ; "  -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
+        Write-Host $FileName                                -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
         $Skip = $true
     } else {
         #otherwise, pull it down
         $Excl = $false
-        Write-Progress -Activity "Downloading $FileName" -Id 4 -ParentId 0
-        Write-Host "$DloadCount of $FileCount downloading "   -ForegroundColor $Text -NoNewline
-        Write-Host $FileName                                  -ForegroundColor $Link
+        Write-Progress -Activity "Downloading $DloadCount of $FileCount `n" -Id 4 -ParentId 0
+        Write-Host "$DloadCount of $FileCount downloading "   -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
+        Write-Host $FileName                                  -ForegroundColor $LnkRGB -BackgroundColor $BkRGB
         try { 
-            Start-BitsTransfer -Source "$URL/$File" -Destination "$Dest"
+            Start-BitsTransfer -Source "$URL/$File" -Destination "$Dest" -Displayname "Downloading $FileName"
         }
         catch {
-            Write-Host "Download failed; " -ForegroundColor $Err -NoNewline
-            Write-Host $FileName           -ForegroundColor $Link
+            Write-Host "Download failed; " -ForegroundColor $ErrRGB -BackgroundColor $BkRGB -NoNewline
+            Write-Host $FileName           -ForegroundColor $LnkRGB -BackgroundColor $BkRGB
             $Failed += $FileName
         } 
     }
@@ -301,13 +303,13 @@ foreach ($File in $Files) {
     if (!($Excl)) {
         if (Test-Path $Dest) {
             #download complete
-            Write-Host "Downloaded to "         -ForegroundColor $Success -NoNewline
-            Write-Host "$Destination\$FileName" -ForegroundColor $Path
+            Write-Host "Downloaded to "         -ForegroundColor $OkRGB  -BackgroundColor $BkRGB -NoNewline
+            Write-Host "$Destination\$FileName" -ForegroundColor $DirRGB -BackgroundColor $BkRGB
         } else {
             #download failed
             $Fail   = $true
-            Write-Host $Dest                                   -ForegroundColor $Err -NoNewline
-            Write-Host ' not detected - please check download' -ForegroundColor $Text
+            Write-Host $Dest                                   -ForegroundColor $ErrRGB -BackgroundColor $BkRGB -NoNewline
+            Write-Host ' not detected - please check download' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
             $Failed += $FileName
         }
     } else {
@@ -317,17 +319,17 @@ foreach ($File in $Files) {
 
 #show failed downloads
 if ($Skip) {
-    Write-Host ''
-    Write-Host 'The below files were excluded;' -ForegroundColor $Text
+    Write-Host '' -BackgroundColor $BkRGB
+    Write-Host 'The below files were excluded;' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
     $Skipped
-    Write-Host ''
+    Write-Host '' -BackgroundColor $BkRGB
 }
 if ($Fail) {
-    Write-Host ''
-    Write-Host 'The below files have failed;'   -ForegroundColor $Err
+    Write-Host '' -BackgroundColor $BkRGB
+    Write-Host 'The below files have failed;'   -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
     $Failed
-    Write-Host ''
+    Write-Host '' -BackgroundColor $BkRGB
 }
-Write-Host '------------------------------------------------------' -ForegroundColor $Text -BackgroundColor Black
-Write-Host 'Process Finished'                                       -ForegroundColor $Text -BackgroundColor Black
-Write-Host ''
+Write-Host '------------------------------------------------------' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
+Write-Host 'Process Finished'                                       -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
+Write-Host '' -BackgroundColor $BkRGB

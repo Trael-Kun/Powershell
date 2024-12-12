@@ -4,16 +4,16 @@
  .DESCRIPTION
     Scrapes Webpage at $Url for links that match $Filter, then downloads them via BITS transfer.
  .EXAMPLE
-    PS C:\Windows\System32> .\LinkScraperDownload.ps1 -URL https://archive.org/download/dracula_ks_1608_librivox -Filter *128kb.mp3 -Destination C:\Downloads\Drac
+    PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/dracula_ks_1608_librivox -Filter *128kb.mp3 -Destination C:\Downloads\Drac
  .EXAMPLE
-    PS C:\Windows\System32> .\LinkScraperDownload.ps1 -URL https://archive.org/download/hitchhikers-guide-to-the-galaxy-bbcr4 -Filter *.mp3 -Destination C:\Downloads\Hitchhickers -Raw
+    PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/hitchhikers-guide-to-the-galaxy-bbcr4 -Filter *.mp3 -Destination C:\Downloads\Hitchhickers -Raw
  .EXAMPLE
-    PS C:\Windows\System32> .\LinkScraperDownload.ps1 -URL https://archive.org/download/the-lord-of-the-rings-bbc-radio-drama -Filter "*Fellowship*.flac" -Destination C:\Downloads\LotrBook1 -Exclude *Oliver*
+    PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/the-lord-of-the-rings-bbc-radio-drama -Filter "*Fellowship*.flac" -Destination C:\Downloads\LotrBook1 -Exclude *Oliver*
  .NOTES
     Author: Bill Wilson (https://github.com/Trael-Kun)
     Date:   12/12/2024
 
-    Testing in PWSH 7 failing?
+    Testing in PWSH 7 failing
 #>
 
 param(
@@ -23,8 +23,8 @@ param(
     [string]$Destination,   #where the files will be saved to
     [Parameter(Mandatory)]
     [string]$Filter,         #which files to download. Accepts wildcards
-    #[Parameter(Mandatory=$false)]
-    #[string]$Exclude,       #if file name has this, don't download it
+    [Parameter(Mandatory=$false)]
+    [string]$Exclude,       #if file name has this, don't download it
     [Parameter(Mandatory=$false)]
     [switch]$Raw           #disables filename conversion (UTF-8 to plaintext, see $CharMap)
 )
@@ -203,13 +203,36 @@ $CharMap = @(
     [pscustomobject]@{Character='ÿ';    Windows='%FF';  UTF='%C3%BF'    }
 )
 
-#set up array for failed downloads
-$Failed = @()
+#set up arrays for failed & skipped downloads
+$Fail       = $false
+$Failed     = @()
+$Skip       = $false
+$Skipped    = @()
+
+#Colours
+$Success    = 'Green'
+$Text       = 'Magenta'
+$Path       = 'Yellow'
+$Err        = 'Red'
+$Link       = 'DarkGreen'
+
+#check destination
+Write-Host 'Destination directory is ' -ForegroundColor $Text  -NoNewline
+Write-Host $Destination                -ForegroundColor $Path
+if (!(Test-Path $Destination)) {
+    #create destination if it doesn't exist
+    Write-Host $Destination                 -ForegroundColor $Path  -NoNewline
+    Write-Host " not found. Creating path." -ForegroundColor $Err
+    New-Item -ItemType Directory -Path (Split-Path $Destination -Parent) -Name (Split-Path $Destination -Leaf) -Force -ErrorAction Stop | Out-Null
+    Write-Host $Destination                 -ForegroundColor $Path  -NoNewline
+    Write-Host " created"                   -ForegroundColor $Success
+    Write-Host ''
+}
 
 #get all of the relevant links
-Write-Host 'Fetching list of links from '   -ForegroundColor Magenta -NoNewline
-Write-Host $URL                             -ForegroundColor Yellow
-$Files = ((Invoke-WebRequest -Uri $Url).Links | Where-Object innerHTML -like $Filter).href
+Write-Host 'Fetching list of links from '   -ForegroundColor $Text -NoNewline
+Write-Host $URL                             -ForegroundColor $Path
+$Files      = ((Invoke-WebRequest -Uri $Url).Links | Where-Object innerHTML -like $Filter).href
 Write-Host ''
 
 #set progress variables
@@ -217,7 +240,8 @@ $FileCount  = $Files.Count
 $FileProg   = 0
 $DloadCount = 0
 
-Write-Host 'Start Process' -ForegroundColor Magenta
+Write-Host 'Start Process'                                          -ForegroundColor $Text -BackgroundColor Black
+Write-Host '------------------------------------------------------' -ForegroundColor $Text -BackgroundColor Black
 
 foreach ($File in $Files) {
     $Excl = $false
@@ -252,45 +276,58 @@ foreach ($File in $Files) {
     #set variable for output file path
     $Dest = "$Destination\$FileName"
     if ($FileName -notlike "*$Exclude*") {
-            #if it has an exclude, don't grab it
-            $Excl = $true
-            Write-Host 'Excluding ' -ForegroundColor Magenta -NoNewline
-            Write-Host $FileName    -ForegroundColor Red
-            Write-Host ''
+        #if it has an exclude, don't grab it
+        $Excl = $true
+        Write-Host "$DloadCount of $FileCount excluded ; "  -ForegroundColor $Text -NoNewline
+        Write-Host $FileName                                -ForegroundColor $Err
+        $Skip = $true
     } else {
         #otherwise, pull it down
         $Excl = $false
         Write-Progress -Activity "Downloading $FileName" -Id 4 -ParentId 0
-        Write-Host 'Downloading '   -ForegroundColor Magenta -NoNewline
-        Write-Host $FileName        -ForegroundColor Green   -NoNewline
-        Write-Host ' to '           -ForegroundColor Magenta -NoNewline
-        Write-Host $Destination     -ForegroundColor Yellow
-        Start-BitsTransfer -Source "$URL/$File" -Destination "$Dest"
+        Write-Host "$DloadCount of $FileCount downloading "   -ForegroundColor $Text -NoNewline
+        Write-Host $FileName                                  -ForegroundColor $Link
+        try { 
+            Start-BitsTransfer -Source "$URL/$File" -Destination "$Dest"
+        }
+        catch {
+            Write-Host "Download failed; " -ForegroundColor $Err -NoNewline
+            Write-Host $FileName           -ForegroundColor $Link
+            $Failed += $FileName
+        } 
     }
 
     #check download
     if (!($Excl)) {
         if (Test-Path $Dest) {
             #download complete
-            Write-Host 'File downloaded to ' -ForegroundColor Magenta -NoNewline
-            Write-Host "$Destination\"       -ForegroundColor Yellow  -NoNewline
-            Write-Host $FileName             -ForegroundColor Green
-            Write-Host ''
+            Write-Host "Downloaded to "         -ForegroundColor $Success -NoNewline
+            Write-Host "$Destination\$FileName" -ForegroundColor $Path
         } else {
             #download failed
             $Fail   = $true
-            Write-Host $Dest                                    -ForegroundColor Red -NoNewline
-            Write-Host ' not detected - please check download'  -ForegroundColor Magenta
+            Write-Host $Dest                                   -ForegroundColor $Err -NoNewline
+            Write-Host ' not detected - please check download' -ForegroundColor $Text
             $Failed += $FileName
-            Write-Host ''
         }
+    } else {
+        $Skipped += $FileName
     }
 }
 
 #show failed downloads
+if ($Skip) {
+    Write-Host ''
+    Write-Host 'The below files were excluded;' -ForegroundColor $Text
+    $Skipped
+    Write-Host ''
+}
 if ($Fail) {
-    Write-Host "The below files have failed;"
+    Write-Host ''
+    Write-Host 'The below files have failed;'   -ForegroundColor $Err
     $Failed
     Write-Host ''
 }
-Write-Host 'Process Finished' -ForegroundColor Magenta
+Write-Host '------------------------------------------------------' -ForegroundColor $Text -BackgroundColor Black
+Write-Host 'Process Finished'                                       -ForegroundColor $Text -BackgroundColor Black
+Write-Host ''

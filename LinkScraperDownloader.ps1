@@ -204,6 +204,9 @@ $CharMap = @(
     [pscustomobject]@{Character='ÿ';    Windows='%FF';  UTF='%C3%BF'    }
 )
 
+#set up array for failed downloads
+$Failed = @()
+
 #get all of the relevant links
 Write-Host 'Fetching list of links from '   -ForegroundColor Magenta -NoNewline
 Write-Host $URL                             -ForegroundColor Yellow
@@ -216,9 +219,9 @@ $FileProg   = 0
 $DloadCount = 0
 
 Write-Host 'Start Process' -ForegroundColor Magenta
-Write-Host ''
 
 foreach ($File in $Files) {
+    $Excl = $false
     $DloadCount = $DloadCount+1
     Write-Progress -Activity "Downloading Files" -PercentComplete (($DloadCount/$FileCount)*100) -Id 0
     #set FileName for output file
@@ -249,8 +252,14 @@ foreach ($File in $Files) {
     }
     #set variable for output file path
     $Dest = "$Destination\$FileName"
-#    if ($FileName -notmatch $Exclude) {
-        #no exclude?, pull it down
+    if ($FileName -notlike "*$Exclude*") {
+            #if it has an exclude, don't grab it
+            $Excl = $true
+            Write-Host 'Excluding ' -ForegroundColor Magenta -NoNewline
+            Write-Host $FileName    -ForegroundColor Red
+            Write-Host ''
+    } else {
+        #otherwise, pull it down
         $Excl = $false
         Write-Progress -Activity "Downloading $FileName" -Id 4 -ParentId 0
         Write-Host 'Downloading '   -ForegroundColor Magenta -NoNewline
@@ -258,26 +267,31 @@ foreach ($File in $Files) {
         Write-Host ' to '           -ForegroundColor Magenta -NoNewline
         Write-Host $Destination     -ForegroundColor Yellow
         Start-BitsTransfer -Source "$URL/$File" -Destination "$Dest"
-<#
-    } else {
-        #if it has an exclude, don't grab it
-        $Excl = $true
-        Write-Host 'Excluding ' -ForegroundColor Magenta -NoNewline
-        Write-Host $FileName    -ForegroundColor Red
-        Write-Host ''
     }
-#>
+
+    #check download
     if (!($Excl)) {
         if (Test-Path $Dest) {
-            Write-Host $FileName            -ForegroundColor Green   -NoNewline
-            Write-Host ' downloaded to '    -ForegroundColor Magenta -NoNewline
-            Write-Host $Destination         -ForegroundColor Yellow
+            #download complete
+            Write-Host 'File downloaded to ' -ForegroundColor Magenta -NoNewline
+            Write-Host "$Destination\"       -ForegroundColor Yellow  -NoNewline
+            Write-Host $FileName             -ForegroundColor Green
             Write-Host ''
         } else {
-            Write-Host $Dest -ForegroundColor Red -NoNewline
-            Write-Host ' not detected - please check download' -ForegroundColor Magenta
+            #download failed
+            $Fail   = $true
+            Write-Host $Dest                                    -ForegroundColor Red -NoNewline
+            Write-Host ' not detected - please check download'  -ForegroundColor Magenta
+            $Failed += $FileName
             Write-Host ''
         }
     }
 }
-Write-Host 'Finished' -ForegroundColor Magenta
+
+#show failed downloads
+if ($Fail) {
+    Write-Host "The below files have failed;"
+    $Failed
+    Write-Host ''
+}
+Write-Host 'Process Finished' -ForegroundColor Magenta

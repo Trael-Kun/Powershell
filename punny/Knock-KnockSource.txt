@@ -1,10 +1,9 @@
 $Answers = ('Who is there?','Who is there',"Who's there","Who's there?",'Whos there?','Whos there')
 
 $Jokes = @(
+[pscustomobject]@{Setup='Avenue';               Punchline="Avenue heard this joke before?"}
 [pscustomobject]@{Setup='Cash';                 Punchline="No thanks, but I would like a peanut instead!"}
 [pscustomobject]@{Setup='Doris';                Punchline="Doris locked, that's why I'm knocking!"}
-[pscustomobject]@{Setup='Madam';                Punchline="Madam foot got caught in the door!"}
-[pscustomobject]@{Setup='Cows go';              Punchline="No, cows go moo!"}
 [pscustomobject]@{Setup='Oink oink';            Punchline="Make up your mind, are you a pig or an owl?!"}
 [pscustomobject]@{Setup='Honey bee';            Punchline="Honey bee a dear and get me a soda!"}
 [pscustomobject]@{Setup='Me';                   Punchline="No, seriously, it's just me. I am telling a knock knock joke!"}
@@ -108,7 +107,6 @@ $Jokes = @(
 [pscustomobject]@{Setup='Iona';                 Punchline="Iona new toy!"}
 [pscustomobject]@{Setup='Two knee';             Punchline="Two-knee fish!"}
 [pscustomobject]@{Setup='Abby';                 Punchline="Abby birthday to you!"}
-[pscustomobject]@{Setup='Cows go';              Punchline="Cows don't go who, they go moo!"}
 [pscustomobject]@{Setup='Ben';                  Punchline="Ben knocking for 10 minutes!"}
 [pscustomobject]@{Setup='Isabel';               Punchline="Isabel working?"}
 [pscustomobject]@{Setup='Aida';                 Punchline="Aida sandwich for lunch today"}
@@ -155,133 +153,128 @@ $Jokes = @(
 [pscustomobject]@{Setup='Quiche';               Punchline="Can I quiche you goodnight?"}
 [pscustomobject]@{Setup='Ash';                  Punchline="Ash me another question!"}
 [pscustomobject]@{Setup='Police';               Punchline="Police stop telling these jokes!"}
-[pscustomobject]@{Setup='Wafer'; Punchline="Been a wafer a while, but now I'm back."}
-[pscustomobject]@{Setup='Gwen'; Punchline="Gwen will these jokes ever end?"}
-[pscustomobject]@{Setup='Howard'; Punchline="Good. Howard you?"}
-[pscustomobject]@{Setup='Mint'; Punchline="Mint to tell ya I was coming by."}
-[pscustomobject]@{Setup='Waddle'; Punchline="Waddle you give me to stop knocking?"}
-[pscustomobject]@{Setup='Dublin'; Punchline="I'm Dublin down on telling these knock-knock jokes."}
-[pscustomobject]@{Setup='Erin'; Punchline="Erin the tires is what my bike needs."}
-[pscustomobject]@{Setup='Ilene'; Punchline="Ilene a little when I get tired."}
-[pscustomobject]@{Setup='Pooch'; Punchline="Pooch your hat on, it's cold out."}
-[pscustomobject]@{Setup='Hammond'; Punchline="Hammond cheese is my favorite sandwich."}
-[pscustomobject]@{Setup='Viper'; Punchline="Viper nose, it's running. Ew."}
-[pscustomobject]@{Setup='Diane'; Punchline="I'm Diane to come in, open the door."}
-[pscustomobject]@{Setup='Omelet'; Punchline="Omelet myself in."}
-[pscustomobject]@{Setup='Juicy'; Punchline="Juicy the look on your face? Ridiculous."}
-[pscustomobject]@{Setup='Doris'; Punchline="Doris locked, why do you think I'm knocking?"}
-[pscustomobject]@{Setup='Honeybee'; Punchline="Honeybee a dear and open the door, please."}
-[pscustomobject]@{Setup='A herd'; Punchline="A herd you were home, so I came over."}
-[pscustomobject]@{Setup='Theodore'; Punchline="Theodore wasn't open, so I knocked."}
-[pscustomobject]@{Setup='Cereal'; Punchline="Cereal pleasure to meet you!"}
-[pscustomobject]@{Setup='Armageddon'; Punchline="Armageddon a little bored. Let's go out."}
-[pscustomobject]@{Setup='I am'; Punchline="You don't know who you are?"}
-[pscustomobject]@{Setup='Amish'; Punchline="You're not a shoe!"}
-[pscustomobject]@{Setup='Chickens'; Punchline="No, no! Chickens cluck, owls hoo."}
-[pscustomobject]@{Setup='Alaska'; Punchline="Alaska 'nother person if you don't know the answer!"}
-[pscustomobject]@{Setup='Train'; Punchline="Someone needs to train you how to open the door."}
-[pscustomobject]@{Setup='Saul'; Punchline="Saul there is. There ain't no more."}
-[pscustomobject]@{Setup='Ida'; Punchline="Surely it's pronounced Idaho?"}
-[pscustomobject]@{Setup='Leon'; Punchline="Leon me … when you're not strong!"}
-[pscustomobject]@{Setup='Cash'; Punchline="No thanks, I'll have some peanuts."}
-[pscustomobject]@{Setup='Euripides'; Punchline="Euripides clothes, you pay for them!"}
-[pscustomobject]@{Setup='A wood wok'; Punchline="A wood wok 500 miles, and a wood wok 500 more!"}
-[pscustomobject]@{Setup='Heywood'; Punchline="Heywood you go on a date with me?"}
-[pscustomobject]@{Setup='Sherwood'; Punchline="Sherwood like to see you sometime!"}
-[pscustomobject]@{Setup='Police'; Punchline="Police tell me I'm your type!"}
-[pscustomobject]@{Setup='Wendy'; Punchline="Wendy you think we can go on a date?"}
-[pscustomobject]@{Setup='A herd'; Punchline="A herd you like knock-knock jokes!"}
-[pscustomobject]@{Setup='Wire'; Punchline="Wire you so cute?"}
-[pscustomobject]@{Setup='Eyesore'; Punchline="Eyesore do like you!"}
-[pscustomobject]@{Setup='Candice'; Punchline="Candice be love I'm feeling right now?"}
-[pscustomobject]@{Setup='Juno'; Punchline="Juno I love you, don't you?"}
-[pscustomobject]@{Setup='Snow'; Punchline="Snow use—I just can't stop thinking about you."}
-[pscustomobject]@{Setup='Anita'; Punchline="Anita use your bathroom"}
-[pscustomobject]@{Setup='Aldo'; Punchline="Aldo anything for you."}
-[pscustomobject]@{Setup='Baby Yoda'; Punchline="Baby, Yoda best!"}
-[pscustomobject]@{Setup='Needle'; Punchline="I needle little love right now."}
-[pscustomobject]@{Setup='Cornflakes'; Punchline="I'll tell you next week, it's a cereal."}
-[pscustomobject]@{Setup='Arthur'; Punchline="Arthur any cookies left?"}
-[pscustomobject]@{Setup='Grandad'; Punchline="Oh no, open the coffin!"}
-[pscustomobject]@{Setup='Figs'; Punchline="Figs the doorbell, it's not working!"}
-[pscustomobject]@{Setup='Iran'; Punchline="Iran here. I'm tired!"}
-[pscustomobject]@{Setup='Amos'; Punchline="A mosquito. Look, right there!"}
-[pscustomobject]@{Setup='Isabel'; Punchline="Isabel broken? I had to knock!"}
-[pscustomobject]@{Setup='Hatch'; Punchline="Bless you!"}
-[pscustomobject]@{Setup='Dishes'; Punchline="Dishes the police, open up!"}
-[pscustomobject]@{Setup='Ice cream'; Punchline="Ice cream every time I see a scary movie!"}
-[pscustomobject]@{Setup='Luke'; Punchline="Luke through the peephole and find out!"}
-[pscustomobject]@{Setup='Justin'; Punchline="Justin time for dinner!"}
-[pscustomobject]@{Setup='Honeydew'; Punchline="Honeydew you know how much I love you?"}
-[pscustomobject]@{Setup='Wooden shoe'; Punchline="Wooden shoe you like to hear another joke?"}
-[pscustomobject]@{Setup='Gorilla'; Punchline="Gorilla me a hamburger, I'm starving!"}
-[pscustomobject]@{Setup='Harry'; Punchline="Harry up and open the door, it's freezing!"}
-[pscustomobject]@{Setup='Octopus'; Punchline="Octo-pus your hands together for this next one!"}
-[pscustomobject]@{Setup='Frog'; Punchline="Frog-et about it!"}
-[pscustomobject]@{Setup='Owl'; Punchline="Owl always love you!"}
-[pscustomobject]@{Setup='Tank'; Punchline="You're welcome!"}
-[pscustomobject]@{Setup='Alpaca'; Punchline="Alpaca the suitcase; you load up the car!"}
-[pscustomobject]@{Setup='Orange'; Punchline="Orange you glad we're telling jokes?"}
-[pscustomobject]@{Setup='Olive'; Punchline="Olive your jokes are bad."}
-[pscustomobject]@{Setup='Boo'; Punchline="Don't cry, it's just a joke!"}
-[pscustomobject]@{Setup='Oink oink'; Punchline="Are you a pig or an owl?"}
-[pscustomobject]@{Setup='Owls'; Punchline="They sure do!"}
-[pscustomobject]@{Setup='Abe Lincoln'; Punchline="You don't recognize me??!!"}
-[pscustomobject]@{Setup='Adorable'; Punchline="A-door-a-bell don't-a work, that's-a why I knocked!"}
-[pscustomobject]@{Setup='Goliath'; Punchline="Go lieth thee down, thou looks tired!"}
-[pscustomobject]@{Setup='Cargo'; Punchline="CAR GO BEEP BEEP!"}
-[pscustomobject]@{Setup='Daisy'; Punchline="DEY SEE ME ROLLIN THEY HATIN"}
-[pscustomobject]@{Setup='Kenya'; Punchline="Kenya open the door?"}
-[pscustomobject]@{Setup='The'; Punchline="YEAAAAAAAAAAAAAAAHHHHH!!! (in the style of `"Won't Get Fooled Again`" by The Who)"}
-[pscustomobject]@{Setup='I eat mop'; Punchline="Ew."}
-[pscustomobject]@{Setup='Lettuce'; Punchline="Lettuce in."}
-[pscustomobject]@{Setup='Yoda lady'; Punchline="I didn't know you could yodel!"}
-[pscustomobject]@{Setup='A little old lady'; Punchline="Stop yodeling."}
-[pscustomobject]@{Setup='Europe'; Punchline="No, you're a poo!"}
-[pscustomobject]@{Setup='You'; Punchline="Big summer blowout."}
-[pscustomobject]@{Setup='To'; Punchline="It's to whom."}
-[pscustomobject]@{Setup='Cook'; Punchline="Yeah, you do sound kinda crazy."}
-[pscustomobject]@{Setup='A week'; Punchline="Yeah, we coo'."}
-[pscustomobject]@{Setup='Wah'; Punchline="It's-a me Mario!"}
-[pscustomobject]@{Setup='HIPAA'; Punchline="I'm sorry, I'm not authorized to release that information."}
-[pscustomobject]@{Setup='Nobel'; Punchline="There's no bell...that's why I knocked."}
-[pscustomobject]@{Setup='Art'; Punchline="R2D2!"}
-[pscustomobject]@{Setup='Shamp'; Punchline="Does my hair really look that dirty?"}
-[pscustomobject]@{Setup='Doctor'; Punchline="Oh my gosh, I'm such a big fan!"}
-[pscustomobject]@{Setup='Hike'; Punchline="I didn't know you liked Japanese poetry!"}
-[pscustomobject]@{Setup='Yah'; Punchline="No, I use Google."}
-[pscustomobject]@{Setup='Colin'; Punchline="Colonization! Just kidding, colonizers don't knock before coming in."}
-[pscustomobject]@{Setup='Thermos'; Punchline="Thermos be a better knock knock joke than this!"}
-[pscustomobject]@{Setup='Norma Lee'; Punchline="Normally I'd call first, but I had to see you!"}
-[pscustomobject]@{Setup='Mikey'; Punchline="My key is lost — can you let me in?"}
-[pscustomobject]@{Setup='Hutch'; Punchline="Bless you!"}
-[pscustomobject]@{Setup='Tat'; Punchline="No thanks, I'm afraid of needles."}
-[pscustomobject]@{Setup='Cowsgo'; Punchline="No, cows go MOO!"}
-[pscustomobject]@{Setup='Spell'; Punchline="W-h-o."}
-[pscustomobject]@{Setup='Pecan'; Punchline="Pecan somebody your own size!"}
-[pscustomobject]@{Setup='Fur'; Punchline="Fur you, I can be anyone."}
-[pscustomobject]@{Setup='Alien'; Punchline="Alien — wait, how many aliens do you know?"}
-[pscustomobject]@{Setup='Baby owl'; Punchline="Baby, I'll see you later at my place."}
-[pscustomobject]@{Setup='Disguise'; Punchline="Dis guy is your boyfriend? You could do so much better."}
-[pscustomobject]@{Setup='Ida'; Punchline="Surely, it's pronounced Ida-ho?"}
-[pscustomobject]@{Setup='Urine'; Punchline="You're insecure; don't know what for."}
-[pscustomobject]@{Setup='Bacon'; Punchline="Bae, can you give me a kiss?"}
-[pscustomobject]@{Setup='Wafer'; Punchline="Wafer me — I'm coming!"}
-[pscustomobject]@{Setup='Radio'; Punchline="Radio not, here I come!"}
-[pscustomobject]@{Setup='Ariana Grande'; Punchline="Okay, boomer!"}
-[pscustomobject]@{Setup='Anna Partridge'; Punchline="Anna Partridge in a pear tree!"}
-[pscustomobject]@{Setup='Madam'; Punchline="Ma damn foot is stuck in the door!"}
-[pscustomobject]@{Setup='Omar'; Punchline="Omargod, I have the wrong door!"}
-[pscustomobject]@{Setup='Leash'; Punchline="Leash you could do is open the door!"}
-[pscustomobject]@{Setup='Breaking dawn'; Punchline="I'm breaking dawn this door with my powerful vampire knocks!"}
-[pscustomobject]@{Setup='Beets'; Punchline="Beets me!"}
-[pscustomobject]@{Setup='Otto'; Punchline="Otto know. I've got amnesia."}
-[pscustomobject]@{Setup='Desiree'; Punchline="Desiree of sunshine shining through my window."}
-[pscustomobject]@{Setup='Avenue'; Punchline="Avenue heard this joke before?"}
-[pscustomobject]@{Setup='Forget'; Punchline="Forget you!"}
-[pscustomobject]@{Setup='Woo'; Punchline="Sounds like a party in there!"}
-[pscustomobject]@{Setup='A broken pencil'; Punchline="Nevermind, there's no point."}
-[pscustomobject]@{Setup='Stopper'; Punchline="Stop'er! She's running off with your newspaper!"}
-[pscustomobject]@{Setup='Moron'; Punchline="Moron that later, after these messages from our sponsors."}
-[pscustomobject]@{Setup='Dewey'; Punchline="Dewey have to keep telling silly jokes?"}
+[pscustomobject]@{Setup='Wafer';                Punchline="Been a wafer a while, but now I'm back."}
+[pscustomobject]@{Setup='Gwen';                 Punchline="Gwen will these jokes ever end?"}
+[pscustomobject]@{Setup='Howard';               Punchline="Good. Howard you?"}
+[pscustomobject]@{Setup='Mint';                 Punchline="Mint to tell ya I was coming by."}
+[pscustomobject]@{Setup='Waddle';               Punchline="Waddle you give me to stop knocking?"}
+[pscustomobject]@{Setup='Dublin';               Punchline="I'm Dublin down on telling these knock-knock jokes."}
+[pscustomobject]@{Setup='Erin';                 Punchline="Erin the tires is what my bike needs."}
+[pscustomobject]@{Setup='Ilene';                Punchline="Ilene a little when I get tired."}
+[pscustomobject]@{Setup='Pooch';                Punchline="Pooch your hat on, it's cold out."}
+[pscustomobject]@{Setup='Hammond';              Punchline="Hammond cheese is my favorite sandwich."}
+[pscustomobject]@{Setup='Viper';                Punchline="Viper nose, it's running. Ew."}
+[pscustomobject]@{Setup='Diane';                Punchline="I'm Diane to come in, open the door."}
+[pscustomobject]@{Setup='Omelet';               Punchline="Omelet myself in."}
+[pscustomobject]@{Setup='Juicy';                Punchline="Juicy the look on your face? Ridiculous."}
+[pscustomobject]@{Setup='Honeybee';             Punchline="Honeybee a dear and open the door, please."}
+[pscustomobject]@{Setup='A herd';               Punchline="A herd you were home, so I came over."}
+[pscustomobject]@{Setup='Theodore';             Punchline="Theodore wasn't open, so I knocked."}
+[pscustomobject]@{Setup='Cereal';               Punchline="Cereal pleasure to meet you!"}
+[pscustomobject]@{Setup='Armageddon';           Punchline="Armageddon a little bored. Let's go out."}
+[pscustomobject]@{Setup='I am';                 Punchline="You don't know who you are?"}
+[pscustomobject]@{Setup='Amish';                Punchline="You're not a shoe!"}
+[pscustomobject]@{Setup='Chickens';             Punchline="No, no! Chickens cluck, owls hoo."}
+[pscustomobject]@{Setup='Alaska';               Punchline="Alaska 'nother person if you don't know the answer!"}
+[pscustomobject]@{Setup='Train';                Punchline="Someone needs to train you how to open the door."}
+[pscustomobject]@{Setup='Saul';                 Punchline="Saul there is. There ain't no more."}
+[pscustomobject]@{Setup='Ida';                  Punchline="Surely it's pronounced Idaho?"}
+[pscustomobject]@{Setup='Leon';                 Punchline="Leon me … when you're not strong!"}
+[pscustomobject]@{Setup='Cash';                 Punchline="No thanks, I'll have some peanuts."}
+[pscustomobject]@{Setup='Euripides';            Punchline="Euripides clothes, you pay for them!"}
+[pscustomobject]@{Setup='A wood wok';           Punchline="A wood wok 500 miles, and a wood wok 500 more!"}
+[pscustomobject]@{Setup='Heywood';              Punchline="Heywood you go on a date with me?"}
+[pscustomobject]@{Setup='Sherwood';             Punchline="Sherwood like to see you sometime!"}
+[pscustomobject]@{Setup='Police';               Punchline="Police tell me I'm your type!"}
+[pscustomobject]@{Setup='Wendy';                Punchline="Wendy you think we can go on a date?"}
+[pscustomobject]@{Setup='A herd';               Punchline="A herd you like knock-knock jokes!"}
+[pscustomobject]@{Setup='Wire';                 Punchline="Wire you so cute?"}
+[pscustomobject]@{Setup='Eyesore';              Punchline="Eyesore do like you!"}
+[pscustomobject]@{Setup='Candice';              Punchline="Candice be love I'm feeling right now?"}
+[pscustomobject]@{Setup='Juno';                 Punchline="Juno I love you, don't you?"}
+[pscustomobject]@{Setup='Snow';                 Punchline="Snow use—I just can't stop thinking about you."}
+[pscustomobject]@{Setup='Anita';                Punchline="Anita use your bathroom"}
+[pscustomobject]@{Setup='Aldo';                 Punchline="Aldo anything for you."}
+[pscustomobject]@{Setup='Baby Yoda';            Punchline="Baby, Yoda best!"}
+[pscustomobject]@{Setup='Needle';               Punchline="I needle little love right now."}
+[pscustomobject]@{Setup='Cornflakes';           Punchline="I'll tell you next week, it's a cereal."}
+[pscustomobject]@{Setup='Arthur';               Punchline="Arthur any cookies left?"}
+[pscustomobject]@{Setup='Grandad';              Punchline="Oh no, open the coffin!"}
+[pscustomobject]@{Setup='Figs';                 Punchline="Figs the doorbell, it's not working!"}
+[pscustomobject]@{Setup='Iran';                 Punchline="Iran here. I'm tired!"}
+[pscustomobject]@{Setup='Amos';                 Punchline="A mosquito. Look, right there!"}
+[pscustomobject]@{Setup='Isabel';               Punchline="Isabel broken? I had to knock!"}
+[pscustomobject]@{Setup='Hatch';                Punchline="Bless you!"}
+[pscustomobject]@{Setup='Dishes';               Punchline="Dishes the police, open up!"}
+[pscustomobject]@{Setup='Ice cream';            Punchline="Ice cream every time I see a scary movie!"}
+[pscustomobject]@{Setup='Luke';                 Punchline="Luke through the peephole and find out!"}
+[pscustomobject]@{Setup='Justin';               Punchline="Justin time for dinner!"}
+[pscustomobject]@{Setup='Honeydew';             Punchline="Honeydew you know how much I love you?"}
+[pscustomobject]@{Setup='Wooden shoe';          Punchline="Wooden shoe you like to hear another joke?"}
+[pscustomobject]@{Setup='Gorilla';              Punchline="Gorilla me a hamburger, I'm starving!"}
+[pscustomobject]@{Setup='Harry';                Punchline="Harry up and open the door, it's freezing!"}
+[pscustomobject]@{Setup='Octopus';              Punchline="Octo-pus your hands together for this next one!"}
+[pscustomobject]@{Setup='Frog';                 Punchline="Frog-et about it!"}
+[pscustomobject]@{Setup='Owl';                  Punchline="Owl always love you!"}
+[pscustomobject]@{Setup='Tank';                 Punchline="You're welcome!"}
+[pscustomobject]@{Setup='Alpaca';               Punchline="Alpaca the suitcase; you load up the car!"}
+[pscustomobject]@{Setup='Orange';               Punchline="Orange you glad we're telling jokes?"}
+[pscustomobject]@{Setup='Olive';                Punchline="Olive your jokes are bad."}
+[pscustomobject]@{Setup='Owls';                 Punchline="They sure do!"}
+[pscustomobject]@{Setup='Abe Lincoln';          Punchline="You don't recognize me??!!"}
+[pscustomobject]@{Setup='Adorable';             Punchline="A-door-a-bell don't-a work, that's-a why I knocked!"}
+[pscustomobject]@{Setup='Goliath';              Punchline="Go lieth thee down, thou looks tired!"}
+[pscustomobject]@{Setup='Cargo';                Punchline="CAR GO BEEP BEEP!"}
+[pscustomobject]@{Setup='Daisy';                Punchline="DEY SEE ME ROLLIN THEY HATIN"}
+[pscustomobject]@{Setup='Kenya';                Punchline="Kenya open the door?"}
+[pscustomobject]@{Setup='The';                  Punchline="YEAAAAAAAAAAAAAAAHHHHH!!! (in the style of `"Won't Get Fooled Again`" by The Who)"}
+[pscustomobject]@{Setup='I eat mop';            Punchline="Ew."}
+[pscustomobject]@{Setup='Lettuce';              Punchline="Lettuce in."}
+[pscustomobject]@{Setup='Yoda lady';            Punchline="I didn't know you could yodel!"}
+[pscustomobject]@{Setup='A little old lady';    Punchline="Stop yodeling."}
+[pscustomobject]@{Setup='Europe';               Punchline="No, you're a poo!"}
+[pscustomobject]@{Setup='You';                  Punchline="Big summer blowout."}
+[pscustomobject]@{Setup='To';                   Punchline="It's to whom."}
+[pscustomobject]@{Setup='Cook';                 Punchline="Yeah, you do sound kinda crazy."}
+[pscustomobject]@{Setup='A week';               Punchline="Yeah, we coo'."}
+[pscustomobject]@{Setup='Wah';                  Punchline="It's-a me Mario!"}
+[pscustomobject]@{Setup='HIPAA';                Punchline="I'm sorry, I'm not authorized to release that information."}
+[pscustomobject]@{Setup='Nobel';                Punchline="There's no bell...that's why I knocked."}
+[pscustomobject]@{Setup='Art';                  Punchline="R2D2!"}
+[pscustomobject]@{Setup='Shamp';                Punchline="Does my hair really look that dirty?"}
+[pscustomobject]@{Setup='Doctor';               Punchline="Oh my gosh, I'm such a big fan!"}
+[pscustomobject]@{Setup='Hike';                 Punchline="I didn't know you liked Japanese poetry!"}
+[pscustomobject]@{Setup='Yah';                  Punchline="No, I use Google."}
+[pscustomobject]@{Setup='Colin';                Punchline="Colonization! Just kidding, colonizers don't knock before coming in."}
+[pscustomobject]@{Setup='Thermos';              Punchline="Thermos be a better knock knock joke than this!"}
+[pscustomobject]@{Setup='Norma Lee';            Punchline="Normally I'd call first, but I had to see you!"}
+[pscustomobject]@{Setup='Mikey';                Punchline="My key is lost — can you let me in?"}
+[pscustomobject]@{Setup='Hutch';                Punchline="Bless you!"}
+[pscustomobject]@{Setup='Tat';                  Punchline="No thanks, I'm afraid of needles."}
+[pscustomobject]@{Setup='Cowsgo';               Punchline="No, cows go MOO!"}
+[pscustomobject]@{Setup='Spell';                Punchline="W-h-o."}
+[pscustomobject]@{Setup='Pecan';                Punchline="Pecan somebody your own size!"}
+[pscustomobject]@{Setup='Fur';                  Punchline="Fur you, I can be anyone."}
+[pscustomobject]@{Setup='Alien';                Punchline="Alien — wait, how many aliens do you know?"}
+[pscustomobject]@{Setup='Baby owl';             Punchline="Baby, I'll see you later at my place."}
+[pscustomobject]@{Setup='Disguise';             Punchline="Dis guy is your boyfriend? You could do so much better."}
+[pscustomobject]@{Setup='Ida';                  Punchline="Surely, it's pronounced Ida-ho?"}
+[pscustomobject]@{Setup='Urine';                Punchline="You're insecure; don't know what for."}
+[pscustomobject]@{Setup='Bacon';                Punchline="Bae, can you give me a kiss?"}
+[pscustomobject]@{Setup='Wafer';                Punchline="Wafer me — I'm coming!"}
+[pscustomobject]@{Setup='Radio';                Punchline="Radio not, here I come!"}
+[pscustomobject]@{Setup='Ariana Grande';        Punchline="Okay, boomer!"}
+[pscustomobject]@{Setup='Anna Partridge';       Punchline="Anna Partridge in a pear tree!"}
+[pscustomobject]@{Setup='Madam';                Punchline="Ma damn foot is stuck in the door!"}
+[pscustomobject]@{Setup='Omar';                 Punchline="Omargod, I have the wrong door!"}
+[pscustomobject]@{Setup='Leash';                Punchline="Leash you could do is open the door!"}
+[pscustomobject]@{Setup='Breaking dawn';        Punchline="I'm breaking dawn this door with my powerful vampire knocks!"}
+[pscustomobject]@{Setup='Beets';                Punchline="Beets me!"}
+[pscustomobject]@{Setup='Desiree';              Punchline="Desiree of sunshine shining through my window."}
+[pscustomobject]@{Setup='Forget';               Punchline="Forget you!"}
+[pscustomobject]@{Setup='Woo';                  Punchline="Sounds like a party in there!"}
+[pscustomobject]@{Setup='A broken pencil';      Punchline="Nevermind, there's no point."}
+[pscustomobject]@{Setup='Stopper';              Punchline="Stop'er! She's running off with your newspaper!"}
+[pscustomobject]@{Setup='Moron';                Punchline="Moron that later, after these messages from our sponsors."}
+[pscustomobject]@{Setup='Dewey';                Punchline="Dewey have to keep telling silly jokes?"}
 )

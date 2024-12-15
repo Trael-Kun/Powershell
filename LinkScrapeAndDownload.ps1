@@ -208,6 +208,8 @@ $Fail       = $false
 $Failed     = @()
 $Skip       = $false
 $Skipped    = @()
+$Hash       = $false
+$HashFail   = @()
 
 #Colours
 $OkRGB      = 'Green'
@@ -298,6 +300,23 @@ foreach ($File in $Files) {
             $Failed += $FileName
         } 
     }
+    
+    $FileRaw    = Invoke-WebRequest -Uri "$URL/$File"
+    $Hash1      = (Get-FileHash -InputStream $FileRaw.RawContentStream -Algorithm SHA256).Hash
+    $Hash2      = (Get-FileHash -Path $Dest).Hash
+
+    if ($Hash1 -eq $Hash2) {
+        Write-Host $FileName                            -ForegroundColor $LnkRGB -BackgroundColor $BkRGB -NoNewline
+        Write-Host " is authentic."                     -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
+    } else { 
+        Write-Host "File may have been tampered with!" 
+        Write-Host "Online File Hash: "                 -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
+        Write-Host $Hash1                               -ForegroundColor $OkRGB -BackgroundColor $BkRGB
+        Write-Host "Online File Hash: "                 -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
+        Write-Host $Hash2                               -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
+        $HashFail += $FileName
+        $Hash   = $true
+    }
 
     #check download
     if (!($Excl)) {
@@ -328,6 +347,12 @@ if ($Fail) {
     Write-Host '' -BackgroundColor $BkRGB
     Write-Host 'The below files have failed;'   -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
     $Failed
+    Write-Host '' -BackgroundColor $BkRGB
+}
+if ($Hash) {
+    Write-Host '' -BackgroundColor $BkRGB
+    Write-Host 'The below files failed hash check;'   -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
+    $HashFail
     Write-Host '' -BackgroundColor $BkRGB
 }
 Write-Host '------------------------------------------------------' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB

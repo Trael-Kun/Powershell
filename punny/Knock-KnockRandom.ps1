@@ -8,6 +8,34 @@
     Date:   December 2024    
     Inspired by Joseph Preston https://github.com/jpreston86/Powershell/blob/master/Knock%20Knock%20Joke
 #>
+function Write-Type {
+    <#
+    .SYNOPSIS
+        taps out text like a typewriter
+    .NOTES
+        Written by Markus Fleschutz (https://github.com/fleschutz)
+        Adapted by Bill Wilson (https://github.com/Trael-Kun)
+       References;
+        https://github.com/fleschutz/PowerShell/blob/main/scripts/write-typewriter.ps1
+    #>
+    param(
+        [parameter(mandatory=$true)]
+        [string]$Text,
+        [parameter(mandatory=$false)]
+        [int]$Speed = 200,
+        [string]$ForegroundColor
+    )
+
+    try {
+        $Random = New-Object System.Random
+        $Text -split '' | ForEach-Object {
+            Write-Host $_ -NoNewline -ForegroundColor $ForegroundColor
+            Start-Sleep -Milliseconds $Random.Next($Speed)
+        }
+    } catch {
+        "⚠️ Error in line $($_.InvocationInfo.ScriptLineNumber): $($Error[0])"
+    }
+}
 function Knock-Knock {
     param (
         [Parameter(Mandatory)]
@@ -17,16 +45,16 @@ function Knock-Knock {
     Clear-Host
     ##Knock Knock
     while ($UserReply -notin $Answers ){
-        Write-Host "Knock Knock!" -ForegroundColor Magenta -NoNewline
+        Write-Type "Knock Knock!" -ForegroundColor Magenta
         $UserReply = Read-Host ' '
     }
     ##Setup
     while ("$Setup who","$Setup who?" -notcontains $UserReply){
-        Write-Host $Setup -ForegroundColor Magenta -NoNewline
+        Write-Type $Setup -ForegroundColor Magenta
         $UserReply = Read-Host ' '
     }   
     ##Punchline
-    Write-Host $Punchline -ForegroundColor Yellow
+    Write-Type $Punchline -ForegroundColor Yellow
     Start-Sleep -Seconds 5
     Clear-Host
 }

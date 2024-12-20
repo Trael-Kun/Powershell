@@ -1,5 +1,3 @@
-$Answers = ('Who is there?','Who is there',"Who's there","Who's there?",'Whos there?','Whos there')
-
 $Jokes = @(
 [pscustomobject]@{Setup='Avenue';               Punchline="Avenue heard this joke before?"}
 [pscustomobject]@{Setup='Cash';                 Punchline="No thanks, but I would like a peanut instead!"}

@@ -59,7 +59,32 @@ function Knock-Knock {
     Clear-Host
 }
 #Variables
-$Answers = ('Who is there?','Who is there',"Who's there","Who's there?",'Whos there?','Whos there')
+$Answers = (
+    "Who is there?",
+    "Who is there",
+    "Who is their?",
+    "Who is their",
+    "Who is they're?",
+    "Who is they're",
+    "Who is theyre?",
+    "Who is theyre",
+    "Who's there",
+    "Who's there?",
+    "Whos there?",
+    "Whos there",
+    "Whos their",
+    "Whos their?",
+    "Who's their",
+    "Who's their?",
+    "Whos they're",
+    "whos they're?",
+    "Who's they're",
+    "Who's they're?",
+    "Whos theyre",
+    "Whos theyre?",
+    "Who's theyre",
+    "Who's theyre?"
+)
 $Jokes = @(
     [pscustomobject]@{Setup='Cash';                 Xmas=$false;  Punchline="No thanks, but I would like a peanut instead!"}
     [pscustomobject]@{Setup='Doris';                Xmas=$false;  Punchline="Doris locked, that's why I'm knocking!"}

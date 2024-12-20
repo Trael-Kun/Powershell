@@ -1,4 +1,3 @@
-$Jokes = @(
 [pscustomobject]@{Setup='Avenue';               Punchline="Avenue heard this joke before?"}
 [pscustomobject]@{Setup='Cash';                 Punchline="No thanks, but I would like a peanut instead!"}
 [pscustomobject]@{Setup='Doris';                Punchline="Doris locked, that's why I'm knocking!"}
@@ -275,4 +274,3 @@ $Jokes = @(
 [pscustomobject]@{Setup='Stopper';              Punchline="Stop'er! She's running off with your newspaper!"}
 [pscustomobject]@{Setup='Moron';                Punchline="Moron that later, after these messages from our sponsors."}
 [pscustomobject]@{Setup='Dewey';                Punchline="Dewey have to keep telling silly jokes?"}
-)

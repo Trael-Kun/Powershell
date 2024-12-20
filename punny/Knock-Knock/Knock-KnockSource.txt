@@ -1,4 +1,4 @@
-[pscustomobject]@{Setup='Cash';                 Xmas=$false;  Punchline="No thanks, but I would like a peanut instead!"}
+    [pscustomobject]@{Setup='Cash';                 Xmas=$false;  Punchline="No thanks, but I would like a peanut instead!"}
     [pscustomobject]@{Setup='Doris';                Xmas=$false;  Punchline="Doris locked, that's why I'm knocking!"}
     [pscustomobject]@{Setup='Madam';                Xmas=$false;  Punchline="Madam foot got caught in the door!"}
     [pscustomobject]@{Setup='Cows go';              Xmas=$false;  Punchline="No, cows go moo!"}

@@ -1,7 +1,7 @@
 function Stop-it {
     #Stop a process from running
     param (
-        [Parameter(Mandatory=$false)] 
+        [ValidateNotNullorEmpty()]
         [string]$ProcessName = 'PowerShell'
     )
     While ($true) {
@@ -10,7 +10,7 @@ function Stop-it {
             Start-Sleep -Seconds 1
         } else {
             Write-Host "Stopping $($Process.ProcessName)"
-            Stop-Process $Process.Id
+            Stop-Process $Process.Id -ErrorAction SilentlyContinue
             Wait-Process -Id $Process.Id
             Write-Host "$($Process.ProcessName) Stopped"
         }

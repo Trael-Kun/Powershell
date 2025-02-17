@@ -70,6 +70,7 @@ function Write-Knock {
     #Punchline
     Write-Type $Punchline -ForegroundColor $PunchColor
     Start-Sleep -Seconds 5
+    Write-Host ''
     Write-Type 'Haha' -ForegroundColor White
     Clear-Host
 }
@@ -80,7 +81,7 @@ $SetupColor = $KnockColor
 $PunchColor = 'Yellow'
 
 $Answers    = @((((Invoke-RestMethod -Uri https://raw.githubusercontent.com/Trael-Kun/Powershell/refs/heads/main/punny/Knock-Knock/Answers.txt).split(',')).trim()))
-$Jokes      = @(Invoke-RestMethod -Uri https://raw.githubusercontent.com/Trael-Kun/Powershell/refs/heads/main/punny/Knock-Knock/knocksource.csv | ConvertFrom-Csv)
+$Jokes      = @((Invoke-RestMethod -Uri https://raw.githubusercontent.com/Trael-Kun/Powershell/refs/heads/main/punny/Knock-Knock/knocksource.csv | ConvertFrom-Csv))
 
 #Start Script
 Clear-Host
@@ -89,18 +90,22 @@ Start-Sleep -Seconds 2
 Clear-Host
 $Count = 0
 $Date  = Get-Date
-Do {
-    $UserReply = $null
-    $Rando     = Get-Random -Minimum 0 -Maximum (($Jokes.Count)-1)
-    $Count++
-    if ($Jokes[$Rando].Xmas -eq 0) {
-        Write-Knock -Setup $Jokes[$Rando].Setup -Punchline $Jokes[$Rando].Punchline
-    } elseif ($Jokes[$Rando].Xmas -eq 1 -and $Date.Month -ne 12) {
-        #next joke
-    } else {
-        Write-Knock -Setup $Jokes[$Rando].Setup -Punchline $Jokes[$Rando].Punchline
-    }
-} Until ($Count -eq ($Jokes.Count))
+try {
+    Do {
+        $UserReply = $null
+        $Rando     = Get-Random -Minimum 0 -Maximum (($Jokes.Count)-1)
+        $Count++
+        if ($Jokes[$Rando].Xmas -eq 0) {
+            Write-Knock -Setup $Jokes[$Rando].Setup -Punchline $Jokes[$Rando].Punchline
+        } elseif ($Jokes[$Rando].Xmas -eq 1 -and $Date.Month -ne 12) {
+            #next joke
+        } else {
+            Write-Knock -Setup $Jokes[$Rando].Setup -Punchline $Jokes[$Rando].Punchline
+        }
+    } Until ($Count -eq ($Jokes.Count))
+} catch {
+    Write-Error -Message 'Unable to find humour'
+}
 Write-Output 'Ending humour'
 Start-Sleep -Seconds 3
 Clear-Host

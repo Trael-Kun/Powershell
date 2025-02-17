@@ -8,7 +8,7 @@
     Date:   December 2024    
     Inspired by Joseph Preston https://github.com/jpreston86/Powershell/blob/master/Knock%20Knock%20Joke
 #>
-
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 function Write-Type {
     <#
     .SYNOPSIS
@@ -79,10 +79,18 @@ function Write-Knock {
 $KnockColor = 'Magenta'
 $SetupColor = $KnockColor
 $PunchColor = 'Yellow'
-
-$Answers    = @((((Invoke-RestMethod -Uri https://raw.githubusercontent.com/Trael-Kun/Powershell/refs/heads/main/punny/Knock-Knock/Answers.txt).split(',')).trim()))
-$Jokes      = @((Invoke-RestMethod -Uri https://raw.githubusercontent.com/Trael-Kun/Powershell/refs/heads/main/punny/Knock-Knock/knocksource.csv | ConvertFrom-Csv))
-
+$AnswerUrl  = 'https://raw.githubusercontent.com/Trael-Kun/Powershell/refs/heads/main/punny/Knock-Knock/Answers.txt'
+$JokeUrl    = 'https://raw.githubusercontent.com/Trael-Kun/Powershell/refs/heads/main/punny/Knock-Knock/KnockSource.csv'
+if ((Invoke-WebRequest -DisableKeepAlive -Uri $JokeUrl) -and (Invoke-WebRequest -DisableKeepAlive -Uri $AnswerUrl )) {
+    $Answers    = @((((Invoke-RestMethod -Uri $AnswerUrl).split(',')).trim()))
+    $Jokes      = @((Invoke-WebRequest -Uri $JokeUrl).content | ConvertFrom-Csv)
+} elseif (!(Invoke-WebRequest -DisableKeepAlive -uri $JokeUrl)) {	
+    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+    Write-Error 'Humor Not Found' -ErrorAction Stop
+} elseif (!(Invoke-WebRequest -DisableKeepAlive -uri $AnswerUrl)) {
+    $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+    Write-Error 'Unable to confirm allowed responses' -ErrorAction Stop
+}
 #Start Script
 Clear-Host
 Write-Output 'Start humour'
@@ -90,7 +98,6 @@ Start-Sleep -Seconds 2
 Clear-Host
 $Count = 0
 $Date  = Get-Date
-try {
     Do {
         $UserReply = $null
         $Rando     = Get-Random -Minimum 0 -Maximum (($Jokes.Count)-1)
@@ -103,9 +110,7 @@ try {
             Write-Knock -Setup $Jokes[$Rando].Setup -Punchline $Jokes[$Rando].Punchline
         }
     } Until ($Count -eq ($Jokes.Count))
-} catch {
-    Write-Error -Message 'Unable to find humour'
-}
+
 Write-Output 'Ending humour'
 Start-Sleep -Seconds 3
 Clear-Host

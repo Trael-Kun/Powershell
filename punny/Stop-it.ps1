@@ -1,7 +1,8 @@
 function Stop-it {
     #Stop a process from running
     param (
-        [string]$ProcessName
+        [Parameter(Mandatory=$false)]
+        [string]$ProcessName = 'PowerShell'
     )
     While ($true) {
         $Process = Get-Process $ProcessName -ErrorAction SilentlyContinue

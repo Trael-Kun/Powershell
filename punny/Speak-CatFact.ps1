@@ -1,4 +1,5 @@
 #https://www.reddit.com/r/PowerShell/comments/hsq84q/comment/fycz6ex
+$SleepTime = 3600
 while ($true) {
     #set up voice
     Add-Type -AssemblyName System.Speech
@@ -30,5 +31,5 @@ while ($true) {
     #say it
     $SpeechSynth.Speak('Did you know ?')
     $SpeechSynth.Speak($CatFact.fact)
-    Start-Sleep -Seconds 3600 
+    Start-Sleep -Seconds $SleepTime 
 }

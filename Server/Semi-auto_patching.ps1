@@ -125,13 +125,14 @@ foreach ($Good in $DirGood) {
             Write-Output "Connecting to $Good"
             Enter-PSSession $Good
             Add-Cabs
+            Exit-PSSession
         } catch {                                                                                                               #no? Can we send a remote command?
             Write-Host "Unable to connect to server $Good" -ForegroundColor Red
             try{
                 Write-Output "Sending command to $Good"
-                Invoke-Command -ComputerName $Good -ScriptBlock Add-Cabs
+                Invoke-Command -ComputerName $Good -ScriptBlock Add-Cabs 
             } catch {
-                Write-Host "Unable to send commands to server $Good" -ForegroundColor Red
+                Write-Host "Unable to send command to server $Good" -ForegroundColor Red
                 $DirBad = $DirBad + $Good
             }
         }

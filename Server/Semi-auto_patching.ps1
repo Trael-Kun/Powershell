@@ -10,16 +10,16 @@
 
 param {
     [Parameter(Mandatory=$true)]
-    [string]$ServerList,    #list of servers
-    [string]$SourceDir      #directory containging .cab files, could have been grabbed by SCCM's ADRs
+    [string]$ServerList,                                                                                                        #list of servers
+    [string]$SourceDir                                                                                                          #directory containging .cab files, could have been grabbed by SCCM's ADRs
 }
 
 function Write-Count{
     param(
-        [string]$ObjectDescription, #what's getting written in the Write-Host
-        [string]$Object,            #what's getting counted
-        [switch]$Positive,          #for good results, defaults to bad colors
-        [switch]$Report             #if you want to list the results
+        [string]$ObjectDescription,                                                                                             #what's getting written in the Write-Host
+        [string]$Object,                                                                                                        #what's getting counted
+        [switch]$Positive,                                                                                                      #for good results, defaults to bad colors
+        [switch]$Report                                                                                                         #if you want to list the results
     )
     if ($Positive){
         $Fground = 'Green'
@@ -36,9 +36,8 @@ function Write-Count{
 }
 
 function Add-Cabs {
-    #find.cab files
     $CTemp = "C:\$Temp"
-    $Cabs = (Get-ChildItem -Path $CTemp -Recurse -Filter *.cab) | Sort-Object -Property LastWriteTime
+    $Cabs = (Get-ChildItem -Path $CTemp -Recurse -Filter *.cab) | Sort-Object -Property LastWriteTime                           #find.cab files
     
     foreach ($Cab in $Cabs) {
         $CabCheck = $($Cab.Name).Substring(12,9)                                                                                #this should extract the KB number
@@ -77,18 +76,18 @@ $Space
 
 #Test Connection
 foreach ($Server in $ServerList) {
-    if ($Server -match "*$Domain") {                    #remove the domain name from .csv list
+    if ($Server -match "*$Domain") {                                                                                            #remove the domain name from servername, e.g. Server01-Test.Domain.Local
         $Server = $Server -replace $Domain
     }
-    if (Test-Connection -ComputerName $Server -ErrorAction SilentlyContinue) {  #is it online?
+    if (Test-Connection -ComputerName $Server -ErrorAction SilentlyContinue) {                                                  #is it online?
         $Online = $Online + $Server
     } else {
         $Offline = $Offline + $Server
     }
-}                                                                               #display results
+}                                                                                                                               #display results
 Write-Count -ObjectDescription 'servers offline' -Object $Offline -Report
 Write-Count -ObjectDescription 'servers online'  -Object $Online  -Report -Positive
-if ($Offline.Count -eq $Servers.Count -or $Online.Count -lt 1) {                #if nmothing's online, we're done
+if ($Offline.Count -eq $Servers.Count -or $Online.Count -lt 1) {                                                                #if nmothing's online, we're done
     $Space
     Write-Host 'No servers online' -ForegroundColor Red
     Write-Host 'Ending Script'
@@ -98,14 +97,14 @@ if ($Offline.Count -eq $Servers.Count -or $Online.Count -lt 1) {                
 #Test Path
 $DirGood    = @()
 $DirBad     = @()
-foreach ($Dir in $Online) {                                     #see if you can see the C:\
+foreach ($Dir in $Online) {                                                                                                     #see if you can see the C:\
     "Testing path access"
     if (Test-Path "\\$($Dir)\c$" -ErrorAction SilentlyContinue) {
         $DirGood = $DirGood + $Dir
     } else {
         $DirBad  = $DirBad  + $Dir
     }
-}                                                              #display the results
+}                                                                                                                               #display the results
 Write-Count -ObjectDescription 'inaccessible folders' -Object $DirBad  -Report
 Write-Count -ObjectDescription 'accessible folders'   -Object $DirGood -Report -Positive
 if ($DirBad.Count -eq $Servers.Count -or $DirGood.Count -lt 1) {
@@ -121,12 +120,12 @@ foreach ($Good in $DirGood) {
     $DestDir = "\\$($Good)\c$\$Temp"
     $Space
     Write-Host "Copying $($CabFiles.count) files to $DestDir" -ForegroundColor Grey -BackgroundColor Black
-    try { Copy-Item -Path $CabDir -Destination $DestDir -Recurse -Force                         #let's copy files
-        try{                                                                                    #can we connect remotely?
+    try { Copy-Item -Path $CabDir -Destination $DestDir -Recurse -Force                                                         #let's copy files
+        try{                                                                                                                    #can we connect remotely?
             Write-Output "Connecting to $Good"
             Enter-PSSession $Good
             Add-Cabs
-        } catch {                                                                               #no? Can we send a remote command?
+        } catch {                                                                                                               #no? Can we send a remote command?
             Write-Host "Unable to connect to server $Good" -ForegroundColor Red
             try{
                 Write-Output "Sending command to $Good"

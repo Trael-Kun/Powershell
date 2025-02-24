@@ -23,7 +23,14 @@
 Function Write-Log {
     #https://www.sharepointdiary.com/2019/06/create-log-file-in-powershell-script.html
     [CmdletBinding()]
-    param ([Parameter(Mandatory=$true)] [string] $Message, [Parameter(Mandatory=$false)] [string] $Output, [Parameter(Mandatory=$false)] [string] $Colour)
+    param (
+        [Parameter(Mandatory=$true)] 
+        [string] $Message, 
+        [Parameter(Mandatory=$false)] 
+        [string] $Output, [
+        Parameter(Mandatory=$false)] 
+        [string] $Colour
+    )
 
     Try {        
         #Frame Log File with Current Directory and date

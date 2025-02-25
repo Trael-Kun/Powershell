@@ -39,8 +39,13 @@ function Add-Cabs {
     $CTemp = "C:\$Temp"
     $Cabs = (Get-ChildItem -Path $CTemp -Recurse -Filter *.cab) | Sort-Object -Property LastWriteTime                           #find.cab files
     
-    foreach ($Cab in $Cabs) {
-        $CabCheck = $($Cab.Name).Substring(12,9)                                                                                #this should extract the KB number
+    foreach ($Cab in $Cabs) {                                                                                                   #this should extract the KB number
+        foreach ($Kb in ($Cab.Name).Split('-')) {
+            if ($Kb -like "KB*") {
+                $CabCheck = $Kb
+                break                                                                                                           #we've got the KB, we don't need to keep looking
+            }
+        }
         if (!((Get-HotFix -Id $CabCheck -ErrorAction SilentlyContinue) -or $0x800f081es -contains $CabCheck)) {                 #this checks if the KB has already been applied
             $Space
             Write-Host "Adding $CabCheck"

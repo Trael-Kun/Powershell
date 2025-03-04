@@ -2,7 +2,7 @@ function Stop-it {
     #Stop a process from running
     param (
         [ValidateNotNullorEmpty()]
-        [string]$ProcessName = 'PowerShell'
+        [string]$ProcessName = 'Notepad'
     )
     While ($true) {
         $Process = Get-Process $ProcessName -ErrorAction SilentlyContinue

@@ -1,6 +1,29 @@
-#Checks the BIOS version of the specified PC and outputs it as a CSV file
+<#
+ Checks the BIOS version of the specified PC and outputs it as a CSV file
+ Author  Adapted by Bill 
+ Date    05/08/2021
+ 
+ Adapted from https://www.reddit.com/r/PowerShell/comments/68vucx/trying_to_get_bios_version_and_model_for_all/dh207af?utm_source=share&utm_medium=web2x&context=3
 
-# Enter current BIOS versions
+
+ Modified by Bill 13/09/2021; added log file check to end of script
+                            ; added WKS & LAP recognition to $PCname
+                            ; changed logfile name formatting 
+                            ; added opening descriptor
+ Modified by Bill 22/10/2021; added Latitude 5410
+                            ; fixed looping issue (changed from "until" to "while")
+                            ; formatting changes
+ Modified by Bill 25/10/2021; removed individual model number/BIOS Ver checks to reduce  overall script size (by a lot)
+ Modified by Bill 28/10/2021; added CAF to naming recognition (just in case)
+ Modified by Bill 15/11/2021; modified opening descriptive
+                            ; Added $VERSION variable
+ Modified by Bill 15/11/2021; Added Latitude 5420
+ Modified by Bill 15/11/2021; Added Optiplex 7090
+ Modified by Bill 24/03/2025; Did some reformatting
+
+#####################################################>
+
+# Current BIOS versions
  $HP = 'L01 v02.78'
  $Opti7040 = '1.23.0'
  $Opti7060 = '1.18.0'
@@ -22,25 +45,6 @@ $VERSION = "0.1.10"
 # Show where script is stored & file name
 $ScriptPath = $PSScriptRoot
 $ScriptName = $MyInvocation.MyCommand.Name
-
-# Adapted from https://www.reddit.com/r/PowerShell/comments/68vucx/trying_to_get_bios_version_and_model_for_all/dh207af?utm_source=share&utm_medium=web2x&context=3
-# Adapted by Bill 05/08/2021
-#
-# Modified by Bill 13/09/2021; added log file check to end of script
-#                            ; added WKS & LAP recognition to $PCname
-#                            ; changed logfile name formatting 
-#                            ; added opening descriptor
-# Modified by Bill 22/10/2021; added Latitude 5410
-#                            ; fixed looping issue (changed from "until" to "while")
-#                            ; formatting changes
-# Modified by Bill 25/10/2021; removed individual model number/BIOS Ver checks to reduce  overall script size (by a lot)
-# Modified by Bill 28/10/2021; added CAF to naming recognition (just in case)
-# Modified by Bill 15/11/2021; modified opening descriptive
-#                            ; Added $VERSION variable
-# Modified by Bill 15/11/2021; Added Latitude 5420
-# Modified by Bill 15/11/2021; Added Optiplex 7090
-
-#####################################################
 
 Write-Host "`r`n$ScriptPath\$ScriptName" -ForegroundColor Yellow
 Write-Host "`r`n Script to check BIOS version " -BackgroundColor Blue

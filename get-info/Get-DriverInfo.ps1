@@ -1,4 +1,4 @@
-# Lists the software installed on the specified PC and outputs it as a CSV file
+# Lists the drivers installed on the specified PC and outputs it as a CSV file
 ## Script info
 $VERSION = "0.2.1"
 # Show where script is stored & file name

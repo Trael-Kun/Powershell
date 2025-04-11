@@ -1,5 +1,8 @@
 #https://learn.microsoft.com/en-us/windows/win32/wmisdk/wmi-tasks--dates-and-times
 function Get-RemoteTimeWMI{
+    <#
+    Get the local time on a remote machine
+    #>
     param (
         [string]$Computer = $env:COMPUTERNAME,
         [switch]$Show,

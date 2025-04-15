@@ -1,7 +1,7 @@
 function Refresh-WebPages {
     #https://stackoverflow.com/questions/25888915/refreshing-web-page-using-powershell
     param(
-        [int]$interval = 5,
+        [int]$interval = 60,
         [string]$URL
     )
     "Refreshing IE Windows every $interval seconds."

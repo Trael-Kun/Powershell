@@ -103,13 +103,14 @@ if ($NewPwd) {
 
 #Set Attributes
 if ($null -eq $Pwd -or $Pwd -eq '') {
-  foreach ($BiosSetting in $BiosSettings) {
-      Write-Log "Setting $($BiosSetting.Attribute) to $($BiosSetting.Value)"
-      $BAI.SetAttribute(0,0,0,$BiosSetting.Attribute,$BiosSetting.Value)
-} else {
-  foreach ($BiosSetting in $BiosSettings) {
-      Write-Log "Setting $($BiosSetting.Attribute) to $($BiosSetting.Value)"
-      $BAI.SetAttribute(1,$bytes.Length,$bytes,$BiosSetting.Attribute,$BiosSetting.Value)
+    foreach ($BiosSetting in $BiosSettings) {
+        Write-Log "Setting $($BiosSetting.Attribute) to $($BiosSetting.Value)"
+        $BAI.SetAttribute(0,0,0,$BiosSetting.Attribute,$BiosSetting.Value)
+  } else {
+    foreach ($BiosSetting in $BiosSettings) {
+        Write-Log "Setting $($BiosSetting.Attribute) to $($BiosSetting.Value)"
+        $BAI.SetAttribute(1,$bytes.Length,$bytes,$BiosSetting.Attribute,$BiosSetting.Value)
+    }
 }
 
 Write-EndScript

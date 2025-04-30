@@ -1,10 +1,11 @@
 <#
     .DESCRIPTION
-     Configure Dell BIOS settings
+     Configure Dell BIOS settings using WMI
+     Will only affect post-2018 machines
      
     .NOTES
-     Bill wrote this (https://github.com/Trael-Kun/Powershell)
-     29/04/2025
+     Author:    Bill Wilson (https://github.com/Trael-Kun)
+     Date: 29/04/2025
 
      References;
         https://dl.dell.com/manuals/common/dell-agentless-client-manageability.pdf

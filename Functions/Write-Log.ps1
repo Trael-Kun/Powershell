@@ -1,9 +1,4 @@
 function Write-Log {
-    par
-    
-}
-
-function Write-Log {
     param (
         [Parameter(Mandatory,HelpMessage='The message to be output to file & displayed onscreen')]
         [string]$Message,

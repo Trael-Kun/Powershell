@@ -1,4 +1,8 @@
 function Write-Log {
+    <###########################################################
+     Written by Bill Wilson (https://github.com/Trael-Kun)
+     Last modified 12/05/2025
+     ##########################################################>
     param (
         [Parameter(Mandatory,HelpMessage='The message to be output to file & displayed onscreen')]
         [string]$Message,

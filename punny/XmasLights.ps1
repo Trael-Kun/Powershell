@@ -1,3 +1,8 @@
+<#
+Bill Wilson (https://github.com/Trael-Kun)
+13/05/25
+#>
+
 function Get-Light {
 if ($Bott % 2 -eq 0) {
     $Col = 'Red'

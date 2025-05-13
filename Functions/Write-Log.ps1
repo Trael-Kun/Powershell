@@ -98,7 +98,7 @@ function Write-Log {
         Write-Host $Message -ForegroundColor $Colour
         $Log =  "<![LOG[$strMessage]LOG]!>" +`
                 "<time=`"$(Get-Date -Format "HH:mm:ss.ffffff")`" " +`
-                "date=`"$(Get-Date -Format "d-M-yyyy")`" " +`
+                "date=`"$(Get-Date -Format "M-d-yyyy")`" " +`
                 "component=`"$Component`" " +`
                 "context=`"$([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)`" " +`
                 "type=`"$Type`" " +`

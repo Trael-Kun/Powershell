@@ -12,9 +12,9 @@ function Write-Log {
     .PARAMETER NoDate
      Do not display the date
     .PARAMETER Basic
-     Do not format for CMTrace.exe (format like .txt file)
+     Do not format for CCM-format (format like .txt file)
     .PARAMETER Component
-     Fill to Component field in CMTrace format
+     Fill to Component field in CCM-format
     .PARAMETER UTC
      Format time in UTC
     .PARAMETER LogFile
@@ -41,7 +41,7 @@ function Write-Log {
         [Parameter(Mandatory=$false)] #these can be set earlier in script by commenting out this parameter and declaring as a variable, e.g. $LogFile = 'C:\Temp\Log.txt', $NoDate = $true, $UTC = $false, etc.
         [switch]$NoLog,                                     #don't save a log
         [switch]$NoDate,                                    #don't add the date
-        [switch]$Basic,                                     #don't format log for CMTrace.exe
+        [switch]$Basic,                                     #don't format CCM-format
         [string]$Component = $MyInvocation.MyCommand.Name,  #for CMTrace logging (fills "Component" field)
         [string]$Source    = '',                            #for CMTrace logging (fills "Source" field)
         [switch]$UTC,                                       #time in UTC

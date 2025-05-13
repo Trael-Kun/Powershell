@@ -1,3 +1,4 @@
+$Xmas = 0
 while ($Xmas -lt 10) {
   if ($Xmas % 2 -eq 0) {
     $Col = 'Red'

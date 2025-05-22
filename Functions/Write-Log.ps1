@@ -25,7 +25,8 @@ function Write-Log {
     .EXAMPLE
      Write-Log -Message "This is information" -LogFile C:\temp\ActualLog.log -MsgType Info -Basic
      Write-Log -Message "This is a warning" -LogFile C:\temp\ActualLog.log -MsgType Warn -UTC -Basic
-     Write-Log -Message "This is an error" -LogFile C:\temp\ActualLog.log -Component 'PWSH' -MsgType Err
+     Write-Log -Message "This is an error" -LogFile C:\temp\ActualLog.log -MsgType Err -Component 'PWSH' -Source 'PowerShell.exe'
+     Write-Log -Message "This is a message"
     
     .NOTES
      Author:           Bill Wilson (https://github.com/Trael-Kun/Powershell)
@@ -38,7 +39,7 @@ function Write-Log {
     param (
         [Parameter(Mandatory,HelpMessage='The message to be output to file & displayed onscreen')]
         [string]$Message,
-        [Parameter(Mandatory=$false)] #these can be set earlier in script by commenting out this parameter and declaring as a variable, e.g. $LogFile = 'C:\Temp\Log.txt', $NoDate = $true, $UTC = $false, etc.
+        [Parameter(Mandatory=$false)] #these can be set earlier in script by commenting out the parameter and declaring as a variable, e.g. $LogFile = 'C:\Temp\Log.txt', $NoDate = $true, $UTC = $false, etc.
         [switch]$NoLog,                                     #don't save a log
         [switch]$NoDate,                                    #don't add the date
         [switch]$Basic,                                     #don't format CCM-format
@@ -60,7 +61,7 @@ function Write-Log {
     ) 
 
     switch ($MsgType) {
-        $null                   {[int]$Type = 1}
+        $null                   {[int]$Type = 0}
         {$MsgType -match "Inf"} {[int]$Type = 1}
         {$MsgType -match "War"} {[int]$Type = 2}
         {$MsgType -match "Err"} {[int]$Type = 3}
@@ -91,11 +92,12 @@ function Write-Log {
         }
     $Message        = "$Date $Time    | $strMessage" 
     }
-
+    
+    #write the message
+    Write-Host $Message -ForegroundColor $Colour
     if ($NoLog) {
-        Write-Host $Message -ForegroundColor $Colour
+        #you're done
     } elseif (!($Basic)) {
-        Write-Host $Message -ForegroundColor $Colour
         $Log =  "<![LOG[$strMessage]LOG]!>" +`
                 "<time=`"$(Get-Date -Format "HH:mm:ss.ffffff")`" " +`
                 "date=`"$(Get-Date -Format "M-d-yyyy")`" " +`
@@ -106,7 +108,6 @@ function Write-Log {
                 "file=`"$Source`">"
         Add-Content -Path $LogFile -Value $Log -Force
     } else {
-        Write-Host $Message -ForegroundColor $Colour
         Add-Content -Path $LogFile -Value $Message -Force
     }
 }

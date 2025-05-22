@@ -46,7 +46,7 @@ function Write-Log {
         [string]$Component = $MyInvocation.MyCommand.Name,  #for CMTrace logging (fills "Component" field)
         [string]$Source    = '',                            #for CMTrace logging (fills "Source" field)
         [switch]$UTC,                                       #time in UTC
-        [string]$LogFile = "$env:SystemDrive\Temp\Log.log", #where the log is stored
+        [string]$LogFile   = "$env:SystemDrive\Temp\Log.log", #where the log is stored
         [ValidateSet(
             'Information',
             'Info',

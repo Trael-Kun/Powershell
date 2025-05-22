@@ -26,7 +26,7 @@ function Write-Log {
      Write-Log -Message "This is information" -LogFile C:\temp\ActualLog.log -MsgType Info -Basic
      Write-Log -Message "This is a warning" -LogFile C:\temp\ActualLog.log -MsgType Warn -UTC -Basic
      Write-Log -Message "This is an error" -LogFile C:\temp\ActualLog.log -MsgType Err -Component 'PWSH' -Source 'PowerShell.exe'
-     Write-Log -Message "This is a message"v -Speak
+     Write-Log -Message "This is a message" -Speak
     
     .NOTES
      Author:           Bill Wilson (https://github.com/Trael-Kun/Powershell)
@@ -62,18 +62,18 @@ function Write-Log {
         )]$MsgType
     ) 
 
-    switch ($MsgType) {$null {[int]$Type = 0;`
-                             $Colour     = 'White';`
-                             $strMessage = $Message}
-        {$_ -match "Inf"}    {[int]$Type = 1;`
-                             $Colour     = 'Green';`
-                             $strMessage = "Info:    $Message"}
-        {$_ -match "War"}    {[int]$Type = 2;`
-                             $Colour     = 'Yellow';`
-                             $strMessage = "Warning: $Message"}
-        {$_ -match "Err"}    {[int]$Type = 3;`
-                             $Colour     = 'Red';`
-                             $strMessage = "Error:   $Message"}
+    switch ($MsgType) {$null {[int]$Type         = 0;`
+                             [string]$Colour     = 'White';`
+                             [string]$strMessage = $Message}
+        {$_ -match "Inf"}    {[int]$Type         = 1;`
+                             [string]$Colour     = 'Green';`
+                             [string]$strMessage = "Info:    $Message"}
+        {$_ -match "War"}    {[int]$Type         = 2;`
+                             [string]$Colour     = 'Yellow';`
+                             [string]$strMessage = "Warning: $Message"}
+        {$_ -match "Err"}    {[int]$Type         = 3;`
+                             [string]$Colour     = 'Red';`
+                             [string]$strMessage = "Error:   $Message"}
     }
 
     if (!($NoDate)) {

@@ -40,13 +40,13 @@ function Write-Log {
         [Parameter(Mandatory,HelpMessage='The message to be output to file & displayed onscreen')]
         [string]$Message,
         [Parameter(Mandatory=$false)] #these can be set earlier in script by commenting out the parameter and declaring as a variable, e.g. $LogFile = 'C:\Temp\Log.txt', $NoDate = $true, $UTC = $false, etc.
-        [switch]$NoLog,                                     #don't save a log
-        [switch]$NoDate,                                    #don't add the date
-        [switch]$Basic,                                     #don't format CCM-format
-        [string]$Component = $MyInvocation.MyCommand.Name,  #for CMTrace logging (fills "Component" field)
-        [string]$Source    = '',                            #for CMTrace logging (fills "Source" field)
-        [switch]$UTC,                                       #time in UTC
-        [string]$LogFile   = "$env:SystemDrive\Temp\Log.log", #where the log is stored
+        [switch]$NoLog,                                      #don't save a log
+        [switch]$NoDate,                                     #don't add the date
+        [switch]$Basic,                                      #don't format CCM-format
+        [string]$Component = $MyInvocation.MyCommand.Name,   #for CMTrace logging (fills "Component" field)
+        [string]$Source    = '',                             #for CMTrace logging (fills "Source" field)
+        [switch]$UTC,                                        #time in UTC
+        [string]$LogFile   = "$env:SystemDrive\Temp\Log.log",#where the log is stored
         [ValidateSet(
             'Information',
             'Info',
@@ -61,25 +61,10 @@ function Write-Log {
     ) 
 
     switch ($MsgType) {
-        $null                   {[int]$Type = 0}
-        {$MsgType -match "Inf"} {[int]$Type = 1}
-        {$MsgType -match "War"} {[int]$Type = 2}
-        {$MsgType -match "Err"} {[int]$Type = 3}
-    }
-
-    #set message type & colour
-    if ($null -eq $MsgType) {
-        $strMessage = $Message
-        $Colour  = 'White'
-    }elseif ($Type -eq 1) {
-        $strMessage = "Info:    $Message"
-        $Colour  = 'Green'
-    } elseif ($Type -eq 2) {
-        $strMessage = "Warning: $Message"
-        $Colour  = 'Yellow'
-    } elseif ($Type -eq 3) {
-        $strMessage = "Error:   $Message"
-        $Colour  = 'Red'
+        $null                   {[int]$Type = 0;$Colour = 'White' ;$strMessage = $Message}
+        {$MsgType -match "Inf"} {[int]$Type = 1;$Colour = 'Green' ;$strMessage = "Info:    $Message"}
+        {$MsgType -match "War"} {[int]$Type = 2;$Colour = 'Yellow';$strMessage = "Warning: $Message"}
+        {$MsgType -match "Err"} {[int]$Type = 3;$Colour = 'Red'   ;$strMessage = "Error:   $Message"}
     }
 
     if (!($NoDate)) {

@@ -26,12 +26,12 @@ function Write-Log {
      Write-Log -Message "This is information" -LogFile C:\temp\ActualLog.log -MsgType Info -Basic
      Write-Log -Message "This is a warning" -LogFile C:\temp\ActualLog.log -MsgType Warn -UTC -Basic
      Write-Log -Message "This is an error" -LogFile C:\temp\ActualLog.log -MsgType Err -Component 'PWSH' -Source 'PowerShell.exe'
-     Write-Log -Message "This is a message"
+     Write-Log -Message "This is a message"v -Speak
     
     .NOTES
      Author:           Bill Wilson (https://github.com/Trael-Kun/Powershell)
      Date:             28/10/24
-     Last Modified:    12/05/25
+     Last Modified:    22/05/25
      References;
         https://janikvonrotz.ch/2017/10/26/powershell-logging-in-cmtrace-format
 
@@ -43,9 +43,11 @@ function Write-Log {
         [switch]$NoLog,                                      #don't save a log
         [switch]$NoDate,                                     #don't add the date
         [switch]$Basic,                                      #don't format CCM-format
+        [switch]$UTC,                                        #time in UTC
+        [switch]$Speak,                                      #makes it talk. Don't use this.
         [string]$Component = $MyInvocation.MyCommand.Name,   #for CMTrace logging (fills "Component" field)
         [string]$Source    = '',                             #for CMTrace logging (fills "Source" field)
-        [switch]$UTC,                                        #time in UTC
+        
         [string]$LogFile   = "$env:SystemDrive\Temp\Log.log",#where the log is stored
         [ValidateSet(
             'Information',
@@ -60,11 +62,18 @@ function Write-Log {
         )]$MsgType
     ) 
 
-    switch ($MsgType) {
-        $null                   {[int]$Type = 0;$Colour = 'White' ;$strMessage = $Message}
-        {$MsgType -match "Inf"} {[int]$Type = 1;$Colour = 'Green' ;$strMessage = "Info:    $Message"}
-        {$MsgType -match "War"} {[int]$Type = 2;$Colour = 'Yellow';$strMessage = "Warning: $Message"}
-        {$MsgType -match "Err"} {[int]$Type = 3;$Colour = 'Red'   ;$strMessage = "Error:   $Message"}
+    switch ($MsgType) {$null {[int]$Type = 0;`
+                             $Colour     = 'White';`
+                             $strMessage = $Message}
+        {$_ -match "Inf"}    {[int]$Type = 1;`
+                             $Colour     = 'Green';`
+                             $strMessage = "Info:    $Message"}
+        {$_ -match "War"}    {[int]$Type = 2;`
+                             $Colour     = 'Yellow';`
+                             $strMessage = "Warning: $Message"}
+        {$_ -match "Err"}    {[int]$Type = 3;`
+                             $Colour     = 'Red';`
+                             $strMessage = "Error:   $Message"}
     }
 
     if (!($NoDate)) {
@@ -81,18 +90,25 @@ function Write-Log {
     #write the message
     Write-Host $Message -ForegroundColor $Colour
     if ($NoLog) {
-        #you're done
-    } elseif (!($Basic)) {
-        $Log =  "<![LOG[$strMessage]LOG]!>" +`
-                "<time=`"$(Get-Date -Format "HH:mm:ss.ffffff")`" " +`
-                "date=`"$(Get-Date -Format "M-d-yyyy")`" " +`
-                "component=`"$Component`" " +`
-                "context=`"$([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)`" " +`
-                "type=`"$Type`" " +`
-                "thread=`"$([Threading.Thread]::CurrentThread.ManagedThreadId)`" " +`
-                "file=`"$Source`">"
-        Add-Content -Path $LogFile -Value $Log -Force
+        #display message only, do'nt write to file
     } else {
-        Add-Content -Path $LogFile -Value $Message -Force
+        if (!($Basic)) {
+            $Log = $Message
+        } else {
+            $Log =  "<![LOG[$strMessage]LOG]!>" +`
+                    "<time=`"$(Get-Date -Format "HH:mm:ss.ffffff")`" " +`
+                    "date=`"$(Get-Date -Format "M-d-yyyy")`" " +`
+                    "component=`"$Component`" " +`
+                    "context=`"$([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)`" " +`
+                    "type=`"$Type`" " +`
+                    "thread=`"$([Threading.Thread]::CurrentThread.ManagedThreadId)`" " +`
+                    "file=`"$Source`">"
+        }
+        Out-File -FilePath $LogFile -InputObject $Log -Encoding utf8 -Append -Force
+    }
+    if ($Speak) {
+        Add-Type -AssemblyName System.Speech
+        $Speech = New-Object System.Speech.SpeechSynthesizer
+        $Speech.SpeakAsync($$strMessage)
     }
 }

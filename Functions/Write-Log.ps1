@@ -19,15 +19,14 @@ function Write-Log {
      Parameter description
     
     .EXAMPLE
-     Write-Log -Message "This is information" -LogFile C:\temp\ActualLog.log -MsgType Info -Basic
-     Write-Log -Message "This is a warning" -LogFile C:\temp\ActualLog.log -MsgType Warn -UTC -Basic
-     Write-Log -Message "This is an error" -LogFile C:\temp\ActualLog.log -MsgType Err -Component 'PWSH' -Source 'PowerShell.exe'
+     Write-Log -Message "This is information" -LogFile C:\temp\ActualLog.log -MsgType Info
+     Write-Log -Message "This is a warning" -LogFile C:\temp\ActualLog.log -MsgType Warn -UTC 
      Write-Log -Message "This is a message"
     
     .NOTES
      Author:           Bill Wilson (https://github.com/Trael-Kun/Powershell)
      Date:             28/10/24
-     Last Modified:    12/05/25
+     Last Modified:    27/05/25
      References;
         https://janikvonrotz.ch/2017/10/26/powershell-logging-in-cmtrace-format
 

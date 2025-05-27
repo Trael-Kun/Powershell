@@ -4,5 +4,5 @@ function Write-Alphabet {
         write-host $Letter
         start-sleep -Seconds 1
         $Letter = [byte]$Letter + 1
-    } until ($Letter -gt 'z')
+    } until ($Letter -gt 'Z')
 }

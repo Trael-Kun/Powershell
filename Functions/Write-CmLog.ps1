@@ -4,7 +4,6 @@ function Write-CmLog {
      Writes to a log file
     .DESCRIPTION
      Writes to a log file. That's about it. Now with added formatting options for your favorite log reader (CMTrace.exe, obvs)
-    
     .PARAMETER Message
      The Log Message
     .PARAMETER NoLog

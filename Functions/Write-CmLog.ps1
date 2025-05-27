@@ -1,4 +1,4 @@
-function Write-Log {
+function Write-CmLog {
     <#########################
     .SYNOPSIS
      Writes to a log file

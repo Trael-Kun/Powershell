@@ -43,9 +43,9 @@ function Add-Cabs {
     Write-Count -ObjectDescription '.cab files' -Object $Cabs.Count -Positive
     Write-Host ".Cab process started $CabStart" -ForegroundColor Cyan -BackgroundColor DarkCyan
     foreach ($Cab in $Cabs) {                                                                                                   #this should extract the KB number
-        Write-Progress -Activity Installing .cabs -Status $Cab.Name -PercentComplete (($CabCount/$Cabs.Count) * 100) -ParentId 1 -Id 2
-        $CabCheck = ($Cab.Split('-') | Select-String -Pattern kb*).ToString()                                                   #we've got the KB, we don't need to keep looking
         $CabCount = $CabCount++
+        Write-Progress -Activity Installing .cabs -Status $Cab.Name -PercentComplete (($CabCount/$Cabs.Count) * 100) -ParentId 1 -Id 2
+        $CabCheck = (($Cab.Name).Split('-') | Select-String -Pattern kb*).ToString()                                                   #we've got the KB, we don't need to keep looking
         if (!((Get-HotFix -Id $CabCheck -ErrorAction SilentlyContinue) -or $Fails -contains $CabCheck)) {                       #this checks if the KB has already been applied
             $Space
             Write-Host "Adding $CabCheck ($CabCount of $($Cabs.Count))"
@@ -54,7 +54,7 @@ function Add-Cabs {
             $Oops = $error[0].Exception
             if (!($Oops -in $FailedMsgs)) {                                                                                     #if it flicks a 0x800f081e error, the .cab is for a different OS
                 $Fails = $Fails + ([Pscustomobject]@{Server=$Good; KB=$CabCheck; Error=$Oops})
-                Write-Host $error[0]                                         -ForegroundColor Red  -BackgroundColor DarkRed
+                Write-Host $error[0]                                          -ForegroundColor Red  -BackgroundColor DarkRed
                 Write-Host "$Cabcheck"                                        -ForegroundColor Gray -BackgroundColor DarkRed -NoNewline
                 Write-Host " not applicable ($CabCount of $($Cabs.Count))"    -ForegroundColor Red  -BackgroundColor DarkRed
             } else {

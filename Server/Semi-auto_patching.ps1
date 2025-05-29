@@ -43,7 +43,7 @@ function Add-Cabs {
     Write-Count -ObjectDescription '.cab files' -Object $Cabs.Count -Positive
     Write-Host ".Cab process started $CabStart" -ForegroundColor Cyan -BackgroundColor DarkCyan
     foreach ($Cab in $Cabs) {                                                                                                   #this should extract the KB number
-        $CabCount = $CabCount++
+        $CabCount++
         Write-Progress -Activity Installing .cabs -Status $Cab.Name -PercentComplete (($CabCount/$Cabs.Count) * 100) -ParentId 1 -Id 2
         $CabCheck = (($Cab.Name).Split('-') | Select-String -Pattern kb*).ToString()                                                   #we've got the KB, we don't need to keep looking
         if (!((Get-HotFix -Id $CabCheck -ErrorAction SilentlyContinue) -or $Fails -contains $CabCheck)) {                       #this checks if the KB has already been applied

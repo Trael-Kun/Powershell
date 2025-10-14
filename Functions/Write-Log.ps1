@@ -37,54 +37,122 @@ function Write-Log {
         [Parameter(Mandatory=$false)] #these can be set earlier in script by commenting out the parameter and declaring as a variable, e.g. $LogFile = 'C:\Temp\Log.txt', $NoDate = $true, $UTC = $false, etc.
         [switch]$NoLog,                                      #don't save a log
         [switch]$NoDate,                                     #don't add the date
+        [switch]$Basic,                                      #don't format for CMTrace.exe
         [switch]$UTC,                                        #time in UTC
+        [switch]$Speak,                                      #speaks the message. Don't use this.
         [string]$LogFile   = "$env:SystemDrive\Temp\Log.log",#where the log is stored
+        [string]$Component = $MyInvocation.MyCommand.Name,   #for CmFormat logging (fills "Component" field)
+        [string]$Source    = "$env:SystemDrive\Temp\Log.log" #for CmFormat logging (fills "Source" field)
         [ValidateSet(
             'Information',
+            'Informatio',
+            'Informati',
+            'Informat',
+            'Informa',
+            'Inform',
+            'Infor',
             'Info',
             'Inf',
+            'In',
+            'I',
             'Warning',
+            'Warnin',
+            'Warni',
             'Warn',
             'War',
+            'Wa',
+            'W',
             'Error',
+            'Erro',
             'Err',
+            'Er',
+            'E',
             $null
-        )]$MsgType
-    ) 
+            )]$MsgType,
+        [ValidateSet(
+            'Black',
+            'DarkBlue',
+            'DarkGreen',
+            'DarkCyan',
+            'DarkRed',
+            'DarkMagenta',
+            'DarkYellow',
+            'Gray',
+            'DarkGray',
+            'Blue',
+            'Green',
+            'Cyan',
+            'Red',
+            'Magenta',
+            'Yellow',
+            'White'
+            )]$ColorOverride
+    )
+
+    if ($Speak) {
+        Add-Type -AssemblyName System.Speech
+        $Speech = New-Object System.Speech.Synthesis.SpeechSynthesizer
+    }
 
     switch ($MsgType) {
     $null {
+        [int]$Type          = 0;`
         [string]$Colour     = 'White';`
         [string]$strMessage = $Message}
-    {$_ -match "Inf"}    {
+    {$_ -like "I"}    {
+        [int]$Type          = 1;`
         [string]$Colour     = 'Green';`
-        [string]$strMessage = "Info:    $Message"}
-    {$_ -match "War"}    {
+        [string]$strMessage = 'Info:    ' + $Message}
+    {$_ -like "W*"}    {
+        [int]$Type          = 2;`
         [string]$Colour     = 'Yellow';`
-        [string]$strMessage = "Warning: $Message"}
-    {$_ -match "Err"}    {
+        [string]$strMessage = 'Warning: ' + $Message}
+    {$_ -like "E*"}    {
+        [int]$Type          = 3;`
         [string]$Colour     = 'Red';`
-        [string]$strMessage = "Error:   $Message"}
-}
+        [string]$strMessage = 'Error:   ' + $Message}
+    }
+    
+    #force color
+    if ($null -ne $ColorOverride) {
+        $Color = $ColorOverride
+    }
 
-    if (!($NoDate)) {
+    #do the writing
+    if ($NoDate) {
+        $Message        = $strMessage
+    } else {
         if ($UTC) {
-            $Time       = [DateTime]::UtcNow.ToString('HH:mm:ss.ff UTC')
+            $Time       = [DateTime]::UtcNow.ToString('HH:mm:ss UTC')
             $Date       = [DateTime]::UtcNow.ToString('yyyy-MM-dd')
         } else {
-            $Time       = Get-Date -Format 'HH:mm:ss.ff'
+            $Time       = Get-Date -Format 'HH:mm:ss'
             $Date       = Get-Date -Format 'yyyy-MM-dd'
         }
-    $Message            = "$Date $Time    | $strMessage" 
-    } else {
-        $Message        = $strMessage
+        $Message        = "$Date $Time    | $strMessage"         
     }
     
     #write the message
     Write-Host $Message -ForegroundColor $Colour
-    if ($NoLog) {
-        #you're done
+    if (-not ($NoLog)) {
+        if ($Basic) {
+            $Log = $Message
+        } else {
+            $Log = "<![LOG[$StrMessage]LOG]!>" +`
+                   "<time=`"$(Get-Date -Format "HH:mm:ss.ffffff")`" " +`
+                   "date=`"$(Get-Date -Format "M-d-yyyy")`" " +`
+                   "component=`"$Component`" " +`
+                   "context=`"$user`" " +`
+                   "type=`"$type`" " +`
+                   "thread=`"$([Threading.Thread]::CurrentThread.ManagedThreadID)`" " +`
+                   "file=`"$Source`">"
+       }
+       Out-File -FilePath $LogFile -InputObject $Log -Encoding utf8 -Append -Force
     } else {
-        Add-Content -Path $LogFile -Value $Message -Force
+        #display output but don't write to log
+    }
+
+    if ($Speak) {
+        $Speech.SpeakAsync($StrMessage)
     }
 }

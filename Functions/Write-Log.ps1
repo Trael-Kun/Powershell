@@ -26,7 +26,7 @@ function Write-Log {
     .NOTES
      Author:           Bill Wilson (https://github.com/Trael-Kun/Powershell)
      Date:             28/10/24
-     Last Modified:    27/05/25
+     Last Modified:    14/10/25
      References;
         https://janikvonrotz.ch/2017/10/26/powershell-logging-in-cmtrace-format
 
@@ -89,7 +89,7 @@ function Write-Log {
             )]$ColorOverride
     )
 
-    if ($Speak) {
+    if ($Speak) { #seriously, don't use this. It's annoying
         Add-Type -AssemblyName System.Speech
         $Speech = New-Object System.Speech.Synthesis.SpeechSynthesizer
     }

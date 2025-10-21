@@ -142,7 +142,7 @@ function Write-Log {
                    "<time=`"$(Get-Date -Format "HH:mm:ss.ffffff")`" " +`
                    "date=`"$(Get-Date -Format "M-d-yyyy")`" " +`
                    "component=`"$Component`" " +`
-                   "context=`"$user`" " +`
+                   "context=`"$([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)`" " +`
                    "type=`"$type`" " +`
                    "thread=`"$([Threading.Thread]::CurrentThread.ManagedThreadID)`" " +`
                    "file=`"$Source`">"

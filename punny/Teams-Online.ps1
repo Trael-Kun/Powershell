@@ -11,6 +11,9 @@ param(
 )
 
 function Send-Numlock {
+    param (
+        [int32]$Sec = 60
+    )
     $wshell = New-Object -ComObject wscript.shell
     $wshell.sendkeys("{NUMLOCK}{NUMLOCK}")
     Write-Host ("{0}	- Pressed NUMLOCK twice and waiting for $Sec seconds" -f $(get-date)) -ForegroundColor Green

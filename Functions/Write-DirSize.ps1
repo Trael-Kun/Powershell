@@ -15,7 +15,7 @@ function Write-DirSize {
     
     [int64] $Size = (Get-ChildItem -Path $Path -File -Recurse | Measure-Object -Property Length -Sum).Sum
     
-    $DataMeasures = @(
+    $DataMeasures = [ordered]@(
         [PSCustomObject]@{Name = 'bit';        Abbv = 'b';  Val = (1 / 8)                 }
         [PSCustomObject]@{Name = 'nybble';     Abbv = 'nb'; Val = 0.5                     }
         [PSCustomObject]@{Name = 'byte';       Abbv = 'B';  Val = 1                       }

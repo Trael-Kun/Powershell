@@ -11,11 +11,8 @@ function Write-DirSize {
         [string] $Path
     )
     
-    $DirSize = 0
-    
     [int64] $Size = (Get-ChildItem -Path $Path -File -Recurse | Measure-Object -Property Length -Sum).Sum
-    
-    $DataMeasures = [ordered]@(
+    $DataMeasures = @(
         [PSCustomObject]@{Name = 'bit';        Abbv = 'b';  Val = (1 / 8)                 }
         [PSCustomObject]@{Name = 'nybble';     Abbv = 'nb'; Val = 0.5                     }
         [PSCustomObject]@{Name = 'byte';       Abbv = 'B';  Val = 1                       }
@@ -32,15 +29,14 @@ function Write-DirSize {
     )
     [array]::reverse($DataMeasures)
 
-    while ($DirSize -lt 1) {
-        foreach ($Measure in $DataMeasures) {
-            $Global:DirSize = $Size / $Measure.Val
-            if ( $DirSize -ge 1) {
-                Write-Output "Path is $([math]::Round($DirSize,1))$($Measure.Abbv)"
-                break 
-            } else {
-                #Write-Output 'Path is impossibly huge. What are you even doing?'
-            }
+    foreach ($Measure in $DataMeasures) {
+        $Global:DirSize = $Size / $Measure.Val
+        if ($DirSize -ge 1) {
+            [string]$String = [math]::Round($DirSize,1) + $Measure.Name
+            Write-Output "Path is $String" 
         }
+    }
+    if ($DirSize -le 1) {
+        Write-Output 'Path size is impossibly huge. What are you even doing?'
     }
 }

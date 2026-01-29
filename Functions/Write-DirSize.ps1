@@ -1,6 +1,6 @@
 function Write-DirSize {
   <#
-  Writes the size of the specified directory in  human-readable format
+  Writes the size of the specified directory in a human-readable format
   Written by Bill, 28/01/2026
   References;
     https://4sysops.com/archives/do-the-math-with-powershell/
@@ -10,10 +10,10 @@ function Write-DirSize {
         [Parameter(Mandatory)]
         [string] $Path
     )
-    
-    [int64] $Size = (Get-ChildItem -Path $Path -File -Recurse | Measure-Object -Property Length -Sum).Sum
+
+    #set up measurements
     $DataMeasures = @(
-        [PSCustomObject]@{Name = 'bit';        Abbv = 'b';  Val = (1 / 8)                 }
+        [PSCustomObject]@{Name = 'bit';        Abbv = 'b';  Val = 0.125                   }
         [PSCustomObject]@{Name = 'nybble';     Abbv = 'nb'; Val = 0.5                     }
         [PSCustomObject]@{Name = 'byte';       Abbv = 'B';  Val = 1                       }
         [PSCustomObject]@{Name = 'kilobyte';   Abbv = 'KB'; Val = 1KB                     }
@@ -27,15 +27,23 @@ function Write-DirSize {
         [PSCustomObject]@{Name = 'ronnabyte';  Abbv = 'RB'; Val = ([Math]::Pow(1024,9))   }
         [PSCustomObject]@{Name = 'quettabyte'; Abbv = 'QB'; Val = ([Math]::Pow(1024,10))  }
     )
+
+    #measure the directory
+    [int64] $Size = (Get-ChildItem -Path $Path -File -Recurse | Measure-Object -Property Length -Sum).Sum
+        
+    #reverse the array so the largest measure is given (otherwise you'll get it in bits every time)
     [array]::reverse($DataMeasures)
 
+    #find the largest reasonable measure
     foreach ($Measure in $DataMeasures) {
         $Global:DirSize = $Size / $Measure.Val
         if ($DirSize -ge 1) {
             [string]$String = [math]::Round($DirSize,1) + $Measure.Name
-            Write-Output "Path is $String" 
+            Write-Output "Path is $String"
+            break
         }
     }
+    #if this hasn't worked, you theoretically have a directory larger that all of computing could possibly handle. I don't think Powershell is going to to able to figure this one out for you.
     if ($DirSize -le 1) {
         Write-Output 'Path size is impossibly huge. What are you even doing?'
     }

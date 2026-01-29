@@ -23,9 +23,9 @@ function Enable-RunOnceScript {
     $User = 'User','HKCU'
     $Machine = 'Machine','HKLM'
 
-    if ($Scope -like "*U*") {
+    if ($Scope -like "*M*") {
         $RegPath = Join-Path -Path 'HKLM:\' -ChildPath $RegPath
-    } elseif ($Scope -like "*M*") {
+    } elseif ($Scope -like "*U*") {
         $RegPath = Join-Path -Path 'HKCU:\' -ChildPath $RegPath
     }
 

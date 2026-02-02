@@ -299,7 +299,7 @@ foreach ($File in $Files) {
         catch {
             Write-Host "Download failed; " -ForegroundColor $ErrRGB -BackgroundColor $BkRGB -NoNewline
             Write-Host $FileName           -ForegroundColor $LnkRGB -BackgroundColor $BkRGB
-            $Failed += $FileName
+            $Global:Failed += $FileName
         } 
     }
     
@@ -316,7 +316,7 @@ foreach ($File in $Files) {
         Write-Host $Hash1                               -ForegroundColor $OkRGB -BackgroundColor $BkRGB
         Write-Host "Online File Hash: "                 -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
         Write-Host $Hash2                               -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
-        $HashFail += $FileName
+        $Global:HashFail += $FileName
         $Hash   = $true
     }
 
@@ -334,7 +334,7 @@ foreach ($File in $Files) {
             $Failed += $FileName
         }
     } else {
-        $Skipped += $FileName
+        $Global:Skipped += $FileName
     }
 }
 
@@ -360,3 +360,4 @@ if ($Hash) {
 Write-Host '------------------------------------------------------' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
 Write-Host 'Process Finished'                                       -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
 Write-Host '' -BackgroundColor $BkRGB
+

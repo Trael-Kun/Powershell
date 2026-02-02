@@ -204,12 +204,12 @@ $CharMap = @(
 )
 [math]::Max(0, $Host.UI.RawUI.BufferSize.Width / 2)
 #set up arrays for failed & skipped downloads
-$Fail       = $false
-$Failed     = @()
-$Skip       = $false
-$Skipped    = @()
-$Hash       = $false
-$HashFail   = @()
+$Fail            = $false
+$Global:Failed   = @()
+$Skip            = $false
+$Global:Skipped  = @()
+$Hash            = $false
+$Global:HashFail = @()
 
 #Colours
 $OkRGB      = 'Green'
@@ -287,6 +287,7 @@ foreach ($File in $Files) {
         Write-Host "$DloadCount of $FileCount excluded ; "  -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
         Write-Host $FileName                                -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
         $Skip = $true
+        $Skipped += $FileName
     } else {
         #otherwise, pull it down
         $Excl = $false
@@ -299,7 +300,7 @@ foreach ($File in $Files) {
         catch {
             Write-Host "Download failed; " -ForegroundColor $ErrRGB -BackgroundColor $BkRGB -NoNewline
             Write-Host $FileName           -ForegroundColor $LnkRGB -BackgroundColor $BkRGB
-            $Global:Failed += $FileName
+            $Failed += $FileName
         } 
     }
     
@@ -316,7 +317,7 @@ foreach ($File in $Files) {
         Write-Host $Hash1                               -ForegroundColor $OkRGB -BackgroundColor $BkRGB
         Write-Host "Online File Hash: "                 -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
         Write-Host $Hash2                               -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
-        $Global:HashFail += $FileName
+        $HashFail += $FileName
         $Hash   = $true
     }
 
@@ -360,4 +361,3 @@ if ($Hash) {
 Write-Host '------------------------------------------------------' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
 Write-Host 'Process Finished'                                       -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
 Write-Host '' -BackgroundColor $BkRGB
-

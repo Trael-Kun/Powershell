@@ -22,11 +22,11 @@ param(
     [Parameter(Mandatory)]
     [string]$Destination,   #where the files will be saved to
     [Parameter(Mandatory)]
-    [string]$Filter,         #which files to download. Accepts wildcards
+    [string[]]$Filters,     #which files to download. Accepts wildcards
     [Parameter(Mandatory=$false)]
     [string]$Exclude,       #if file name has this, don't download it
     [Parameter(Mandatory=$false)]
-    [switch]$Raw           #disables filename conversion (UTF-8 to plaintext, see $CharMap)
+    [switch]$Raw            #disables filename conversion (UTF-8 to plaintext, see $CharMap)
 )
 
 $CharMap = @(
@@ -202,7 +202,7 @@ $CharMap = @(
     [pscustomobject]@{Character='þ';    Windows='%FE';  UTF='%C3%BE'    }
     [pscustomobject]@{Character='ÿ';    Windows='%FF';  UTF='%C3%BF'    }
 )
-[Math]::Max(0, $Host.UI.RawUI.BufferSize.Width / 2)
+[math]::Max(0, $Host.UI.RawUI.BufferSize.Width / 2)
 #set up arrays for failed & skipped downloads
 $Fail       = $false
 $Failed     = @()
@@ -223,7 +223,7 @@ $BkRGB      = 'Black'
 #check destination
 Write-Host 'Destination directory is ' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
 Write-Host $Destination                -ForegroundColor $DirRGB -BackgroundColor $BkRGB
-if (!(Test-Path $Destination)) {
+if (-not(Test-Path $Destination)) {
     #create destination if it doesn't exist
     Write-Host $Destination                 -ForegroundColor $DirRGB -BackgroundColor $BkRGB -NoNewline
     Write-Host " not found. Creating path." -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
@@ -236,7 +236,9 @@ if (!(Test-Path $Destination)) {
 #get all of the relevant links
 Write-Host 'Fetching list of links from '   -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
 Write-Host $URL                             -ForegroundColor $UrlRGB -BackgroundColor $BkRGB
-$Files      = ((Invoke-WebRequest -Uri $Url).Links | Where-Object innerHTML -like $Filter).href
+foreach ($Filter in $Filters) {
+    $Files      += ((Invoke-WebRequest -Uri $Url -UseBasicParsing).Links | Where-Object innerHTML -like $Filter).href
+}
 Write-Host '' -BackgroundColor $BkRGB
 
 #set progress variables
@@ -279,7 +281,7 @@ foreach ($File in $Files) {
     }
     #set variable for output file path
     $Dest = "$Destination\$FileName"
-    if ($FileName -notlike "*$Exclude*") {
+    if ($FileName -like "*$Exclude*") {
         #if it has an exclude, don't grab it
         $Excl = $true
         Write-Host "$DloadCount of $FileCount excluded ; "  -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
@@ -292,7 +294,7 @@ foreach ($File in $Files) {
         Write-Host "$DloadCount of $FileCount downloading "   -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
         Write-Host $FileName                                  -ForegroundColor $LnkRGB -BackgroundColor $BkRGB
         try { 
-            Start-BitsTransfer -Source "$URL/$File" -Destination "$Dest" -Displayname "Downloading $FileName"
+            Start-BitsTransfer -Source "$URL/$File" -Destination "$Dest" -Displayname "Downloading $FileName" -TransferType Download
         }
         catch {
             Write-Host "Download failed; " -ForegroundColor $ErrRGB -BackgroundColor $BkRGB -NoNewline

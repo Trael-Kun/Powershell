@@ -1,5 +1,6 @@
 function Get-DadJoke {
     #Adapted from https://community.spiceworks.com/t/get-dadjoke/975466
+    # Written by Bill https://github.com/Trael-Kun/
     param (
     [Parameter(HelpMessage="Activates retell mode - used jokes are no longer ignored")]
     [switch]$EyeRollMode,
@@ -48,7 +49,7 @@ function Get-DadJoke {
         #Question&Answer
         $SplitJoke = $DadJoke.split("\?")
         Write-Host "$($SplitJoke[0])?" -ForegroundColor $QAQ
-        Write-Host "$($SplitJoke[1].Trim())" -ForegroundColor $QAA
+        Write-Host "$($SplitJoke[1].Trim())" -ForegroundColor $QAA -NoNewline
         Write-Output ''
     } else {
         #One-Liner

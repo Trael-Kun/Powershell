@@ -24,9 +24,7 @@ function Get-RoundedHour {
             'Minute',       #Minute
             'Min',          #Minute
             'Second',       #Second
-            'Sec',          #Second
-            'Millisecond',  #Millisecond
-            'Mil'           #Millisecond
+            'Sec'           #Second
             )]
         [string]$RoundTo = "Hr",
         [ValidateSet(
@@ -46,46 +44,67 @@ function Get-RoundedHour {
         [string]$Format
     )
 
-    #Round the time
-    $RoundedDate = if ($Date.Minute -ge 30 -or $Up) {
-        if ($RoundTo -match "H*") {                            #Round Up: add an hour & set min/sec/millisec to 0
+    function Set-RoundingUp {
+        if ($RoundTo -match "H*") {             #Round Up: add an hour & set min/sec/millisec to 0
             $Date.AddHours(1).AddMinutes(-$Date.Minute).AddSeconds(-$Date.Second).AddMilliseconds(-$Date.Millisecond)
-        } elseif ($RoundTo -Match "Min*") {                          #Round Up: add a minute & set sec/millisec to 0
+        } elseif ($RoundTo -Match "Min*") {     #Round Up: add a minute & set sec/millisec to 0
             $Date.AddMinutes(1).AddSeconds(-$Date.Second).AddMilliseconds(-$Date.Millisecond)
-        } elseif ($RoundTo -Match "S*") {                            #Round Up: add a second & set millisec to 0
+        } elseif ($RoundTo -Match "S*") {       #Round Up: add a second & set millisec to 0
             $Date.AddSeconds(1).AddMilliseconds(-$Date.Millisecond)
-        } elseif ($RoundTo -match "Mil*") {                          #Round Up: add a millisec
-            $Date.AddMilliseconds(1)
         }
-    } elseif ($Date.Minute -lt 30 -or $Dn) {    
-        if ($RoundTo -match "H*") {                               #Round Dn: set min/sec/millisec to 0
+    }
+
+    function Set-RoundingDn {
+        if ($RoundTo -match "H*") {                                     #Round Dn: set min/sec/millisec to 0
             $Date.AddMinutes(-$Date.Minute).AddSeconds(-$Date.Second).AddMilliseconds(-$Date.Millisecond)
         } elseif ($RoundTo -Match "Min*") {                             #Round Dn: set sec/millisec to 0
             $Date.AddSeconds(-$Date.Second).AddMilliseconds(-$Date.Millisecond)
         } elseif ($RoundTo -Match "S*" -or $RoundTo -match "Mil*") {    #Round Dn: set millisec to 0
             $Date.AddMilliseconds(-$Date.Millisecond)
-        } elseif ($RoundTo -match "Mil*") {                             #Round Dn: do nothing 
         }
     }
 
-    #Format
-    if ($null -eq $Format) {
-        return $RoundedDate
-    } elseif ($Format -eq 'Y') {
-        return "{0:d MMM, yyyy HH:mm}" -f $RoundedDate
-    } elseif ($Format -ceq "M") {
-        return "{0:d MMM HH:mm}" -f $RoundedDate
-    } elseif ($Format -eq "D") {
-        return "{0:d HH:mm}" -f $RoundedDate
-    } elseif ($Format -ceq "H") {
-        return "{0:HH:mm}" -f $RoundedDate
-    } elseif ($Format -ceq "h") {
-        return "{0:hh:mm}" -f $RoundedDate
-    } elseif ($Format -eq "m") {
-        return "{0:hh:mm}" -f $RoundedDate
-    } elseif ($Format -eq "s") {
-        return "{0:hh:mm:ss}" -f $RoundedDate
-    } elseif ($Format -eq "f") {
-        return "{0:hh:mm:ss:fff}" -f $RoundedDate
+   ##Round the time
+    #Set units
+    if ($RoundTo -match "H*") {
+        $Rounding = $Date.Minute
+        $Unit     = 30
+    } elseif ($RoundTo -Match "Min*") {
+        $Rounding = $Date.Second
+        $Unit     = 30
+    } elseif ($RoundTo -Match "S*") {
+        $Rounding = $Date.Millisecond
+        $Unit     = 500
     }
+
+    $RoundedDate = if ($Up) {
+        Set-RoundingUp
+    } elseif ($Dn) {
+        Set-RoundingDn
+    } elseif ($Rounding -ge $Unit) {
+        Set-RoundingUp
+    } elseif ($Rounding -lt $Unit) {
+        Set-RoundingDn
+    }
+
+    #Format
+    if ($Format -eq 'Y') {          #to year
+        $RoundedDate = "{0:d MMM, yyyy HH:mm}" -f $RoundedDate
+    } elseif ($Format -ceq "M") {   #to month
+        $RoundedDate =  "{0:d MMM HH:mm}" -f $RoundedDate
+    } elseif ($Format -eq "D") {    #to day
+        $RoundedDate = "{0:d HH:mm}" -f $RoundedDate
+    } elseif ($Format -ceq "H") {   #24 hour time
+        $RoundedDate = "{0:HH:mm}" -f $RoundedDate
+    } elseif ($Format -ceq "h") {   #12 hour time
+        $RoundedDate = "{0:hh:mm}" -f $RoundedDate
+    } elseif ($Format -eq "m") {    #to minute
+        $RoundedDate = "{0:hh:mm}" -f $RoundedDate
+    } elseif ($Format -eq "s") {    #to second
+        $RoundedDate =  "{0:hh:mm:ss}" -f $RoundedDate
+    } elseif ($Format -eq "f") {    #to millisecond
+        $RoundedDate = "{0:hh:mm:ss:fff}" -f $RoundedDate
+    }
+
+    return $RoundedDate
 }

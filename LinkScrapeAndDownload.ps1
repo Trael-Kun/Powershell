@@ -405,6 +405,7 @@ $UrlIndex = 0
 
 foreach ($Url in $Urls) {
     $UrlIndex++
+
     #open progress bar
     Write-Progress `
         -Id 0 `
@@ -438,14 +439,8 @@ foreach ($Url in $Urls) {
 
     Write-Host "Fetching links"
     $Response = Invoke-WebRequest -Uri $Url -UseBasicParsing
-    $Hrefs = [regex]::Matches(
-        $Response.Content,
-        'href\s*=\s*["'']([^"'']+)["'']',
-        'IgnoreCase'
-    ) | ForEach-Object { $_.Groups[1].Value }
-    $Hrefs = $Hrefs | Where-Object {
-        $_ -and $_ -notmatch '^(mailto:|javascript:|#)'
-    }
+    $Hrefs = [regex]::Matches($Response.Content,'href\s*=\s*["'']([^"'']+)["'']','IgnoreCase') | ForEach-Object { $_.Groups[1].Value }
+    $Hrefs = $Hrefs | Where-Object {$_ -and $_ -notmatch '^(mailto:|javascript:|#)'}
 
     #Compare filters to links, figure out which ones we need
     
@@ -527,7 +522,9 @@ foreach ($Url in $Urls) {
                 -Activity 'Downloading' `
                 -Status $FileName `
                 -PercentComplete (($FileIndex / $FileCount) * 100)
-                _Download-File $Source $DestFilePath
+
+            _Download-File $Source $DestFilePath
+
             #perform hash check
             Write-Host "Checking file hash"
             Write-Progress `
@@ -536,6 +533,7 @@ foreach ($Url in $Urls) {
             -Activity 'Hashcheck' `
             -Status $FileName `
             -PercentComplete (($FileIndex / $FileCount) * 100)
+
             _Validate-Download $Source $DestFilePath
             if ($HashToUse) {
                 if ((_Get-SHA256 $DestFilePath).ToLower() -ne $HashToUse.ToLower()) {
@@ -545,10 +543,12 @@ foreach ($Url in $Urls) {
                 }
             }           
             # If we get here, the download succeeded
-            Write-Host "$FileName downloaded"   -ForegroundColor $ColGood
+            Write-Host $FileName                     -ForegroundColor $ColPath
+            Write-Host " downloaded"    -NoNewline   -ForegroundColor $ColGood
             $Success += "$Url :: $FileName"
         } catch {
-            Write-Host "$FileName failed"       -ForegroundColor $ColBad
+            Write-Host $FileName                     -ForegroundColor $ColPath
+            Write-Host " failed"        -NoNewline   -ForegroundColor $ColBad
             $Failed  += "$Url :: $FileName"
         }
     }

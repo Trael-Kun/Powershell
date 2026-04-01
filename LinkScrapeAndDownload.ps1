@@ -1,363 +1,589 @@
 <#
  .SYNOPSIS
-    Scrape for links on a page & download each linked file
+    Scrape a webpage for links & download each matching file
+
  .DESCRIPTION
-    Scrapes Webpage at $Url for links that match $Filter, then downloads them via BITS transfer.
+    Scrapes the webpage at the specified URL for links matching the supplied
+    filter patterns, then downloads each matching file. Downloads are retried
+    on failure and validated using file size and optional SHA-256 integrity
+    checking.
+
+    If the Destination parameter refers to an existing directory, a subfolder
+    is created automatically based on the source URL name.
+
+    A -DryRun mode is supported to show what actions would be taken without
+    creating directories or downloading files.
+
+ .PARAMETER Urls
+    One or more source webpages containing downloadable links.
+
+    Each URL is fetched and processed independently. When multiple URLs are
+    supplied, destination folders are resolved separately for each source.
+
+ .PARAMETER DestPath
+    Destination folder or parent directory for downloaded files.
+
+    If the specified path already exists and is a directory, a subfolder is
+    automatically created based on the source URL name.
+
+ .PARAMETER Filters
+    One or more wildcard patterns used to select downloadable files.
+
+    Only links matching at least one of the supplied patterns will be
+    considered for download.
+
+ .PARAMETER Exclude
+    Optional wildcard patterns used to exclude matching files.
+
+    If a link matches both a Filters pattern and an Exclude pattern, it is
+    skipped.
+
+ .PARAMETER ExpectedSha256
+    Optional expected SHA-256 hash value for downloaded files.
+
+    When supplied, downloaded files are validated against this hash after
+    transfer. If an existing file already matches this hash, it is skipped
+    unless the Force parameter is specified.
+
+    This parameter applies the same hash to all downloaded files and is
+    primarily intended for single-file downloads.
+
+ .PARAMETER FileHashes
+    Optional per-file SHA-256 hash mapping.
+
+    Accepts a hashtable mapping filenames to their expected SHA-256 hashes.
+    When a downloaded file matches a key in this map, its corresponding hash
+    is used for validation.
+
+    Files not present in the map are downloaded without hash validation unless
+    ExpectedSha256 is also provided.
+
+    If both FileHashes and ExpectedSha256 are specified, FileHashes takes
+    precedence for matching filenames.
+
+ .PARAMETER DryRun
+    Shows what actions would be performed without making any changes.
+
+    When enabled, no directories are created and no files are downloaded.
+
+ .PARAMETER Force
+    Forces files to be re-downloaded even if existing files appear valid.
+
+    When used with SHA-256 validation, existing files are not trusted and are
+    always replaced.
+
+ .PARAMETER Raw
+    Disables URL decoding for filenames.
+
+    When specified, filenames are used exactly as provided in the source
+    webpage without URL decoding.
+
+ .PARAMETER RetryCount
+    Number of times to retry a failed download operation.
+
+    Retries occur after the initial attempt if an error is encountered during
+    download or validation. The default value is 3.
+
  .EXAMPLE
-    PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/dracula_ks_1608_librivox -Filter *128kb.mp3 -Destination C:\Downloads\Drac
+    PS C:\Temp\Scripts> .\LinkScrapeAndDownload.ps1 `
+        -Url https://archive.blehblehbleh.com/audiobooks/bstoker_dracula `
+        -Filters *128kb.mp3 `
+        -Destination C:\Downloads\Dracula
+
+    Downloads all matching 128kb MP3 files into C:\Downloads\Dracula.
+    Existing files are overwritten unless a matching SHA-256 hash is provided.
+
  .EXAMPLE
-    PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/hitchhikers-guide-to-the-galaxy-bbcr4 -Filter *.mp3 -Destination C:\Downloads\Hitchhickers -Raw
+    PS C:\Temp\Scripts> .\LinkScrapeAndDownload.ps1 `
+        -Url https://dontpanic.biz/radio/hitchhikers `
+        -Filters *.mp3 `
+        -Destination C:\Downloads
+
+    Creates C:\Downloads\hitchhikers and downloads all MP3 files
+    into that folder.
+
  .EXAMPLE
-    PS C:\Windows\System32> .\LinkScrapeAndDownload.ps1 -URL https://archive.org/download/the-lord-of-the-rings-bbc-radio-drama -Filter "*Fellowship of*.flac" -Destination C:\Downloads\LotrBook1 -Exclude *Oliver*
+    PS C:\Temp\Scripts> .\LinkScrapeAndDownload.ps1 `
+        -Url https://download.all.the.iso.edu/seriously `
+        -Filters *.iso `
+        -Destination C:\Downloads\ISOs `
+        -RetryCount 5
+
+    Downloads all ISO files, retrying each file up to five times if failures
+    occur during transfer or validation.
+
+ .EXAMPLE
+    PS C:\Temp\Scripts> .\LinkScrapeAndDownload.ps1 `
+        -Url https://samwiseistheprotagonist.org/fantasy/lotr `
+        -Filters *.flac `
+        -Destination D:\Media `
+        -DryRun
+
+    Shows which files would be downloaded and where they would be
+    placed, without creating directories or downloading any files.
+
+ .EXAMPLE
+    PS C:\Temp\Scripts> .\LinkScrapeAndDownload.ps1 `
+        -Url https://onebigiso.net/artifacts/single-big-file `
+        -Filters *.iso `
+        -Destination D:\ISOs `
+        -Sha256 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef `
+        -Force
+
+    Re-downloads the file even if an existing file matches the supplied
+    SHA-256 hash.
+
+ .EXAMPLE
+    PS C:\Temp\Scripts> .\LinkScrapeAndDownload.ps1 `
+        -Url https://yohoho.org/music/artist/album `
+        -Filters *.flac `
+        -Destination D:\Media `
+        -FileHashes @{
+            'track01.flac' = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            'track02.flac' = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+        }
+
+    Downloads FLAC files and validates each file against its corresponding
+    SHA-256 hash when provided.
+
+ .LINK
+    https://github.com/Trael-Kun/Powershell/blob/main/LinkScrapeAndDownload.ps1
+
  .NOTES
     Author: Bill Wilson (https://github.com/Trael-Kun)
     Date:   12/12/2024
 
-    Testing in PWSH 7 failing
+    After 31/03/2026 developed with assistance from Microsoft Copilot
+
+    Help Version History:
+      1.0 (12/12/2024)
+        Initial public release.
+
+      1.1 (31/03/2026)
+        Added filename hardening to prevent path traversal and unintended subdirectory 
+        creation when saving downloaded files.
+        -------------------------------------------
+        Used Copilot to make script more efficient (removed that massive URL conversion table)
+
+      1.2 (01/04/2026)
+        Added optional per-file SHA-256 hash mapping support via the FileHashes parameter, 
+        allowing individual files to be validated against distinct expected hashes while 
+        preserving existing ExpectedSha256 behaviour.
 #>
 
-param(
-    [Parameter(Mandatory)]
-    [string]$Url,           #URL of the page for the download links
-    [Parameter(Mandatory)]
-    [string]$Destination,   #where the files will be saved to
-    [Parameter(Mandatory)]
-    [string[]]$Filters,     #which files to download. Accepts wildcards
-    [Parameter(Mandatory=$false)]
-    [string]$Exclude,       #if file name has this, don't download it
-    [Parameter(Mandatory=$false)]
-    [switch]$Raw            #disables filename conversion (UTF-8 to plaintext, see $CharMap)
-)
+# Requires -Version 2.0
+Set-StrictMode -Version 2.0
+$ErrorActionPreference = 'Stop'
 
-$CharMap = @(
-    [pscustomobject]@{Character=' ';    Windows='%20';  UTF='%20'       }
-    [pscustomobject]@{Character='	';  Windows='%09';  UTF='%09%C3%BC' }
-    [pscustomobject]@{Character='!';    Windows='%21';  UTF='%21'       }
-    [pscustomobject]@{Character='"';    Windows='%22';  UTF='%22'       }
-    [pscustomobject]@{Character='#';    Windows='%23';  UTF='%23'       }
-    [pscustomobject]@{Character='$';    Windows='%24';  UTF='%24'       }
-    [pscustomobject]@{Character='%';    Windows='%25';  UTF='%25'       }
-    [pscustomobject]@{Character='&';    Windows='%26';  UTF='%26'       }
-    [pscustomobject]@{Character="'";    Windows='%27';  UTF='%27'       }
-    [pscustomobject]@{Character='(';    Windows='%28';  UTF='%28'       }
-    [pscustomobject]@{Character=')';    Windows='%29';  UTF='%29'       }
-    [pscustomobject]@{Character='*';    Windows='%2A';  UTF='%2A'       }
-    [pscustomobject]@{Character='+';    Windows='%2B';  UTF='%2B'       }
-    [pscustomobject]@{Character=',';    Windows='%2C';  UTF='%2C'       }
-    [pscustomobject]@{Character='-';    Windows='%2D';  UTF='%2D'       }
-    [pscustomobject]@{Character='.';    Windows='%2E';  UTF='%2E'       }
-    [pscustomobject]@{Character='/';    Windows='%2F';  UTF='%2F'       }
-    [pscustomobject]@{Character='0';    Windows='%30';  UTF='%30'       }
-    [pscustomobject]@{Character='1';    Windows='%31';  UTF='%31'       }
-    [pscustomobject]@{Character='2';    Windows='%32';  UTF='%32'       }
-    [pscustomobject]@{Character='3';    Windows='%33';  UTF='%33'       }
-    [pscustomobject]@{Character='4';    Windows='%34';  UTF='%34'       }
-    [pscustomobject]@{Character='5';    Windows='%35';  UTF='%35'       }
-    [pscustomobject]@{Character='6';    Windows='%36';  UTF='%36'       }
-    [pscustomobject]@{Character='7';    Windows='%37';  UTF='%37'       }
-    [pscustomobject]@{Character='8';    Windows='%38';  UTF='%38'       }
-    [pscustomobject]@{Character='9';    Windows='%39';  UTF='%39'       }
-    [pscustomobject]@{Character=':';    Windows='%3A';  UTF='%3A'       }
-    [pscustomobject]@{Character=';';    Windows='%3B';  UTF='%3B'       }
-    [pscustomobject]@{Character='<';    Windows='%3C';  UTF='%3C'       }
-    [pscustomobject]@{Character='=';    Windows='%3D';  UTF='%3D'       }
-    [pscustomobject]@{Character='>';    Windows='%3E';  UTF='%3E'       }
-    [pscustomobject]@{Character='?';    Windows='%3F';  UTF='%3F'       }
-    [pscustomobject]@{Character='@';    Windows='%40';  UTF='%40'       }
-    [pscustomobject]@{Character='[';    Windows='%5B';  UTF='%5B'       }
-    [pscustomobject]@{Character='\';    Windows='%5C';  UTF='%5C'       }
-    [pscustomobject]@{Character=']';    Windows='%5D';  UTF='%5D'       }
-    [pscustomobject]@{Character='^';    Windows='%5E';  UTF='%5E'       }
-    [pscustomobject]@{Character='_';    Windows='%5F';  UTF='%5F'       }
-    [pscustomobject]@{Character='`';    Windows='%60';  UTF='%60'       }
-    [pscustomobject]@{Character='{';    Windows='%7B';  UTF='%7B'       }
-    [pscustomobject]@{Character='|';    Windows='%7C';  UTF='%7C'       }
-    [pscustomobject]@{Character='}';    Windows='%7D';  UTF='%7D'       }
-    [pscustomobject]@{Character='~';    Windows='%7E';  UTF='%7E'       }
-    [pscustomobject]@{Character='€';    Windows='%80';  UTF='%E2%82%AC' }
-    [pscustomobject]@{Character='';    Windows='%81';  UTF='%81'       }
-    [pscustomobject]@{Character="‚";    Windows='%82';  UTF='%E2%80%9A' }
-    [pscustomobject]@{Character='ƒ';    Windows='%83';  UTF='%C6%92'    }
-    [pscustomobject]@{Character='„';    Windows='%84';  UTF='%E2%80%9E' }
-    [pscustomobject]@{Character='…';    Windows='%85';  UTF='%E2%80%A6' }
-    [pscustomobject]@{Character='†';    Windows='%86';  UTF='%E2%80%A0' }
-    [pscustomobject]@{Character='‡';    Windows='%87';  UTF='%E2%80%A1' }
-    [pscustomobject]@{Character='ˆ';    Windows='%88';  UTF='%CB%86'    }
-    [pscustomobject]@{Character='‰';    Windows='%89';  UTF='%E2%80%B0' }
-    [pscustomobject]@{Character='Š';    Windows='%8A';  UTF='%C5%A0'    }
-    [pscustomobject]@{Character='‹';    Windows='%8B';  UTF='%E2%80%B9' }
-    [pscustomobject]@{Character='Œ';    Windows='%8C';  UTF='%C5%92'    }
-    [pscustomobject]@{Character='';    Windows='%8D';  UTF='%C5%8D'    }
-    [pscustomobject]@{Character='Ž';    Windows='%8E';  UTF='%C5%BD'    }
-    [pscustomobject]@{Character='';    Windows='%8F';  UTF='%8F'       }
-    [pscustomobject]@{Character='';    Windows='%90';  UTF='%C2%90'    }
-    [pscustomobject]@{Character="‘";    Windows='%91';  UTF='%E2%80%98' }
-    [pscustomobject]@{Character="’";    Windows='%92';  UTF='%E2%80%99' }
-    [pscustomobject]@{Character='“';    Windows='%93';  UTF='%E2%80%9C' }
-    [pscustomobject]@{Character='”';    Windows='%94';  UTF='%E2%80%9D' }
-    [pscustomobject]@{Character='•';    Windows='%95';  UTF='%E2%80%A2' }
-    [pscustomobject]@{Character='–';    Windows='%96';  UTF='%E2%80%93' }
-    [pscustomobject]@{Character='—';    Windows='%97';  UTF='%E2%80%94' }
-    [pscustomobject]@{Character='˜';    Windows='%98';  UTF='%CB%9C'    }
-    [pscustomobject]@{Character='™';    Windows='%99';  UTF='%E2%84'    }
-    [pscustomobject]@{Character='š';    Windows='%9A';  UTF='%C5%A1'    }
-    [pscustomobject]@{Character='›';    Windows='%9B';  UTF='%E2%80'    }
-    [pscustomobject]@{Character='œ';    Windows='%9C';  UTF='%C5%93'    }
-    [pscustomobject]@{Character='';    Windows='%9D';  UTF='%9D'       }
-    [pscustomobject]@{Character='ž';    Windows='%9E';  UTF='%C5%BE'    }
-    [pscustomobject]@{Character='Ÿ';    Windows='%9F';  UTF='%C5%B8'    }
-    [pscustomobject]@{Character='¡';    Windows='%A1';  UTF='%C2%A1'    }
-    [pscustomobject]@{Character='¢';    Windows='%A2';  UTF='%C2%A2'    }
-    [pscustomobject]@{Character='£';    Windows='%A3';  UTF='%C2%A3'    }
-    [pscustomobject]@{Character='¤';    Windows='%A4';  UTF='%C2%A4'    }
-    [pscustomobject]@{Character='¥';    Windows='%A5';  UTF='%C2%A5'    }
-    [pscustomobject]@{Character='¦';    Windows='%A6';  UTF='%C2%A6'    }
-    [pscustomobject]@{Character='§';    Windows='%A7';  UTF='%C2%A7'    }
-    [pscustomobject]@{Character='¨';    Windows='%A8';  UTF='%C2%A8'    }
-    [pscustomobject]@{Character='©';    Windows='%A9';  UTF='%C2%A9'    }
-    [pscustomobject]@{Character='ª';    Windows='%AA';  UTF='%C2%AA'    }
-    [pscustomobject]@{Character='«';    Windows='%AB';  UTF='%C2%AB'    }
-    [pscustomobject]@{Character='¬';    Windows='%AC';  UTF='%C2%AC'    }
-    [pscustomobject]@{Character='­';     Windows='%AD';  UTF='%C2%AD'    }
-    [pscustomobject]@{Character='®';    Windows='%AE';  UTF='%C2%AE'    }
-    [pscustomobject]@{Character='¯';    Windows='%AF';  UTF='%C2%AF'    }
-    [pscustomobject]@{Character='°';    Windows='%B0';  UTF='%C2%B0'    }
-    [pscustomobject]@{Character='±';    Windows='%B1';  UTF='%C2%B1'    }
-    [pscustomobject]@{Character='²';    Windows='%B2';  UTF='%C2%B2'    }
-    [pscustomobject]@{Character='³';    Windows='%B3';  UTF='%C2%B3'    }
-    [pscustomobject]@{Character='´';    Windows='%B4';  UTF='%C2%B4'    }
-    [pscustomobject]@{Character='µ';    Windows='%B5';  UTF='%C2%B5'    }
-    [pscustomobject]@{Character='¶';    Windows='%B6';  UTF='%C2%B6'    }
-    [pscustomobject]@{Character='·';    Windows='%B7';  UTF='%C2%B7'    }
-    [pscustomobject]@{Character='¸';    Windows='%B8';  UTF='%C2%B8'    }
-    [pscustomobject]@{Character='¹';    Windows='%B9';  UTF='%C2%B9'    }
-    [pscustomobject]@{Character='º';    Windows='%BA';  UTF='%C2%BA'    }
-    [pscustomobject]@{Character='»';    Windows='%BB';  UTF='%C2%BB'    }
-    [pscustomobject]@{Character='¼';    Windows='%BC';  UTF='%C2%BC'    }
-    [pscustomobject]@{Character='½';    Windows='%BD';  UTF='%C2%BD'    }
-    [pscustomobject]@{Character='¾';    Windows='%BE';  UTF='%C2%BE'    }
-    [pscustomobject]@{Character='¿';    Windows='%BF';  UTF='%C2%BF'    }
-    [pscustomobject]@{Character='À';    Windows='%C0';  UTF='%C3%80'    }
-    [pscustomobject]@{Character='Á';    Windows='%C1';  UTF='%C3%81'    }
-    [pscustomobject]@{Character='Â';    Windows='%C2';  UTF='%C3%82'    }
-    [pscustomobject]@{Character='Ã';    Windows='%C3';  UTF='%C3%83'    }
-    [pscustomobject]@{Character='Ä';    Windows='%C4';  UTF='%C3%84'    }
-    [pscustomobject]@{Character='Å';    Windows='%C5';  UTF='%C3%85'    }
-    [pscustomobject]@{Character='Æ';    Windows='%C6';  UTF='%C3%86'    }
-    [pscustomobject]@{Character='Ç';    Windows='%C7';  UTF='%C3%87'    }
-    [pscustomobject]@{Character='È';    Windows='%C8';  UTF='%C3%88'    }
-    [pscustomobject]@{Character='É';    Windows='%C9';  UTF='%C3%89'    }
-    [pscustomobject]@{Character='Ê';    Windows='%CA';  UTF='%C3%8A'    }
-    [pscustomobject]@{Character='Ë';    Windows='%CB';  UTF='%C3%8B'    }
-    [pscustomobject]@{Character='Ì';    Windows='%CC';  UTF='%C3%8C'    }
-    [pscustomobject]@{Character='Í';    Windows='%CD';  UTF='%C3%8D'    }
-    [pscustomobject]@{Character='Î';    Windows='%CE';  UTF='%C3%8E'    }
-    [pscustomobject]@{Character='Ï';    Windows='%CF';  UTF='%C3%8F'    }
-    [pscustomobject]@{Character='Ð';    Windows='%D0';  UTF='%C3%90'    }
-    [pscustomobject]@{Character='Ñ';    Windows='%D1';  UTF='%C3%91'    }
-    [pscustomobject]@{Character='Ò';    Windows='%D2';  UTF='%C3%92'    }
-    [pscustomobject]@{Character='Ó';    Windows='%D3';  UTF='%C3%93'    }
-    [pscustomobject]@{Character='Ô';    Windows='%D4';  UTF='%C3%94'    }
-    [pscustomobject]@{Character='Õ';    Windows='%D5';  UTF='%C3%95'    }
-    [pscustomobject]@{Character='Ö';    Windows='%D6';  UTF='%C3%96'    }
-    [pscustomobject]@{Character='×';    Windows='%D7';  UTF='%C3%97'    }
-    [pscustomobject]@{Character='Ø';    Windows='%D8';  UTF='%C3%98'    }
-    [pscustomobject]@{Character='Ù';    Windows='%D9';  UTF='%C3%99'    }
-    [pscustomobject]@{Character='Ú';    Windows='%DA';  UTF='%C3%9A'    }
-    [pscustomobject]@{Character='Û';    Windows='%DB';  UTF='%C3%9B'    }
-    [pscustomobject]@{Character='Ü';    Windows='%DC';  UTF='%C3%9C'    }
-    [pscustomobject]@{Character='Ý';    Windows='%DD';  UTF='%C3%9D'    }
-    [pscustomobject]@{Character='Þ';    Windows='%DE';  UTF='%C3%9E'    }
-    [pscustomobject]@{Character='ß';    Windows='%DF';  UTF='%C3%9F'    }
-    [pscustomobject]@{Character='à';    Windows='%E0';  UTF='%C3%A0'    }
-    [pscustomobject]@{Character='á';    Windows='%E1';  UTF='%C3%A1'    }
-    [pscustomobject]@{Character='â';    Windows='%E2';  UTF='%C3%A2'    }
-    [pscustomobject]@{Character='ã';    Windows='%E3';  UTF='%C3%A3'    }
-    [pscustomobject]@{Character='ä';    Windows='%E4';  UTF='%C3%A4'    }
-    [pscustomobject]@{Character='å';    Windows='%E5';  UTF='%C3%A5'    }
-    [pscustomobject]@{Character='æ';    Windows='%E6';  UTF='%C3%A6'    }
-    [pscustomobject]@{Character='ç';    Windows='%E7';  UTF='%C3%A7'    }
-    [pscustomobject]@{Character='è';    Windows='%E8';  UTF='%C3%A8'    }
-    [pscustomobject]@{Character='é';    Windows='%E9';  UTF='%C3%A9'    }
-    [pscustomobject]@{Character='ê';    Windows='%EA';  UTF='%C3%AA'    }
-    [pscustomobject]@{Character='ë';    Windows='%EB';  UTF='%C3%AB'    }
-    [pscustomobject]@{Character='ì';    Windows='%EC';  UTF='%C3%AC'    }
-    [pscustomobject]@{Character='í';    Windows='%ED';  UTF='%C3%AD'    }
-    [pscustomobject]@{Character='î';    Windows='%EE';  UTF='%C3%AE'    }
-    [pscustomobject]@{Character='ï';    Windows='%EF';  UTF='%C3%AF'    }
-    [pscustomobject]@{Character='ð';    Windows='%F0';  UTF='%C3%B0'    }
-    [pscustomobject]@{Character='ñ';    Windows='%F1';  UTF='%C3%B1'    }
-    [pscustomobject]@{Character='ò';    Windows='%F2';  UTF='%C3%B2'    }
-    [pscustomobject]@{Character='ó';    Windows='%F3';  UTF='%C3%B3'    }
-    [pscustomobject]@{Character='ô';    Windows='%F4';  UTF='%C3%B4'    }
-    [pscustomobject]@{Character='õ';    Windows='%F5';  UTF='%C3%B5'    }
-    [pscustomobject]@{Character='ö';    Windows='%F6';  UTF='%C3%B6'    }
-    [pscustomobject]@{Character='÷';    Windows='%F7';  UTF='%C3%B7'    }
-    [pscustomobject]@{Character='ø';    Windows='%F8';  UTF='%C3%B8'    }
-    [pscustomobject]@{Character='ù';    Windows='%F9';  UTF='%C3%B9'    }
-    [pscustomobject]@{Character='ú';    Windows='%FA';  UTF='%C3%BA'    }
-    [pscustomobject]@{Character='û';    Windows='%FB';  UTF='%C3%BB'    }
-    [pscustomobject]@{Character='ü';    Windows='%FC';  UTF='%C3%BC'    }
-    [pscustomobject]@{Character='ý';    Windows='%FD';  UTF='%C3%BD'    }
-    [pscustomobject]@{Character='þ';    Windows='%FE';  UTF='%C3%BE'    }
-    [pscustomobject]@{Character='ÿ';    Windows='%FF';  UTF='%C3%BF'    }
-)
-[math]::Max(0, $Host.UI.RawUI.BufferSize.Width / 2)
-#set up arrays for failed & skipped downloads
-$Fail            = $false
-$Global:Failed   = @()
-$Skip            = $false
-$Global:Skipped  = @()
-$Hash            = $false
-$Global:HashFail = @()
-
-#Colours
-$OkRGB      = 'Green'
-$TxtRGB     = 'Magenta'
-$DirRGB     = 'Yellow'
-$ErrRGB     = 'Red'
-$LnkRGB     = 'DarkGreen'
-$UrlRGB     = 'DarkCyan'
-$BkRGB      = 'Black'
-
-#check destination
-Write-Host 'Destination directory is ' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
-Write-Host $Destination                -ForegroundColor $DirRGB -BackgroundColor $BkRGB
-if (-not(Test-Path $Destination)) {
-    #create destination if it doesn't exist
-    Write-Host $Destination                 -ForegroundColor $DirRGB -BackgroundColor $BkRGB -NoNewline
-    Write-Host " not found. Creating path." -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
-    New-Item -ItemType Directory -Path (Split-Path $Destination -Parent) -Name (Split-Path $Destination -Leaf) -Force -ErrorAction Stop | Out-Null
-    Write-Host $Destination                 -ForegroundColor $DirRGB -BackgroundColor $BkRGB -NoNewline
-    Write-Host " created"                   -ForegroundColor $OkRGB  -BackgroundColor $BkRGB
-    Write-Host '' -BackgroundColor $BkRGB
-}
-
-#get all of the relevant links
-Write-Host 'Fetching list of links from '   -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
-Write-Host $URL                             -ForegroundColor $UrlRGB -BackgroundColor $BkRGB
-foreach ($Filter in $Filters) {
-    $Files      += ((Invoke-WebRequest -Uri $Url -UseBasicParsing).Links | Where-Object innerHTML -like $Filter).href
-}
-Write-Host '' -BackgroundColor $BkRGB
-
-#set progress variables
-$FileCount  = $Files.Count
-$FileProg   = 0
-$DloadCount = 0
-
-Write-Host 'Start Process'                                          -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
-Write-Host '------------------------------------------------------' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
-
-foreach ($File in $Files) {
-    $Excl = $false
-    $DloadCount = $DloadCount+1
-    Write-Progress -Activity "Downloading Files" -PercentComplete (($DloadCount/$FileCount)*100) -Id 0
-    #set FileName for output file
-    $FileName = $File
-    if ($Raw) {
-        #no processing required
-    } else {
-        $FileProg = $FileProg+1
-        Write-Progress -Activity 'Processing Filenames' -PercentComplete (($FileProg/$FileCount)*100) -Id 1 -ParentId 0
-        $CharProg = 0
-        $CharCount = $CharMap.Count
-        foreach ($Char in $CharMap) {
-            #if the name contains UTF-8 or Windows-1252 character mapping, replace with corresponding character
-            $Utf8       = $Char.UTF
-            $Win1252    = $Char.Windows
-            $Character  = $Char.Character
-            #increase progress counter
-            $CharProg   = $CharProg+1
-            Write-Progress -Activity 'Formatting Filename' -PercentComplete (($CharProg/$CharCount)*100) -Id 2 -ParentId 1
-            if ($File -like "*$($Char.UTF)*") {
-                Write-Progress -Activity "Replacing `"$Utf8`" with `"$Character`"" -Id 3 -ParentId 2 -Completed
-                $FileName = $Filename.replace($Utf8,$Character)
-            } elseif ($File -like "*$($Char.Windows)*") {
-                Write-Progress -Activity "Replacing `"$Win1252`" with `"$($Char.Character)`"" -Id 3 -ParentId 2 -Completed
-                $FileName = $Filename.replace($Win1252,$Character)
-            }
-        }      
+try {
+    if (-not $Host.UI.RawUI -or
+        -not $Host.UI.RawUI.BufferSize -or
+        -not $Host.UI.RawUI.CursorPosition) {
+        $ProgressPreference = 'SilentlyContinue'
     }
-    #set variable for output file path
-    $Dest = "$Destination\$FileName"
-    if ($FileName -like "*$Exclude*") {
-        #if it has an exclude, don't grab it
-        $Excl = $true
-        Write-Host "$DloadCount of $FileCount excluded ; "  -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
-        Write-Host $FileName                                -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
-        $Skip = $true
-        $Skipped += $FileName
-    } else {
-        #otherwise, pull it down
-        $Excl = $false
-        Write-Progress -Activity "Downloading $DloadCount of $FileCount `n" -Id 4 -ParentId 0
-        Write-Host "$DloadCount of $FileCount downloading "   -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
-        Write-Host $FileName                                  -ForegroundColor $LnkRGB -BackgroundColor $BkRGB
-        try { 
-            Start-BitsTransfer -Source "$URL/$File" -Destination "$Dest" -Displayname "Downloading $FileName" -TransferType Download
+} catch {
+    $ProgressPreference = 'SilentlyContinue'
+}
+
+param(
+    [Parameter(Mandatory,
+        HelpMessage='URLs to be scraped')]
+    [Alias('Urls')]
+    [string[]]$Urls,
+
+    [Parameter(Mandatory,
+        HelpMessage='Destination path for downloaded files')]
+    [Alias('Dest')]
+    [string]$DestPath,
+
+    [Parameter(Mandatory,
+        HelpMessage='Filter for specific file types or names. Accepts wildcards')]
+    [Alias('Filter')]
+    [string[]]$Filters,
+
+    [Parameter(
+        HelpMessage='Filter to exclude specific file types or names. Accepts wildcards')]
+    [Alias('Excl')]
+    [string[]]$Exclude,
+
+    [Parameter(
+        HelpMessage='Allows for hash verification with a preexisting SHA-256 hash')]
+    [Alias('ExpectedHash')]
+    [string]$ExpectedSha256,
+
+    [Parameter(
+        HelpMessage='Allows for hash verification with a hash table of preexisting SHA-256 hashes')]
+    [hashtable]$FileHashes,
+
+    [Parameter(
+        HelpMessage='Runs the script without creating files or folders. Allows checking that parameters are correct')]
+    [Alias('WhatIf')]
+    [switch]$DryRun,
+
+    [Parameter(
+        HelpMessage='Overwrites existing files')]
+    [switch]$Force,
+
+    [Parameter(
+        HelpMessage='Disables name reformatting')]
+    [switch]$Raw,
+
+    [Parameter(
+        HelpMessage='Number of additional times the script will attempt a failed download. Defaults to 3')]
+    [Alias('Retries')]
+    [int]$RetryCount = 3
+)
+
+########################################################################
+## Private Functions (Helpers), formalwear only
+########################################################################
+function _Decode-UrlString {
+    <#
+     .SYNOPSIS
+        Creates a human-readable string from a URL (i.e. gets rid of the %20) 
+    #>
+    param(
+        [Parameter(
+            HelpMessage='Text to decode')]    
+        [string]$Text
+    )
+    try {
+        Add-Type -AssemblyName System.Web -ErrorAction Stop
+        [System.Web.HttpUtility]::UrlDecode($Text)
+    }
+    catch {
+        [System.Uri]::UnescapeDataString($Text)
+    }
+}
+
+function _Invoke-WithRetry {
+    <#
+     .SYNOPSIS
+        Execute an operation and retry it on failure.
+    #>
+    param(
+        [Parameter(
+            HelpMessage='The script block to run')]
+        [scriptblock]$Action,
+        [Parameter(
+            HelpMessage='Number of additional attempts')]
+        [int]$MaxRetries
+    )
+
+    $Attempt = 0
+    while ($true) {
+        try { #run the script block
+            & $Action
+            return
         }
         catch {
-            Write-Host "Download failed; " -ForegroundColor $ErrRGB -BackgroundColor $BkRGB -NoNewline
-            Write-Host $FileName           -ForegroundColor $LnkRGB -BackgroundColor $BkRGB
-            $Failed += $FileName
-        } 
-    }
-    
-    $FileRaw    = Invoke-WebRequest -Uri "$URL/$File"
-    $Hash1      = (Get-FileHash -InputStream $FileRaw.RawContentStream -Algorithm SHA256).Hash
-    $Hash2      = (Get-FileHash -Path $Dest).Hash
-
-    if ($Hash1 -eq $Hash2) {
-        Write-Host $FileName                            -ForegroundColor $LnkRGB -BackgroundColor $BkRGB -NoNewline
-        Write-Host " is authentic."                     -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
-    } else { 
-        Write-Host "File may have been tampered with!" 
-        Write-Host "Online File Hash: "                 -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
-        Write-Host $Hash1                               -ForegroundColor $OkRGB -BackgroundColor $BkRGB
-        Write-Host "Online File Hash: "                 -ForegroundColor $TxtRGB -BackgroundColor $BkRGB -NoNewline
-        Write-Host $Hash2                               -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
-        $HashFail += $FileName
-        $Hash   = $true
-    }
-
-    #check download
-    if (!($Excl)) {
-        if (Test-Path $Dest) {
-            #download complete
-            Write-Host "Downloaded to "         -ForegroundColor $OkRGB  -BackgroundColor $BkRGB -NoNewline
-            Write-Host "$Destination\$FileName" -ForegroundColor $DirRGB -BackgroundColor $BkRGB
-        } else {
-            #download failed
-            $Fail   = $true
-            Write-Host $Dest                                   -ForegroundColor $ErrRGB -BackgroundColor $BkRGB -NoNewline
-            Write-Host ' not detected - please check download' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
-            $Failed += $FileName
+            if ($Attempt -ge $MaxRetries) { #if you've done it enough times, stop
+                throw
+            }
+            #try again
+            $Attempt++
+            Write-Warning "Retry $Attempt of $MaxRetries failed; retrying..."
         }
-    } else {
-        $Global:Skipped += $FileName
     }
 }
 
-#show failed downloads
-if ($Skip) {
-    Write-Host '' -BackgroundColor $BkRGB
-    Write-Host 'The below files were excluded;' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
+function _Download-File {
+    <#
+     .SYNOPSIS
+        Chooses download protocol
+    #>
+    param(
+        [Parameter(
+            HelpMessage='source of the download file')]
+        $Source,
+        [Parameter(
+        HelpMessage='Where the downloaded file will go to')]
+        $Destination
+    )
+    if (Get-Command Start-BitsTransfer -ErrorAction SilentlyContinue) {
+        try { #try to download with BITS
+            Write-Host "Downloading "
+            Write-Host $Source      -NoNewline -ForegroundColor $ColPath
+            Write-Host " to "       -NoNewline
+            Write-Host $Destination -NoNewline -ForegroundColor $ColPath
+            Start-BitsTransfer -Source $Source -Destination $Destination -ErrorAction Stop
+            return
+        } catch {
+        }
+    }
+    #if BITS failed, try this
+    $wc = New-Object System.Net.WebClient
+    try { 
+        $wc.DownloadFile($Source,$Destination) 
+    } finally { 
+        #clear the download
+        $wc.Dispose() 
+    }
+}
+
+function _Validate-Download {
+    <#
+     .SYNOPSIS
+        Compares the size of the downloaded file to the source file
+    #>
+    param(
+        [Parameter(
+            HelpMessage='source of the downloaded file')]
+        $Source,
+        [Parameter(
+            HelpMessage='where the downloaded file went'
+        )]
+        $Destination
+    )
+    #check the file source size
+    $Head = Invoke-WebRequest -Uri $Source -Method Head -UseBasicParsing -ErrorAction SilentlyContinue
+    #compare it to the destination size
+    if ($Head -and $Head.Headers['Content-Length']) {
+        if ((Get-Item $Destination).Length -ne [int64]$Head.Headers['Content-Length']) {
+            throw "Size mismatch"
+        }
+    }
+}
+
+function _Get-SHA256 {
+    <#
+     .SYNOPSIS
+        Calculates the SHA-256 hash of file.
+     .DESCRIPTION
+        Reads the specified file from disk and computes its SHA-256 cryptographic
+        hash. The resulting hash is returned as a lowercase hexadecimal string.
+
+        This function is used to verify file integrity after download and to
+        validate existing files against known hash values.
+     .NOTES
+        uses the .NET System.Security.Cryptography.SHA256 class & reads the file 
+        as a stream to minimise memory usage.
+
+        Copilot did this bit, I'm not nearly clever enough.
+    #>
+    param(
+        [Parameter(
+            HelpMessage='Path to the file')]
+        $Path
+    )
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $s = [System.IO.File]::OpenRead($Path)
+    try {
+        ($sha.ComputeHash($s) | ForEach-Object { $_.ToString('x2') }) -join ''
+    } finally {
+        #clean up
+        $s.Dispose()
+        $sha.Dispose()
+    }
+}
+
+########################################################################
+## Variables
+########################################################################
+
+# Reporting collections
+$Success   = @()
+$Skipped   = @()
+$Failed    = @()
+$HashFail  = @()
+
+# Text colours
+$ColGood = 'Green'
+$ColWarn = 'Yellow'
+$ColBad  = 'Red'
+$ColPath = 'Blue'
+$ColUrl  = 'Cyan'
+$ColText = 'White'
+
+########################################################################
+## Main loop
+########################################################################
+
+Write-Host 'Starting script'    -ForegroundColor $ColText
+
+$UrlIndex = 0
+
+foreach ($Url in $Urls) {
+    $UrlIndex++
+    #open progress bar
+    Write-Progress `
+        -Id 0 `
+        -Activity 'Scraping URLs' `
+        -Status "Scanning $Url" `
+        -PercentComplete (($UrlIndex / $Urls.Count) * 100)
+
+    Write-Host "Scraping "                  -ForegroundColor $ColText
+    Write-Host $Url             -NoNewline  -ForegroundColor $ColUrl
+
+    #Check if the destination exists
+    $ResolvedDest = $DestPath
+    if (Test-Path $ResolvedDest -PathType Container) {
+        $Name = (_Decode-UrlString (($Url -replace '[\?#].*$','').TrimEnd('/') -split '/' | Select-Object -Last 1))
+        $Name = $Name -replace '[<>:"/\\|?*]', '_'
+        $ResolvedDest = Join-Path $ResolvedDest $Name
+    }
+    #If not, create it.
+    if (-not (Test-Path $ResolvedDest) -and -not $DryRun) {
+        Write-Host "Creating path "             -ForegroundColor $ColText
+        Write-Host $ResolvedDest    -NoNewline  -ForegroundColor $ColWarn
+        New-Item -ItemType Directory -Path $ResolvedDest -Force | Out-Null
+    }
+
+    #Get the webpage
+    Write-Progress `
+        -Id 1 `
+        -ParentId 0 `
+        -Activity 'Fetching Links' `
+        -Status $Name
+
+    Write-Host "Fetching links"
+    $Response = Invoke-WebRequest -Uri $Url -UseBasicParsing
+    $Hrefs = [regex]::Matches(
+        $Response.Content,
+        'href\s*=\s*["'']([^"'']+)["'']',
+        'IgnoreCase'
+    ) | ForEach-Object { $_.Groups[1].Value }
+    $Hrefs = $Hrefs | Where-Object {
+        $_ -and $_ -notmatch '^(mailto:|javascript:|#)'
+    }
+
+    #Compare filters to links, figure out which ones we need
+    
+    $Files = @()
+    $FilterIndex = 0
+
+    foreach ($Filter in $Filters) {
+        $FilterIndex ++
+
+        Write-Progress `
+        -Id 1 `
+        -ParentId 0 `
+        -Activity 'Filtering' `
+        -Status $Filter `
+        -PercentComplete (($FilterIndex / $Filters.Count) * 100)
+
+        $Files += $Hrefs | Where-Object { $_ -like $Filter }
+    }
+
+    #don't double-up on file names
+    Write-Host $Files.Count                 -NoNewline -ForegroundColor $ColGood
+    Write-Host " file links. "              -NoNewline -ForegroundColor $ColText
+    $Files = $Files | Sort-Object -Unique
+    Write-Host $($Files.Count)              -NoNewline -ForegroundColor $ColGood
+    Write-Host " unique values found"       -NoNewline -ForegroundColor $ColText
+
+    $FileCount = $Files.Count
+    $FileIndex = 0
+    foreach ($File in $Files) {
+        $FileIndex++
+
+        #generate file name
+        $DecodedName = if ($Raw) { 
+            $File 
+        } else { 
+            _Decode-UrlString $File 
+        }
+        $FileName     = [System.IO.Path]::GetFileName($DecodedName)
+        $DestFilePath = Join-Path $ResolvedDest $FileName
+        $Source       = ([System.Uri]::new([System.Uri]$Url, $File)).AbsoluteUri
+        
+        #get hash values
+        $PerFileHash = $null
+        if ($FileHashes -and $FileHashes.ContainsKey($FileName)) {
+            $PerFileHash = $FileHashes[$FileName]
+        }
+        $HashToUse = if ($PerFileHash) { 
+            $PerFileHash 
+        } else { 
+            $ExpectedSha256 
+        }
+        if (-not $Force -and $HashToUse -and (Test-Path $DestFilePath)) {
+            if ((_Get-SHA256 $DestFilePath).ToLower() -eq $HashToUse.ToLower()) {
+                Write-Host "Skipping $FileName" -ForegroundColor $ColWarn
+                $Skipped += "$Url :: $FileName"
+                continue
+            }
+        }
+
+        #if it's a dry run, we should be good
+        if ($DryRun) {
+            Write-Host "Skipping $FileName" -ForegroundColor $ColWarn
+            $Skipped += "$Url :: $FileName"
+            continue
+        }
+
+        #otherwise it's time to download
+        _Invoke-WithRetry -MaxRetries $RetryCount -Action {
+            #if the file exists, blat it
+            if (Test-Path $DestFilePath) {
+                Write-Host "Removing local $FileName" -ForegroundColor $ColWarn
+                Remove-Item $DestFilePath -Force
+            }
+            #Download the file
+            Write-Host "Downloading $FileName" -ForegroundColor $ColGood
+            Write-Progress `
+                -Id 1 `
+                -ParentId 0 `
+                -Activity 'Downloading' `
+                -Status $FileName `
+                -PercentComplete (($FileIndex / $FileCount) * 100)
+                _Download-File $Source $DestFilePath
+            #perform hash check
+            Write-Host "Checking file hash"
+            Write-Progress `
+            -Id 1 `
+            -ParentId 0 `
+            -Activity 'Hashcheck' `
+            -Status $FileName `
+            -PercentComplete (($FileIndex / $FileCount) * 100)
+            _Validate-Download $Source $DestFilePath
+            if ($HashToUse) {
+                if ((_Get-SHA256 $DestFilePath).ToLower() -ne $HashToUse.ToLower()) {
+                    $HashFail += "$Url :: $FileName"
+                    Write-Warning -Message "SHA-256 mismatch" -ErrorAction Continue
+                    throw "SHA-256 mismatch"
+                }
+            }           
+            # If we get here, the download succeeded
+            Write-Host "$FileName downloaded"   -ForegroundColor $ColGood
+            $Success += "$Url :: $FileName"
+        } catch {
+            Write-Host "$FileName failed"       -ForegroundColor $ColBad
+            $Failed  += "$Url :: $FileName"
+        }
+    }
+    #close Download bar
+    Write-Progress `
+        -Id 1 `
+        -Completed
+}
+#close progress bar
+Write-Progress `
+    -Id 0 `
+    -Completed
+
+########################################################################
+## Summary
+########################################################################
+Write-Host "`n============= Summary =============" -ForegroundColor Magenta
+if ($Success) {
+    Write-Host "Successful downloads:"          -ForegroundColor $ColGood       -BackgroundColor Dark$ColGood
+    $Success
+}
+if ($Skipped) {
+    Write-Host "Excluded files:"                -ForegroundColor $ColWarn       -BackgroundColor Dark$ColWarn
     $Skipped
-    Write-Host '' -BackgroundColor $BkRGB
 }
-if ($Fail) {
-    Write-Host '' -BackgroundColor $BkRGB
-    Write-Host 'The below files have failed;'   -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
+if ($Failed) {
+    Write-Host "Failed downloads:"              -ForegroundColor $ColBad        -BackgroundColor Dark$ColBad
     $Failed
-    Write-Host '' -BackgroundColor $BkRGB
 }
-if ($Hash) {
-    Write-Host '' -BackgroundColor $BkRGB
-    Write-Host 'The below files failed hash check;'   -ForegroundColor $ErrRGB -BackgroundColor $BkRGB
+if ($HashFail) {
+    Write-Host "Hash verification failures:"    -ForegroundColor Dark$ColBad    -BackgroundColor $ColBad
     $HashFail
-    Write-Host '' -BackgroundColor $BkRGB
 }
-Write-Host '------------------------------------------------------' -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
-Write-Host 'Process Finished'                                       -ForegroundColor $TxtRGB -BackgroundColor $BkRGB
-Write-Host '' -BackgroundColor $BkRGB
+
+#we're done
+Write-Host "`nAll URLs processed."
+
+# END SCRIPT

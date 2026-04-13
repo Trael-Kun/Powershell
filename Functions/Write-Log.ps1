@@ -42,7 +42,7 @@ function Write-Log {
         [switch]$Speak,                                      #speaks the message. Don't use this.
         [string]$LogFile   = "$env:SystemDrive\Temp\Log.log",#where the log is stored
         [string]$Component = $MyInvocation.MyCommand.Name,   #for CmFormat logging (fills "Component" field)
-        [string]$Source    = "$env:SystemDrive\Temp\Log.log" #for CmFormat logging (fills "Source" field)
+        [string]$Source    = "$env:SystemDrive\Temp\Log.log", #for CmFormat logging (fills "Source" field)
         [ValidateSet(
             'Information',
             'Informatio',
@@ -97,19 +97,19 @@ function Write-Log {
     switch ($MsgType) {
     $null {
         [int]$Type          = 0;`
-        [string]$Colour     = 'White';`
+        [string]$Color     = 'White';`
         [string]$strMessage = $Message}
     {$_ -like "I"}    {
         [int]$Type          = 1;`
-        [string]$Colour     = 'Green';`
+        [string]$Color     = 'Green';`
         [string]$strMessage = 'Info:    ' + $Message}
     {$_ -like "W*"}    {
         [int]$Type          = 2;`
-        [string]$Colour     = 'Yellow';`
+        [string]$Color     = 'Yellow';`
         [string]$strMessage = 'Warning: ' + $Message}
     {$_ -like "E*"}    {
         [int]$Type          = 3;`
-        [string]$Colour     = 'Red';`
+        [string]$Color     = 'Red';`
         [string]$strMessage = 'Error:   ' + $Message}
     }
     
@@ -133,7 +133,7 @@ function Write-Log {
     }
     
     #write the message
-    Write-Host $Message -ForegroundColor $Colour
+    Write-Host $Message -ForegroundColor $Color
     if (-not ($NoLog)) {
         if ($Basic) {
             $Log = $Message
